@@ -553,7 +553,8 @@ function knobSvg(key) {
 
 function setKnob(el, v) {
   if (!el) return;
-  el.querySelector('.kg').setAttribute('transform', `rotate(${(-135 + (v / +el.dataset.max) * 270).toFixed(1)} 32 32)`);
+  const frac = v / +el.dataset.max;      // full sweep; the dead zones at each end of the unit's knobs are in the hardware
+  el.querySelector('.kg').setAttribute('transform', `rotate(${(-135 + frac * 270).toFixed(1)} 32 32)`);
   el.setAttribute('aria-valuenow', v);
 }
 
