@@ -89,6 +89,7 @@
     select { -webkit-appearance:none; appearance:none; padding-right:32px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b9b3a5' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; }
     .ctl select { padding-right:26px; background-position:right 9px center; }
     .lock { position:absolute; top:-11px; right:12px; background:#1b1a18; border:0; padding:0 8px; color:var(--ink); font-size:12px; font-family:inherit; cursor:pointer; }
+    .syncbtn { right:62px; }
     .lock[aria-pressed="true"] { color:var(--amber); font-weight:600; }
     .lock:focus-visible { outline:2px solid var(--amber); }
     .favs { margin-top:16px; }
@@ -246,6 +247,31 @@ let currentActivePatch = {};
   type: 'range' (0..max), 'switch' (0/1) or 'tri' (0..2).
   Most knobs top out at 120, not 127. Switches only accept 0 or 1.
 */
+let chordNotes = [];   // semitone offsets above the lowest key, from the chord slots in the dump
+const CHORD_TYPES = [['major triad', [0,4,7]], ['minor triad', [0,3,7]], ['diminished triad', [0,3,6]], ['augmented triad', [0,4,8]],
+  ['suspended 4th', [0,5,7]], ['suspended 2nd', [0,2,7]], ['major 7th', [0,4,7,11]], ['dominant 7th', [0,4,7,10]], ['minor 7th', [0,3,7,10]],
+  ['half-diminished 7th', [0,3,6,10]], ['diminished 7th', [0,3,6,9]], ['major 6th', [0,4,7,9]], ['minor 6th', [0,3,7,9]],
+  ['major add 9', [0,2,4,7]], ['minor add 9', [0,2,3,7]], ['power chord', [0,7]], ['octave', [0]]];
+function describeChord(offs) {               // name the shape from its intervals; the root note itself depends on which keys you hold
+  if (!offs.length) return '';
+  const pcs = [...new Set(offs.map(x => x % 12))].sort((a, b) => a - b);
+  const key = a => a.join(',');
+  for (const [name, iv] of CHORD_TYPES) for (const r of pcs) {
+    if (key(pcs.map(x => (x - r + 12) % 12).sort((a, b) => a - b)) !== key(iv)) continue;
+    const bass = (12 - r) % 12;
+    const inv = bass === 0 ? 'root position' : iv.length === 2 ? '' : [3, 4].includes(bass) ? 'first inversion' : [5, 6, 7, 8].includes(bass) ? 'second inversion' : 'third inversion';
+    return name + (inv ? ', ' + inv : '');
+  }
+  return '';
+}
+function chordLabel() { return chordNotes.length ? 'Chord ' + chordNotes.join('\u00b7') : 'Chord'; }
+function updateChordLabel() {
+  const sel = $('input-unison_voices'), o = sel && sel.querySelector(`option[value="${CHORD}"]`);
+  if (!o) return;
+  o.textContent = chordLabel();
+  const d = describeChord(chordNotes);
+  sel.title = chordNotes.length ? `Chord notes above the lowest key: ${chordNotes.join(', ')} semitones` + (d ? ` (${d})` : '') : '';
+}
 const CHORD = 11;      // voice-count setting meaning unison chord mode (the dump and CC 113 use 10 for it)
 const PARAMS = [
   // group,           key,                label,              cc,  type,    max, init
@@ -375,7 +401,7 @@ function buildDashboard() {
     sect.className = 'sect';
     const GFX = { 'Filter envelope': 'env-filter', 'Amp envelope': 'env-amp', 'Filter': 'gfx-filter', 'LFO': 'gfx-lfo' };
     const gid = GFX[g];
-    sect.innerHTML = `<h2>${g}</h2><button type="button" class="lock" aria-pressed="false" onclick="toggleLock('${g}', this)">Lock</button>` + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
+    sect.innerHTML = `<h2>${g}</h2><button type="button" class="lock" aria-pressed="false" onclick="toggleLock('${g}', this)">Lock</button>` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
     if (g === 'Unison') {
       sect.querySelector('.ctls').classList.add('uni');    }
     const box = sect.querySelector('.ctls'), sws = sect.querySelector('.sws'), later = [];
@@ -444,7 +470,7 @@ function updateParam(key, value) {
   const p = PARAM_BY_KEY[key];
   const v = Math.max(0, Math.min(p.max, parseInt(value)));
   currentActivePatch[key] = v;
-  if (p.type === 'steps') syncControls();
+  if (p.type === 'steps' || p.type === 'select') syncControls();     // keep the dropdown showing a value set from code
   refreshCombos();
   const disp = $('val-' + key);
   if (disp) disp.innerText = v;
@@ -468,6 +494,7 @@ function syncControls() {
     const disp = $('val-' + key);
     if (disp) disp.innerText = v;
   }
+  updateChordLabel();
 }
 
 function drawEnvelopesOnly() {
@@ -714,7 +741,7 @@ function populatePortSelector() {
 let synthModel = 'p5';
 function voiceOptions(v) {
   return Array.from({ length: STEPS.unison_voices.to }, (_, k) => `<option value="${k + 1}"${k + 1 === v ? ' selected' : ''}>${k + 1} voice${k ? 's' : ''}</option>`).join('') +
-    `<option value="${CHORD}"${v === CHORD ? ' selected' : ''}>Chord</option>`;
+    `<option value="${CHORD}"${v === CHORD ? ' selected' : ''}>${chordLabel()}</option>`;
 }
 
 function stepButtons(key, v) {
@@ -947,16 +974,30 @@ function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and prog
 
 const PARAM_BY_CC = {};
 for (const k in PARAM_BY_KEY) PARAM_BY_CC[PARAM_BY_KEY[k].cc] = PARAM_BY_KEY[k];
-let unisonRefreshTimer = null;
-function refreshUnisonFromSynth() {          // the synth doesn't send its voice count when Unison is switched on, so ask for the patch and take just the unison fields
-  if (!sysexOk || !midiOutput || pendingRead || lastDumpId === null) return;
+let unisonRefreshTimer = null, quietManual = false;
+function syncUnison() {                      // read just the unison fields (voices, chord, detune) from the synth
+  if (!sysexOk) return alert('SysEx permission was not granted. Reload the page and click Allow when Chrome asks.');
+  if (!requirePort()) return;
+  if (pendingRead) return;
+  quietManual = true;
+  refreshUnisonFromSynth(true);
+}
+function refreshUnisonFromSynth(now) {          // the synth doesn't send its voice count when Unison is switched on, so ask for the patch and take just the unison fields
+  if (!sysexOk || !midiOutput || pendingRead) return;
   clearTimeout(unisonRefreshTimer);
   unisonRefreshTimer = setTimeout(() => {
     if (pendingRead) return;
     quietRefresh = true;
-    pendingRead = setTimeout(() => { pendingRead = null; quietRefresh = false; }, 2000);
-    try { midiOutput.send([0xF0, 0x01, lastDumpId, 0x06, 0xF7]); } catch (e) { pendingRead = null; quietRefresh = false; }
-  }, 300);
+    pendingRead = setTimeout(() => {
+      pendingRead = null; quietRefresh = false;
+      if (quietManual) setStatus('No reply from the Prophet, so the unison settings were not read.');
+      quietManual = false;
+    }, 2500);
+    const ids = lastDumpId !== null ? [lastDumpId] : [0x32, 0x33, 0x31, 0x34, 0x30, 0x35];   // before the first Read, try the usual device IDs
+    ids.forEach((id, i) => setTimeout(() => {
+      if (pendingRead && quietRefresh && midiOutput) { try { midiOutput.send([0xF0, 0x01, id, 0x06, 0xF7]); } catch (e) {} }
+    }, i * 80));
+  }, now ? 0 : 300);
 }
 function followSynthCC(d) {                  // a knob or button moved on the Prophet: show it here without sending it back
   if ((d[0] & 0xF0) !== 0xB0 || !$('follow-synth').checked) return;
@@ -965,7 +1006,11 @@ function followSynthCC(d) {                  // a knob or button moved on the Pr
   const v = p.type === 'switch' ? (raw ? 1 : 0) : p.key === 'unison_voices' ? (raw === 10 ? CHORD : Math.max(1, Math.min(STEPS.unison_voices.to, raw + 1))) : Math.min(p.max, raw);
   if (currentActivePatch[p.key] === v) { if (p.key === 'unison' && v) refreshUnisonFromSynth(); return; }
   quiet = true;
-  try { updateParam(p.key, v); syncControls(); } finally { quiet = false; }
+  try {
+    updateParam(p.key, v);
+    if (p.key === 'unison' && v && currentActivePatch.unison_voices < 1) currentActivePatch.unison_voices = 1;   // a new unison starts on one voice
+    syncControls();
+  } finally { quiet = false; }
   if (p.key === 'unison' && v) refreshUnisonFromSynth();
 }
 
@@ -1037,8 +1082,11 @@ function finishSysex(b) {
       currentActivePatch.unison = vals[52] ? 1 : 0;
       currentActivePatch.unison_voices = vals[53] === 10 ? CHORD : Math.max(1, Math.min(STEPS.unison_voices.to, vals[53] + 1));
       currentActivePatch.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
+      chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
       syncControls(); refreshCombos();
+      if (quietManual) setStatus(currentActivePatch.unison_voices === CHORD ? `Unison read from the Prophet: chord (${chordNotes.join(', ')}${describeChord(chordNotes) ? ': ' + describeChord(chordNotes) : ''}), detune ${currentActivePatch.unison_detune + 1}.` : `Unison read from the Prophet: ${currentActivePatch.unison_voices} voice${currentActivePatch.unison_voices > 1 ? 's' : ''}, detune ${currentActivePatch.unison_detune + 1}.`);
     }
+    quietManual = false;
     return;
   }
   if (vals.length < NRPN_MAP.length) return setStatus(`Reply was too short (${vals.length} values), so I ignored it.`);
@@ -1076,6 +1124,7 @@ function finishSysex(b) {
 
   pushHistory();
   currentActivePatch = next;
+  chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
   syncSlidersToUI();
   perfKnown = true;
   const nameBytes = vals.slice(65, 85);
@@ -1085,7 +1134,7 @@ function finishSysex(b) {
   setStatus(oddSwitches > 3
     ? 'Patch read, but several switches look wrong. Open the dump below and compare it with the panel.'
     : 'Patch read from the Prophet.' + (next.unison && next.unison_voices === CHORD
-        ? ` Unison is in chord mode (${vals.slice(55, 65).filter(x => x !== 0x7F).length} note chord).` : '') +
+        ? ` Unison is in chord mode (${chordNotes.length} note chord${describeChord(chordNotes) ? ': ' + describeChord(chordNotes) : ''}).` : '') +
       ' Try Mutate, or Back to return to the previous patch.');
 }
 

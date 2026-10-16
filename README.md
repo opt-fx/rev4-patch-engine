@@ -22,7 +22,7 @@ A free, browser-based random patch generator and editor for the Sequential Proph
 3. Press **Test note** to check the connection.
 4. **Generate** makes a new random patch. **Mutate** nudges the current one by the chosen amount. **Back** undoes up to 20 steps.
 5. Every knob and button sends to the synth as you move it.
-6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too (untick "Follow the synth's knobs and buttons" to stop that). After changing program on the synth, press Read from synth again to load the new patch. Once you have read from the synth at least once, switching Unison on at the synth also refreshes the app's voice count, chord and detune.
+6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too (untick "Follow the synth's knobs and buttons" to stop that). After changing program on the synth, press Read from synth again to load the new patch. The synth doesn't report a chord being learned over MIDI, so after holding a chord and pressing Unison on the synth, press **Sync** in the Unison box to bring the voice count, chord and detune into the app.
 7. **Lock** on a section keeps it unchanged when you Generate or Mutate. **Keep unison** keeps your unison settings through Generate.
 8. **Save** and **Load** use small JSON files. **Favourites** are stored in your browser only.
 
@@ -33,7 +33,7 @@ Knobs: drag up or down (hold Shift for fine control), use the mouse wheel or arr
 - Controller numbers come from Sequential's published Prophet-5 MIDI Implementation (v1.4).
 - Rev (filter type), Velocity and Aftertouch routing are stored with each patch on the synth. Generate, Mutate and Reset leave them alone so they can't override your setup, and they're only sent once you've pressed their button or read from the synth.
 - When you select a program on the synth, the app shows its number (for example "113") next to the patch name, as long as the synth is sending Program Change and Bank Select.
-- Unison on/off, voice count and detune are handled. If a patch uses a unison chord, the voice count shows as **Chord**, but the chord notes themselves can't be edited here: set them on the synth by holding the keys and pressing Unison.
+- Unison on/off, voice count and detune are handled. If a patch uses a unison chord, the voice count shows as **Chord**, showing the intervals above the lowest key (for example "Chord 0·4·9") with the chord's name on hover, but the chord notes themselves can't be edited here: set them on the synth by holding the keys and pressing Unison. To clear a chord, hold a single key and press Unison on the synth, then press **Sync**.
 - **Prophet-10:** the app uses the same controller numbers and dump layout as the Prophet-5, because Sequential publishes one MIDI document for both. That hasn't been verified on a Prophet-10. If something reads or sends wrongly, please open an issue.
 - Safari and Firefox users can still look at the page, but can't connect to a synth.
 - Developed and tested on a Prophet-5 Rev 4 (OS 2.1.0) with a Blokas Midihub. Other setups should work but haven't been tried.
