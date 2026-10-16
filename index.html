@@ -42,8 +42,8 @@
 
     #dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:28px 18px; margin-top:28px; }
     @media (max-width:760px) { #dashboard-grid { grid-template-columns:1fr; } }
-    .sect { position:relative; border:1px solid var(--line); border-radius:6px; padding:20px 16px 14px; background-color:rgba(0,0,0,.2); background-image:linear-gradient(135deg,rgba(255,255,255,.035) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,0) 65%,rgba(255,255,255,.02) 100%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8  0 0 0 0 .8  0 0 0 0 .82  0 0 0 .9 -.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E"); background-size:auto,180px 180px; }
-    .sect h2 { position:absolute; top:-10px; left:12px; margin:0; padding:0 8px; background:#1b1a18; color:var(--amber); font-size:14px; font-weight:600; }
+    .sect { position:relative; border:1.5px solid #b9b5ab; border-radius:10px; padding:20px 16px 22px; background-color:rgba(0,0,0,.2); background-image:linear-gradient(135deg,rgba(255,255,255,.035) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,0) 65%,rgba(255,255,255,.02) 100%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8  0 0 0 0 .8  0 0 0 0 .82  0 0 0 .9 -.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E"); background-size:auto,180px 180px; }
+    .sect h2 { position:absolute; top:-12px; left:12px; margin:0; padding:0 8px; background:#1b1a18; color:var(--amber); font-size:14px; font-weight:600; }
     .ctls { display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:14px 16px; }
     .row { display:flex; justify-content:space-between; font-size:12px; color:var(--ink); margin-bottom:5px; }
     .row b { color:var(--cream); font-weight:500; font-variant-numeric:tabular-nums; }
@@ -58,7 +58,7 @@
 
     .namebar { display:flex; align-items:center; gap:10px; margin-top:18px; }
     .namebar label { font-size:12px; color:var(--ink); }
-    #patch-name { flex:1; max-width:340px; background:#121110; color:var(--cream); border:1px solid #4a4640; border-radius:5px; padding:8px 10px; font-size:16px; font-family:inherit; }
+    #patch-name { flex:1; min-width:0; max-width:340px; background:#121110; color:var(--cream); border:1px solid #4a4640; border-radius:5px; padding:8px 10px; font-size:16px; font-family:inherit; }
     #patch-name:focus-visible { outline:2px solid var(--amber); }
     .sws { display:grid; grid-template-columns:repeat(auto-fit,minmax(70px,1fr)); gap:14px 8px; margin-top:16px; padding-top:6px; }
     .sws:empty { display:none; }
@@ -78,7 +78,7 @@
     #raw-log { margin-top:10px; font-size:12px; color:var(--ink); }
     #raw-log summary { cursor:pointer; }
     #raw-pre { user-select:text; -webkit-user-select:text; max-height:220px; overflow:auto; margin:8px 0 0; padding:10px; background:#121110; border:1px solid var(--line); border-radius:5px; font-size:11px; color:#9d978a; }
-    .env { width:100%; height:auto; display:block; margin-bottom:12px; background:#121110; border:1px solid var(--line); border-radius:4px; }
+    .env { width:100%; height:auto; display:block; margin-bottom:18px; background:#121110; border:1px solid #7a766c; border-radius:4px; }
     .env-line { fill:none; stroke:var(--amber); stroke-width:1.2; stroke-linejoin:round; }
     .env-fill { fill:rgba(232,163,61,.14); stroke:none; }
     .ctl { padding:3px 5px; margin:-3px -5px; border-radius:4px; }
@@ -88,7 +88,7 @@
     .steps { display:flex; flex-wrap:wrap; gap:6px; }
     select { -webkit-appearance:none; appearance:none; padding-right:32px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b9b3a5' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; }
     .ctl select { padding-right:26px; background-position:right 9px center; }
-    .lock { position:absolute; top:-11px; right:12px; background:#1b1a18; border:0; padding:0 8px; color:var(--ink); font-size:12px; font-family:inherit; cursor:pointer; }
+    .lock { position:absolute; top:-13px; right:12px; background:#1b1a18; border:0; padding:0 8px; color:var(--ink); font-size:12px; font-family:inherit; cursor:pointer; }
     .syncbtn { right:62px; }
     .lock[aria-pressed="true"] { color:var(--amber); font-weight:600; }
     .lock:focus-visible { outline:2px solid var(--amber); }
@@ -103,7 +103,8 @@
     .chip .chipx { color:var(--ink); padding:5px 8px; border-left:1px solid #3a3733; }
     .chip button:focus-visible { outline:2px solid var(--amber); outline-offset:-2px; }
     .ctl.kc { display:flex; flex-direction:column; align-items:center; text-align:center; }
-    .knob { width:64px; height:64px; border-radius:50%; cursor:ns-resize; touch-action:none; }
+    .lock + .ctls:not(.uni), .lock + svg.env { margin-top:10px; }     /* a little air between a section title and its first row of dials */
+    .knob { width:76px; height:76px; border-radius:50%; cursor:ns-resize; touch-action:none; }
     .knob svg { width:100%; height:100%; display:block; }
     .knob:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
     .knob .tick { stroke:#d8d2c2; stroke-width:1; }
@@ -114,6 +115,7 @@
     .btn { font-size:12px; }
     .sw span { font-size:10.5px; }
     .sw.below { flex-direction:column-reverse; }
+    .sw.below span { white-space:nowrap; }        /* keep RELEASE and its HOLD pill on one line, even on a narrow phone screen */
     .btn.hero { font-size:16px; letter-spacing:.06em; }
     .pill { font-style:normal; background:#ece6d6; color:#121110; border-radius:9px; padding:1px 6px 0; margin-left:2px; font-size:10px; letter-spacing:.03em; }
     .ctl .sw span, .ctl .row span { font-weight:700; color:var(--cream); }
@@ -238,6 +240,18 @@ let midiAccess = null;
 let midiOutput = null;
 let midiChannel = 1;
 let midiInput = null, sysexOk = false, pendingRead = null, sysexBuf = null, quietRefresh = false, lastDumpId = null;
+try { const v = localStorage.getItem('p5_dumpid'); if (v !== null && +v >= 0x30 && +v <= 0x35) lastDumpId = +v; } catch (e) {}
+const DUMP_IDS = [0x32, 0x33, 0x31, 0x34, 0x30, 0x35];
+let dumpToken = 0;
+function requestDump(gap) {                  // ask for the edit buffer; once the device ID is known, only that ID is sent unless it goes unanswered
+  const token = ++dumpToken;                  // a newer request cancels the leftover sends of an older one
+  const send = (ids, g) => ids.forEach((id, i) => setTimeout(() => {
+    if (token === dumpToken && pendingRead && midiOutput) { try { midiOutput.send([0xF0, 0x01, id, 0x06, 0xF7]); } catch (e) {} }
+  }, i * g));
+  if (lastDumpId === null) return send(DUMP_IDS, gap);
+  send([lastDumpId], gap);
+  setTimeout(() => send(DUMP_IDS.filter(x => x !== lastDumpId), gap), 1200);   // no answer to the known ID: fall back to the full list
+}
 let patchName = '', lastDump = null, perfKnown = false;
 let currentActivePatch = {};
 
@@ -412,7 +426,7 @@ function buildDashboard() {
       c.className = 'ctl';
       if (p.type === 'range') {
         c.classList.add('kc');
-        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg()}</div><div class="klabel">${p.label}</div><b class="kval" id="val-${p.key}">${v}</b>`;
+        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
       } else if (p.type === 'select') {
         c.innerHTML = `<select id="input-${p.key}" aria-label="${p.label}" onchange="updateParam('${p.key}', this.value)">${voiceOptions(v)}</select>`;
       } else if (p.type === 'steps') {
@@ -473,7 +487,7 @@ function updateParam(key, value) {
   if (p.type === 'steps' || p.type === 'select') syncControls();     // keep the dropdown showing a value set from code
   refreshCombos();
   const disp = $('val-' + key);
-  if (disp) disp.innerText = v;
+  if (disp) disp.innerText = displayVal(key, v);
   if (p.type === 'range') setKnob($('input-' + key), v);
   drawEnvelopes();
   sendCC(p.cc, wireValue(key, v));
@@ -492,7 +506,7 @@ function syncControls() {
     else if (p.type === 'range') setKnob(input, v);
     else input.value = v;
     const disp = $('val-' + key);
-    if (disp) disp.innerText = v;
+    if (disp) disp.innerText = displayVal(key, v);
   }
   updateChordLabel();
 }
@@ -512,13 +526,27 @@ function drawEnvelopesOnly() {
   });
 }
 
-function knobSvg() {
+const KNOB_SCALE = {                           // numbers printed around the dial, as on the panel (everything else is 0 to 10)
+  vintage: ['4', '3', '2', '1'],
+  lfo_mix: ['5', '4', '3', '2', '1', '0', '1', '2', '3', '4', '5']
+};
+const KNOB_MINOR = { vintage: 2 };              // unnumbered ticks between each pair of numbers
+const KNOB_DEFAULT = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const displayVal = (key, v) => v;               // the readout under each knob stays the synth's own value
+function knobSvg(key) {
+  const labels = KNOB_SCALE[key] || KNOB_DEFAULT, n = labels.length - 1;
   let t = '';
-  for (let i = 0; i <= 10; i++) {
-    const a = (-135 + i * 27) * Math.PI / 180, sx = Math.sin(a), sy = -Math.cos(a);
-    t += `<line class="tick" x1="${(32 + sx * 23).toFixed(1)}" y1="${(32 + sy * 23).toFixed(1)}" x2="${(32 + sx * 27).toFixed(1)}" y2="${(32 + sy * 27).toFixed(1)}"/>`;
-  }
-  return `<svg viewBox="0 0 64 64" aria-hidden="true">${t}<text x="9" y="61">0</text><text x="55" y="61">10</text>
+  labels.forEach((lab, i) => {
+    const a = (-135 + i * 270 / n) * Math.PI / 180, sx = Math.sin(a), sy = -Math.cos(a);
+    t += `<line class="tick" x1="${(32 + sx * 20.5).toFixed(1)}" y1="${(32 + sy * 20.5).toFixed(1)}" x2="${(32 + sx * 24).toFixed(1)}" y2="${(32 + sy * 24).toFixed(1)}"/>` +
+         `<text x="${(32 + sx * 28.8).toFixed(1)}" y="${(32 + sy * 28.8 + 2.3).toFixed(1)}">${lab}</text>`;
+    const m = KNOB_MINOR[key] || 0;
+    if (i < n) for (let j = 1; j <= m; j++) {       // short unnumbered ticks between this number and the next
+      const b = (-135 + (i + j / (m + 1)) * 270 / n) * Math.PI / 180, bx = Math.sin(b), by = -Math.cos(b);
+      t += `<line class="tick" x1="${(32 + bx * 21.5).toFixed(1)}" y1="${(32 + by * 21.5).toFixed(1)}" x2="${(32 + bx * 24).toFixed(1)}" y2="${(32 + by * 24).toFixed(1)}"/>`;
+    }
+  });
+  return `<svg viewBox="0 0 64 64" aria-hidden="true">${t}
     <circle cx="32" cy="32" r="15.7" fill="none" stroke="#5a5a5a" stroke-width="2.6" stroke-dasharray="1.5 1.1"/>
         <g class="kg"><circle cx="32" cy="32" r="13.6" fill="url(#kcap)" stroke="#d2d2d2" stroke-width="1.6"/><line x1="32" y1="20.3" x2="32" y2="30" stroke="#f4f4f4" stroke-width="1.8"/></g></svg>`;
 }
@@ -993,10 +1021,7 @@ function refreshUnisonFromSynth(now) {          // the synth doesn't send its vo
       if (quietManual) setStatus('No reply from the Prophet, so the unison settings were not read.');
       quietManual = false;
     }, 2500);
-    const ids = lastDumpId !== null ? [lastDumpId] : [0x32, 0x33, 0x31, 0x34, 0x30, 0x35];   // before the first Read, try the usual device IDs
-    ids.forEach((id, i) => setTimeout(() => {
-      if (pendingRead && quietRefresh && midiOutput) { try { midiOutput.send([0xF0, 0x01, id, 0x06, 0xF7]); } catch (e) {} }
-    }, i * 80));
+    requestDump(80);
   }, now ? 0 : 300);
 }
 function followSynthCC(d) {                  // a knob or button moved on the Prophet: show it here without sending it back
@@ -1074,6 +1099,7 @@ function finishSysex(b) {
   if (b[1] !== 0x01 || (b[2] < 0x30 || b[2] > 0x35) || b[3] !== 0x03) return reportOdd(b, 'unexpected header');   // edit buffer dump only
   clearTimeout(pendingRead); pendingRead = null;
   lastDumpId = b[2];
+  try { localStorage.setItem('p5_dumpid', String(b[2])); } catch (e) {}
 
   const vals = unpackDSI(b.slice(4, b.lastIndexOf(0xF7)));
   if (quietRefresh) {                       // background refresh after Unison was switched on the synth: update only the unison settings
@@ -1183,11 +1209,9 @@ function readFromSynth() {
     const heard = seenPorts.size ? 'The app did hear from: ' + [...seenPorts].join(', ') + '.' : 'The app heard nothing on any MIDI input.';
     setStatus('No reply from the Prophet. ' + heard + (lastRecv ? ' Last message: ' + lastRecv + '.' : '') + ' Check that the request can reach the Prophet (no SysEx filter on the pipe from USB A to its MIDI IN).');
   }, 3000);
-  // The Prophet identifies itself as 0x33 in the device inquiry reply, but Sequential's SysEx document
-  // lists 0x31 for dumps. Try 0x33 first, then fall back to 0x31 if there is no answer.
+  // Sequential's document says 0x31 for dumps but the unit answered to 0x32, so the first read tries every ID; after that only the known one.
   oddLog.length = 0;
-  [0x32, 0x33, 0x31, 0x34, 0x30, 0x35].forEach((id, i) =>      // harmless: devices ignore requests with the wrong ID
-    setTimeout(() => { if (pendingRead && midiOutput) midiOutput.send([0xF0, 0x01, id, 0x06, 0xF7]); }, i * 400));
+  requestDump(300);
   setStatus('Waiting for the Prophet...');
 }
 
