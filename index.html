@@ -449,7 +449,7 @@ function updateParam(key, value) {
   if (disp) disp.innerText = v;
   if (p.type === 'range') setKnob($('input-' + key), v);
   drawEnvelopes();
-  sendCC(p.cc, v);
+  sendCC(p.cc, wireValue(key, v));
   if (!quiet && key === 'unison' && v && currentActivePatch.unison_voices < 1) updateParam('unison_voices', 1);   // unison needs at least one voice
 }
 
@@ -757,6 +757,7 @@ function requirePort() {
   return true;
 }
 
+const wireValue = (key, v) => key === 'unison_voices' ? Math.max(0, v - 1) : v;   // the synth counts voices from zero
 let quiet = false;     // true while applying a change that came from the synth, so it is never sent back
 function sendCC(cc, value) {
   if (!midiOutput || quiet) return;
@@ -783,7 +784,7 @@ function transmitCurrentPatch(statusMsg) {
     const p = PARAM_BY_KEY[key];
     if (PERF_KEYS.has(key) && !perfKnown) continue;
     const v = currentActivePatch[key];
-    setTimeout(() => sendCC(p.cc, v), delay);
+    setTimeout(() => sendCC(p.cc, wireValue(key, v)), delay);
     delay += 8;
   }
   setTimeout(() => setStatus(statusMsg), delay);
@@ -948,7 +949,7 @@ function followSynthCC(d) {                  // a knob or button moved on the Pr
   if ((d[0] & 0xF0) !== 0xB0 || !$('follow-synth').checked) return;
   const p = PARAM_BY_CC[d[1]], raw = d[2];
   if (!p) return;
-  const v = p.type === 'switch' ? (raw ? 1 : 0) : Math.min(p.max, raw);
+  const v = p.type === 'switch' ? (raw ? 1 : 0) : p.key === 'unison_voices' ? Math.max(1, Math.min(STEPS.unison_voices.to, raw + 1)) : Math.min(p.max, raw);
   if (currentActivePatch[p.key] === v) return;
   quiet = true;
   try { updateParam(p.key, v); syncControls(); } finally { quiet = false; }
@@ -1027,7 +1028,8 @@ function finishSysex(b) {
       if (p.type === 'switch' && raw > 1) oddSwitches++;
       let v = raw;
       if (p.max === 120 && !UNSCALED.has(key)) v = Math.round(raw * 120 / 127);   // dump 0-127 -> CC 0-120
-      next[key] = clamp(v, 0, p.max);
+      if (key === 'unison_voices') v = raw + 1;      // the dump counts voices from zero (0 = one voice, 2 = three)
+      next[key] = clamp(v, key === 'unison_voices' ? 1 : 0, p.max);
     }
     lines.push(`${String(i).padStart(2)}  ${name}: ${raw}${key ? '' : '  (not used by this app)'}`);
   });

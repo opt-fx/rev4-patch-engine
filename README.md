@@ -35,7 +35,7 @@ Knobs: drag up or down (hold Shift for fine control), use the mouse wheel or arr
 - **Prophet-10:** the app uses the same controller numbers and dump layout as the Prophet-5, because Sequential publishes one MIDI document for both. That hasn't been verified on a Prophet-10. If something reads or sends wrongly, please open an issue.
 - Safari and Firefox users can still look at the page, but can't connect to a synth.
 - Developed and tested on a Prophet-5 Rev 4 (OS 2.1.0) with a Blokas Midihub. Other setups should work but haven't been tried.
-- Unison detune isn't listed in Sequential's documentation. It sits at byte 54 of the unpacked edit-buffer SysEx dump (unison on is byte 52, voice count byte 53), found by comparing dumps.
+- Unison detune isn't listed in Sequential's documentation. It sits at byte 54 of the unpacked edit-buffer SysEx dump (unison on is byte 52, voice count byte 53, counted from zero so 0 means one voice), found by comparing dumps.
 
 ## Troubleshooting
 
