@@ -236,7 +236,7 @@
 let midiAccess = null;
 let midiOutput = null;
 let midiChannel = 1;
-let midiInput = null, sysexOk = false, pendingRead = null, sysexBuf = null;
+let midiInput = null, sysexOk = false, pendingRead = null, sysexBuf = null, quietRefresh = false, lastDumpId = null;
 let patchName = '', lastDump = null, perfKnown = false;
 let currentActivePatch = {};
 
@@ -947,14 +947,26 @@ function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and prog
 
 const PARAM_BY_CC = {};
 for (const k in PARAM_BY_KEY) PARAM_BY_CC[PARAM_BY_KEY[k].cc] = PARAM_BY_KEY[k];
+let unisonRefreshTimer = null;
+function refreshUnisonFromSynth() {          // the synth doesn't send its voice count when Unison is switched on, so ask for the patch and take just the unison fields
+  if (!sysexOk || !midiOutput || pendingRead || lastDumpId === null) return;
+  clearTimeout(unisonRefreshTimer);
+  unisonRefreshTimer = setTimeout(() => {
+    if (pendingRead) return;
+    quietRefresh = true;
+    pendingRead = setTimeout(() => { pendingRead = null; quietRefresh = false; }, 2000);
+    try { midiOutput.send([0xF0, 0x01, lastDumpId, 0x06, 0xF7]); } catch (e) { pendingRead = null; quietRefresh = false; }
+  }, 300);
+}
 function followSynthCC(d) {                  // a knob or button moved on the Prophet: show it here without sending it back
   if ((d[0] & 0xF0) !== 0xB0 || !$('follow-synth').checked) return;
   const p = PARAM_BY_CC[d[1]], raw = d[2];
   if (!p) return;
   const v = p.type === 'switch' ? (raw ? 1 : 0) : p.key === 'unison_voices' ? (raw === 10 ? CHORD : Math.max(1, Math.min(STEPS.unison_voices.to, raw + 1))) : Math.min(p.max, raw);
-  if (currentActivePatch[p.key] === v) return;
+  if (currentActivePatch[p.key] === v) { if (p.key === 'unison' && v) refreshUnisonFromSynth(); return; }
   quiet = true;
   try { updateParam(p.key, v); syncControls(); } finally { quiet = false; }
+  if (p.key === 'unison' && v) refreshUnisonFromSynth();
 }
 
 function describeMsg(d) {
@@ -1016,8 +1028,19 @@ function finishSysex(b) {
   if (!pendingRead) return;
   if (b[1] !== 0x01 || (b[2] < 0x30 || b[2] > 0x35) || b[3] !== 0x03) return reportOdd(b, 'unexpected header');   // edit buffer dump only
   clearTimeout(pendingRead); pendingRead = null;
+  lastDumpId = b[2];
 
   const vals = unpackDSI(b.slice(4, b.lastIndexOf(0xF7)));
+  if (quietRefresh) {                       // background refresh after Unison was switched on the synth: update only the unison settings
+    quietRefresh = false;
+    if (vals.length > DETUNE_OFFSET) {
+      currentActivePatch.unison = vals[52] ? 1 : 0;
+      currentActivePatch.unison_voices = vals[53] === 10 ? CHORD : Math.max(1, Math.min(STEPS.unison_voices.to, vals[53] + 1));
+      currentActivePatch.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
+      syncControls(); refreshCombos();
+    }
+    return;
+  }
   if (vals.length < NRPN_MAP.length) return setStatus(`Reply was too short (${vals.length} values), so I ignored it.`);
 
   const next = { ...INIT_PATCH, unison_detune: currentActivePatch.unison_detune };

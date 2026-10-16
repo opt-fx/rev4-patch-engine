@@ -22,7 +22,7 @@ A free, browser-based random patch generator and editor for the Sequential Proph
 3. Press **Test note** to check the connection.
 4. **Generate** makes a new random patch. **Mutate** nudges the current one by the chosen amount. **Back** undoes up to 20 steps.
 5. Every knob and button sends to the synth as you move it.
-6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too (untick "Follow the synth's knobs and buttons" to stop that). After changing program on the synth, press Read from synth again to load the new patch.
+6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too (untick "Follow the synth's knobs and buttons" to stop that). After changing program on the synth, press Read from synth again to load the new patch. Once you have read from the synth at least once, switching Unison on at the synth also refreshes the app's voice count, chord and detune.
 7. **Lock** on a section keeps it unchanged when you Generate or Mutate. **Keep unison** keeps your unison settings through Generate.
 8. **Save** and **Load** use small JSON files. **Favourites** are stored in your browser only.
 
