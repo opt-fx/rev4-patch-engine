@@ -31,7 +31,7 @@ Knobs: drag up or down (hold Shift for fine control), use the mouse wheel or arr
 ## Notes and limits
 
 - Controller numbers come from Sequential's published Prophet-5 MIDI Implementation (v1.4).
-- Rev (filter type), Velocity and Aftertouch routing are stored with each patch on the synth. Generate, Mutate and Reset leave them alone so they can't override your setup, and they're only sent once you've pressed their button or read from the synth.
+- Rev (filter type), Velocity and Aftertouch routing are stored with each patch on the synth. Generate and Mutate leave them alone so they can't override your setup, and they're only sent once you've pressed their button or read from the synth. **Reset** is the exception: it sends them too, returning them to their init values.
 - When you select a program on the synth, the app shows its number (for example "113") next to the patch name, as long as the synth is sending Program Change and Bank Select.
 - Unison on/off, voice count and detune are handled. If a patch uses a unison chord, the voice count shows as **Chord**, showing the intervals above the lowest key (for example "Chord 0·4·9") with the chord's name on hover, but the chord notes themselves can't be edited here: set them on the synth by holding the keys and pressing Unison. To clear a chord, hold a single key and press Unison on the synth, then press **Sync**.
 - **Prophet-10:** the app uses the same controller numbers and dump layout as the Prophet-5, because Sequential publishes one MIDI document for both. That hasn't been verified on a Prophet-10. If something reads or sends wrongly, please open an issue.

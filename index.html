@@ -836,11 +836,11 @@ function testNote() {
   $('last-sent').innerText = `Sent: ch ${midiChannel}  note C3/60`;
 }
 
-function transmitCurrentPatch(statusMsg) {
+function transmitCurrentPatch(statusMsg, sendPerf) {
   let delay = 0;
   for (const key in PARAM_BY_KEY) {
     const p = PARAM_BY_KEY[key];
-    if (PERF_KEYS.has(key) && !perfKnown) continue;
+    if (PERF_KEYS.has(key) && !perfKnown && !sendPerf) continue;
     const v = currentActivePatch[key];
     setTimeout(() => sendCC(p.cc, wireValue(key, v)), delay);
     delay += 8;
@@ -948,7 +948,7 @@ function resetSynth() {
   currentActivePatch = { ...INIT_PATCH };
   syncSlidersToUI();
   setName('Init');
-  transmitCurrentPatch('Reset to init values.');
+  transmitCurrentPatch('Reset to init values.', true);
 }
 
 // ---------- Read patch from the synth (SysEx) ----------
