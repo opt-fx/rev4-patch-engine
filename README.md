@@ -1,5 +1,4 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
-![Screenshot](screenshot.png)
 
 A free, browser-based random patch generator and editor for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a new patch, nudge the current one with Mutate, tweak any control, and read the patch that's on the synth into the app.
 
@@ -32,11 +31,11 @@ Knobs: drag up or down (hold Shift for fine control), use the mouse wheel or arr
 - Controller numbers come from Sequential's published Prophet-5 MIDI Implementation (v1.4).
 - Rev (filter type), Velocity and Aftertouch routing are stored with each patch on the synth. Generate, Mutate and Reset leave them alone so they can't override your setup, and they're only sent once you've pressed their button or read from the synth.
 - When you select a program on the synth, the app shows its number (for example "113") next to the patch name, as long as the synth is sending Program Change and Bank Select.
-- Unison chord notes can't be set over MIDI, so the app only handles on/off, voice count and detune.
+- Unison on/off, voice count and detune are handled. If a patch uses a unison chord, the voice count shows as **Chord**, but the chord notes themselves can't be edited here: set them on the synth by holding the keys and pressing Unison.
 - **Prophet-10:** the app uses the same controller numbers and dump layout as the Prophet-5, because Sequential publishes one MIDI document for both. That hasn't been verified on a Prophet-10. If something reads or sends wrongly, please open an issue.
 - Safari and Firefox users can still look at the page, but can't connect to a synth.
 - Developed and tested on a Prophet-5 Rev 4 (OS 2.1.0) with a Blokas Midihub. Other setups should work but haven't been tried.
-- Unison detune isn't listed in Sequential's documentation. It sits at byte 54 of the unpacked edit-buffer SysEx dump (unison on is byte 52, voice count byte 53, counted from zero so 0 means one voice), found by comparing dumps.
+- Unison detune isn't listed in Sequential's documentation. It sits at byte 54 of the unpacked edit-buffer SysEx dump (unison on is byte 52, voice count byte 53, counted from zero so 0 means one voice, and 10 means chord mode, with the chord's note offsets stored in bytes 55 to 64 and `7F` marking unused slots), found by comparing dumps.
 
 ## Troubleshooting
 

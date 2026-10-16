@@ -246,6 +246,7 @@ let currentActivePatch = {};
   type: 'range' (0..max), 'switch' (0/1) or 'tri' (0..2).
   Most knobs top out at 120, not 127. Switches only accept 0 or 1.
 */
+const CHORD = 11;      // voice-count setting meaning unison chord mode (the dump and CC 113 use 10 for it)
 const PARAMS = [
   // group,           key,                label,              cc,  type,    max, init
   ['Oscillator A',   'oscA_freq',        'Frequency',          3, 'range', 120, 24],
@@ -268,7 +269,7 @@ const PARAMS = [
   ['Mixer', 'mix_noise',        'Noise level',       29, 'range', 120, 0],
   ['Mixer', 'glide',            'Glide rate',        26, 'range', 120, 0],
   ['Unison', 'unison',        'Unison',            112, 'switch',  1, 0],
-  ['Unison', 'unison_voices', 'Voices',     113, 'select', 10, 0],
+  ['Unison', 'unison_voices', 'Voices',     113, 'select', 11, 0],
   ['Unison', 'unison_detune', 'Detune',     114, 'steps',   7, 0],
 
   ['Filter',         'cutoff',           'Cutoff',            73, 'range', 120, 120],
@@ -712,7 +713,8 @@ function populatePortSelector() {
 
 let synthModel = 'p5';
 function voiceOptions(v) {
-  return Array.from({ length: STEPS.unison_voices.to }, (_, k) => `<option value="${k + 1}"${k + 1 === v ? ' selected' : ''}>${k + 1} voice${k ? 's' : ''}</option>`).join('');
+  return Array.from({ length: STEPS.unison_voices.to }, (_, k) => `<option value="${k + 1}"${k + 1 === v ? ' selected' : ''}>${k + 1} voice${k ? 's' : ''}</option>`).join('') +
+    `<option value="${CHORD}"${v === CHORD ? ' selected' : ''}>Chord</option>`;
 }
 
 function stepButtons(key, v) {
@@ -726,7 +728,7 @@ function stepButtons(key, v) {
 function setModel(m, silent) {
   synthModel = m === 'p10' ? 'p10' : 'p5';
   STEPS.unison_voices.to = synthModel === 'p10' ? 10 : 5;
-  if (currentActivePatch.unison_voices > STEPS.unison_voices.to) currentActivePatch.unison_voices = STEPS.unison_voices.to;
+  if (currentActivePatch.unison_voices !== CHORD && currentActivePatch.unison_voices > STEPS.unison_voices.to) currentActivePatch.unison_voices = STEPS.unison_voices.to;
   const box = $('input-unison_voices');
   if (box) box.innerHTML = voiceOptions(currentActivePatch.unison_voices);
   if ($('synth-model')) $('synth-model').value = synthModel;
@@ -757,7 +759,7 @@ function requirePort() {
   return true;
 }
 
-const wireValue = (key, v) => key === 'unison_voices' ? Math.max(0, v - 1) : v;   // the synth counts voices from zero
+const wireValue = (key, v) => key === 'unison_voices' ? (v === CHORD ? 10 : Math.max(0, v - 1)) : v;   // the synth counts voices from zero, and 10 means chord
 let quiet = false;     // true while applying a change that came from the synth, so it is never sent back
 function sendCC(cc, value) {
   if (!midiOutput || quiet) return;
@@ -949,7 +951,7 @@ function followSynthCC(d) {                  // a knob or button moved on the Pr
   if ((d[0] & 0xF0) !== 0xB0 || !$('follow-synth').checked) return;
   const p = PARAM_BY_CC[d[1]], raw = d[2];
   if (!p) return;
-  const v = p.type === 'switch' ? (raw ? 1 : 0) : p.key === 'unison_voices' ? Math.max(1, Math.min(STEPS.unison_voices.to, raw + 1)) : Math.min(p.max, raw);
+  const v = p.type === 'switch' ? (raw ? 1 : 0) : p.key === 'unison_voices' ? (raw === 10 ? CHORD : Math.max(1, Math.min(STEPS.unison_voices.to, raw + 1))) : Math.min(p.max, raw);
   if (currentActivePatch[p.key] === v) return;
   quiet = true;
   try { updateParam(p.key, v); syncControls(); } finally { quiet = false; }
@@ -1028,7 +1030,7 @@ function finishSysex(b) {
       if (p.type === 'switch' && raw > 1) oddSwitches++;
       let v = raw;
       if (p.max === 120 && !UNSCALED.has(key)) v = Math.round(raw * 120 / 127);   // dump 0-127 -> CC 0-120
-      if (key === 'unison_voices') v = raw + 1;      // the dump counts voices from zero (0 = one voice, 2 = three)
+      if (key === 'unison_voices') v = raw === 10 ? CHORD : raw + 1;      // the dump counts voices from zero (0 = one voice, 2 = three); 10 = chord mode
       next[key] = clamp(v, key === 'unison_voices' ? 1 : 0, p.max);
     }
     lines.push(`${String(i).padStart(2)}  ${name}: ${raw}${key ? '' : '  (not used by this app)'}`);
@@ -1059,7 +1061,9 @@ function finishSysex(b) {
   setName(synthName || randomName());
   setStatus(oddSwitches > 3
     ? 'Patch read, but several switches look wrong. Open the dump below and compare it with the panel.'
-    : 'Patch read from the Prophet. Try Mutate, or Back to return to the previous patch.');
+    : 'Patch read from the Prophet.' + (next.unison && next.unison_voices === CHORD
+        ? ` Unison is in chord mode (${vals.slice(55, 65).filter(x => x !== 0x7F).length} note chord).` : '') +
+      ' Try Mutate, or Back to return to the previous patch.');
 }
 
 let pendingPing = null;
