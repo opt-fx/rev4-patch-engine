@@ -1,4 +1,5 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
+![Screenshot](screenshot.png)
 
 A free, browser-based random patch generator and editor for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a new patch, nudge the current one with Mutate, tweak any control, and read the patch that's on the synth into the app.
 
