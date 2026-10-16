@@ -11,6 +11,7 @@ A free, browser-based random patch generator and editor for the Sequential Proph
 - **Chrome or Edge.** Safari and Firefox don't support Web MIDI, so they can't talk to a synth.
 - A MIDI route from your computer to the synth (USB or a MIDI interface).
 - On the synth, in Globals: **Param Rcv** set to **CC**. For Read from synth, also set **MIDI SysEx** to the route you use (MIDI or USB) and make sure MIDI Out is sending on that route.
+- To have the app follow knobs and buttons you move on the synth, also set **Param Xmit** to **CC** in Globals. NRPN isn't supported for this.
 
 ## Using it
 
@@ -19,7 +20,7 @@ A free, browser-based random patch generator and editor for the Sequential Proph
 3. Press **Test note** to check the connection.
 4. **Generate** makes a new random patch. **Mutate** nudges the current one by the chosen amount. **Back** undoes up to 20 steps.
 5. Every knob and button sends to the synth as you move it.
-6. **Read from synth** pulls the current patch (including its name and unison settings) into the app.
+6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too (untick "Follow the synth's knobs and buttons" to stop that). After changing program on the synth, press Read from synth again to load the new patch.
 7. **Lock** on a section keeps it unchanged when you Generate or Mutate. **Keep unison** keeps your unison settings through Generate.
 8. **Save** and **Load** use small JSON files. **Favourites** are stored in your browser only.
 

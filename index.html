@@ -212,7 +212,7 @@
     <div id="status">Initializing Web MIDI...</div>
     <div id="last-sent"></div>
     <div id="last-recv"></div>
-    <label style="display:block;margin-top:6px;font-size:12px;color:#6f6a60"><input type="checkbox" id="follow-synth" checked> Follow the synth's knobs and buttons (needs Param Xmit set to CC on the Prophet)</label>
+    <label style="display:block;margin-top:6px;font-size:12px;color:#6f6a60"><input type="checkbox" id="follow-synth" checked> Follow the synth's knobs and buttons (set Param Xmit to CC on the Prophet)</label>
     <details id="raw-log" hidden><summary>Last dump received from the Prophet</summary>
       <button class="btn" style="margin-top:8px" onclick="copyDump()">Copy to clipboard</button><pre id="raw-pre"></pre></details>
 
@@ -946,9 +946,9 @@ const PARAM_BY_CC = {};
 for (const k in PARAM_BY_KEY) PARAM_BY_CC[PARAM_BY_KEY[k].cc] = PARAM_BY_KEY[k];
 function followSynthCC(d) {                  // a knob or button moved on the Prophet: show it here without sending it back
   if ((d[0] & 0xF0) !== 0xB0 || !$('follow-synth').checked) return;
-  const p = PARAM_BY_CC[d[1]];
+  const p = PARAM_BY_CC[d[1]], raw = d[2];
   if (!p) return;
-  const v = p.type === 'switch' ? (d[2] ? 1 : 0) : Math.min(p.max, d[2]);
+  const v = p.type === 'switch' ? (raw ? 1 : 0) : Math.min(p.max, raw);
   if (currentActivePatch[p.key] === v) return;
   quiet = true;
   try { updateParam(p.key, v); syncControls(); } finally { quiet = false; }
