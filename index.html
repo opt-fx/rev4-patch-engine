@@ -153,7 +153,8 @@
     .sw.below { flex-direction:column-reverse; }
     .sw.below span { white-space:nowrap; }        /* keep RELEASE and its HOLD pill on one line, even on a narrow phone screen */
     .btn.hero { font-size:16px; letter-spacing:.06em; }
-    .pill { font-style:normal; background:#ece6d6; color:#121110; border-radius:9px; padding:1px 6px 0; margin-left:2px; font-size:10px; letter-spacing:.03em; }
+    .pill { font-style:normal; color:#121110; padding:1px 6px 0; margin-left:2px; font-size:10px; letter-spacing:.03em; position:relative; isolation:isolate; }
+    .pill::before { content:''; position:absolute; inset:0; transform:translateY(var(--pill-drop,1px)); background:#ece6d6; border-radius:9px; z-index:-1; }   /* the pill shape sits a little lower than its text; the text itself stays put. --pill-drop is the amount (1px = two pixels on a Retina display) */
     .ctl .sw span, .ctl .row span { font-weight:700; color:var(--cream); }
     .chip button { text-transform:none; letter-spacing:0; font-weight:400; }
     .led { display:block; }
