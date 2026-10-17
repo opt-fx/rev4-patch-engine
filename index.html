@@ -7,6 +7,7 @@
 <style>
     :root { --amber:#e8a33d; --cream:#ece6d6; --ink:#b9b3a5; --panel:#1a1918; --line:#363330; --led:#ff4a2b; }
     * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
     body { margin:0; padding:28px 10px; background:#0d0b0a; color:var(--cream); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
     .synth { display:flex; max-width:1120px; margin:0 auto; box-shadow:0 18px 50px rgba(0,0,0,.7); border-radius:10px; }
     .cheek { width:40px; flex:none; background:linear-gradient(90deg,rgba(0,0,0,.35),transparent 30%,transparent 70%,rgba(0,0,0,.35)),repeating-linear-gradient(93deg,#4f2e19 0 3px,#432610 3px 8px,#583420 8px 12px); }
@@ -31,7 +32,8 @@
     .mutate { display:flex; align-items:center; gap:12px; padding:6px 12px; border:1px solid var(--line); border-radius:8px; background:#141312; }
     .mutate .btn { border-color:var(--amber); color:var(--amber); font-weight:600; }
     .mutate label { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink); }
-    .mutate input[type=range] { width:110px; }
+    .mutate input[type=range] { width:110px; min-width:0; }
+    @media (max-width:400px) { .mutate { gap:8px; padding:6px 8px; } .mutate input[type=range] { width:80px; } }
     .mutate b { color:var(--amber); font-weight:600; min-width:34px; }
     .spacer { flex:1; }
     .keepopt { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink); cursor:pointer; }
@@ -92,6 +94,40 @@
     .syncbtn { right:62px; }
     .lock[aria-pressed="true"] { color:var(--amber); font-weight:600; }
     .lock:focus-visible { outline:2px solid var(--amber); }
+    .tabs { display:flex; gap:6px; margin-top:22px; border-bottom:1px solid var(--line); }
+    .tabs button { background:none; border:0; border-bottom:2px solid transparent; margin-bottom:-1px; color:var(--ink); padding:10px 18px; font:700 12px 'Helvetica Neue',Helvetica,Arial,sans-serif; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; }
+    .tabs button[aria-selected="true"] { color:var(--amber); border-bottom-color:var(--amber); }
+    .tabs button:focus-visible { outline:2px solid var(--amber); outline-offset:-2px; }
+    #library { margin-top:6px; }
+    .libbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px 12px; margin-top:14px; }
+    .libbar input[type="search"], .libbar input[type="number"], .ldetail input[type="text"], .ldetail textarea { background:#121110; color:var(--cream); border:1px solid #4a4640; border-radius:5px; padding:8px 10px; font-size:14px; font-family:inherit; }
+    .libbar input[type="search"] { flex:1; min-width:180px; }
+    .libbar input[type="number"] { width:72px; }
+    .capf { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink); text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
+    .capbox { margin-top:14px; padding:10px 14px 14px; border:1px solid var(--line); border-radius:8px; background:#141312; }
+    .capbox summary { cursor:pointer; color:var(--amber); font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    .capbox p { margin:10px 0 0; line-height:1.4; }
+    #cap-bar { width:100%; margin-top:10px; accent-color:var(--amber); }
+    .warn { margin:14px 0 0; padding:8px 12px; border:1px solid #7a4a1a; border-radius:6px; background:#2a1c10; color:#e8c48a; font-size:13px; }
+    #lib-list { margin-top:10px; }
+    .lrow { display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid var(--line); }
+    .lname { flex:1; min-width:0; font-size:14px; display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; }
+    .lname b { font-weight:600; overflow-wrap:anywhere; }
+    .lslot { font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--amber); border:1px solid var(--line); border-radius:10px; padding:1px 8px; background:#141312; }
+    .tagrow { display:contents; }
+    .chg { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#1c1005; background:var(--amber); border-radius:10px; padding:1px 8px; }
+    .tagc { font-size:11px; color:var(--ink); border-radius:10px; padding:1px 8px; background:#2a2724; }
+    .star { background:none; border:0; color:#5b564d; font-size:20px; line-height:1; cursor:pointer; padding:2px 4px; }
+    .star[aria-pressed="true"] { color:var(--amber); }
+    .star:focus-visible { outline:2px solid var(--amber); }
+    .btn.sm { padding:6px 12px; font-size:11px; }
+    .ldetail { display:grid; gap:10px; padding:10px 4px 16px 34px; border-bottom:1px solid var(--line); background:#161514; }
+    .ldetail label { display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--ink); text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
+    .ldetail textarea { resize:vertical; text-transform:none; letter-spacing:0; font-weight:400; }
+    .ldetail input[type="text"] { text-transform:none; letter-spacing:0; font-weight:400; }
+    .lact { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+    .capturing .actions, .capturing #dashboard-grid, .capturing .namebar { pointer-events:none; opacity:.5; }
+    @media (max-width:560px) { .lrow { flex-wrap:wrap; } .lname { flex-basis:calc(100% - 44px); } .ldetail { padding-left:4px; } }
     .favs { margin-top:16px; }
     .favhead { display:flex; align-items:center; gap:12px; font-size:13px; color:var(--amber); font-weight:600; }
     .favhead .btn { padding:6px 12px; font-size:12px; font-weight:400; }
@@ -206,6 +242,7 @@
       <button class="btn" onclick="pingSynth()">Ping</button>
       <span class="spacer"></span>
       <button class="btn" onclick="testNote()">Test note</button>
+      <button class="btn" title="Sends the whole patch including its name to the synth's working patch, then checks it arrived. To keep it, press Record on the synth, then the program button of the slot." onclick="sendEditorWithName()">Send with name</button>
       <button class="btn" onclick="downloadPresetFile()">Save</button>
       <label class="btn file-label" for="load-file-input" tabindex="0">Load</label>
       <input type="file" id="load-file-input" accept=".json" onchange="loadPresetFile(this)">
@@ -226,7 +263,68 @@
     </div>
     </div>
 
+    <div class="tabs" role="tablist">
+      <button id="tab-editor" role="tab" aria-selected="true" onclick="showTab('editor')">Editor</button>
+      <button id="tab-library" role="tab" aria-selected="false" onclick="showTab('library')">Library <span id="lib-count"></span></button>
+    </div>
+
     <div id="dashboard-grid"></div>
+
+    <section id="library" hidden>
+      <p id="lib-warn" class="warn" hidden></p>
+      <div class="libbar">
+        <input id="lib-q" type="search" placeholder="Search name, tag, notes or slot" aria-label="Search the library" oninput="libUI.q=this.value; libUI.limit=150; renderLib()">
+        <select id="lib-sort" aria-label="Sort" onchange="libUI.sort=this.value; renderLib()">
+          <option value="slot">Sort: synth slot</option><option value="name">Sort: name</option><option value="newest">Sort: newest</option>
+        </select>
+      </div>
+      <div class="libbar">
+        <select id="lib-set" aria-label="Filter by set" onchange="libFilter('set', this.value)">
+          <option value="">All sets</option><option value="F">Factory</option><option value="U">User</option><option value="none">Not from the synth</option>
+        </select>
+        <select id="lib-group" aria-label="Filter by group" onchange="libFilter('group', this.value)">
+          <option value="">All groups</option><option value="1">Group 1</option><option value="2">Group 2</option><option value="3">Group 3</option><option value="4">Group 4</option><option value="5">Group 5</option>
+        </select>
+        <select id="lib-origin" aria-label="Filter by origin" onchange="libFilter('origin', this.value)">
+          <option value="">Any origin</option><option value="captured">Captured from the synth</option><option value="saved">Saved from the editor</option><option value="imported">Imported</option>
+        </select>
+        <select id="lib-tag" aria-label="Filter by tag" onchange="libFilter('tag', this.value)"></select>
+      </div>
+      <div class="libbar">
+        <label class="keepopt"><input type="checkbox" id="lib-favonly" onchange="libFilter('favOnly', this.checked)"> Favourites only</label>
+        <label class="keepopt"><input type="checkbox" id="lib-changedonly" onchange="libFilter('changedOnly', this.checked)"> Changed on synth</label>
+        <label class="keepopt" title="Patches you have renamed, tagged or added notes to"><input type="checkbox" id="lib-annotated" onchange="libFilter('annotated', this.checked)"> Renamed or annotated</label>
+        <label class="keepopt" title="Hides user patches that are identical to the factory patch in the same position (unless you have starred, renamed, tagged or annotated them)"><input type="checkbox" id="lib-hidecopies" onchange="libFilter('hideCopies', this.checked)"> Hide user copies of factory</label>
+        <button class="btn sm" onclick="libClearFilters()">Clear filters</button>
+      </div>
+      <div class="libbar">
+        <button class="btn" onclick="libSaveCurrent()">Save current patch</button>
+        <button class="btn" onclick="libExport()">Export library</button>
+        <label class="btn file-label" for="lib-import" tabindex="0">Import</label>
+        <input type="file" id="lib-import" accept=".json" onchange="libImport(this)">
+        <span class="spacer"></span>
+        <span id="lib-summary" class="muted"></span>
+      </div>
+      <details class="capbox" id="cap">
+        <summary>Capture patches from the synth</summary>
+        <p class="muted">Steps the synth through its programs with Bank Select and Program Change, reads each one, and adds it to the library. The synth's program changes while it runs, and its Program Change receive setting must be on. Each set has 5 groups, and a group is 5 banks of 8 programs (40 patches).</p>
+        <div class="libbar">
+          <label class="capf">Set <select id="cap-set"><option value="F">Factory</option><option value="U">User</option></select></label>
+          <label class="capf">From group <input type="number" id="cap-from" min="1" max="5" value="1"></label>
+          <label class="capf">To group <input type="number" id="cap-to" min="1" max="5" value="1"></label>
+          <label class="keepopt"><input type="checkbox" id="cap-restore" checked> Put the editor's patch back afterwards</label>
+        </div>
+        <div class="libbar">
+          <button class="btn" id="cap-go" onclick="startCapture()">Start capture</button>
+          <button class="btn" id="cap-stop" onclick="stopCapture()" hidden>Cancel</button>
+          <button class="btn" id="cap-clear" onclick="libClearCaptured()">Delete captured patches of this set</button>
+          <span id="cap-status" class="muted" aria-live="polite"></span>
+        </div>
+        <progress id="cap-bar" max="1" value="0" hidden></progress>
+      </details>
+      <div id="lib-list"></div>
+      <button class="btn" id="lib-more" hidden onclick="libUI.limit+=150; renderLib()">Show more</button>
+    </section>
     <footer class="foot">
       <p>Works in Chrome and Edge. Safari and Firefox don't support Web MIDI, so they can't connect to a synth.</p>
       <p>Unofficial tool, not affiliated with or endorsed by Sequential. Prophet is a trademark of Sequential, LLC. Controller numbers come from Sequential's published Prophet-5 MIDI Implementation.</p>
@@ -252,7 +350,7 @@ function requestDump(gap) {                  // ask for the edit buffer; once th
   send([lastDumpId], gap);
   setTimeout(() => send(DUMP_IDS.filter(x => x !== lastDumpId), gap), 1200);   // no answer to the known ID: fall back to the full list
 }
-let patchName = '', lastDump = null, perfKnown = false;
+let patchName = '', lastDump = null, lastDumpFull = null, perfKnown = false;
 let currentActivePatch = {};
 
 /*
@@ -662,51 +760,520 @@ function applyLocks(next, prev) {            // locked sections keep their previ
   for (const key in PARAM_BY_KEY) if (LOCKED.has(PARAM_BY_KEY[key].group)) next[key] = prev[key];
 }
 
-let favs = [];
-function loadFavs() { try { favs = JSON.parse(localStorage.getItem('p5_favs') || '[]'); } catch (e) { favs = []; } }
-function storeFavs() { try { localStorage.setItem('p5_favs', JSON.stringify(favs)); } catch (e) { setStatus('Could not store favourites in this browser.'); } }
+// ---------- Library ----------
+// Patches live in the browser's IndexedDB. Favourites are library entries with the star on.
+const LIB_DB = 'rev4-patch-engine', LIB_STORE = 'patches';
+let lib = [], libDb = null;
+let capturing = false, captureCancel = false, captureCb = null;
+const libUI = { q: '', tag: '', set: '', group: '', origin: '', favOnly: false, changedOnly: false, annotated: false, hideCopies: false, sort: 'slot', limit: 150, open: new Set() };
 
+function libOpen() {
+  return new Promise(res => {
+    try {
+      const rq = indexedDB.open(LIB_DB, 1);
+      rq.onupgradeneeded = () => rq.result.createObjectStore(LIB_STORE, { keyPath: 'id' });
+      rq.onsuccess = () => { libDb = rq.result; res(true); };
+      rq.onerror = rq.onblocked = () => res(false);
+    } catch (e) { res(false); }
+  });
+}
+function libTx(fn) {
+  return new Promise(res => {
+    if (!libDb) return res(false);
+    try {
+      const tx = libDb.transaction(LIB_STORE, 'readwrite');
+      fn(tx.objectStore(LIB_STORE));
+      tx.oncomplete = () => res(true);
+      tx.onerror = tx.onabort = () => res(false);
+    } catch (e) { res(false); }
+  });
+}
+function libReadAll() {
+  return new Promise(res => {
+    if (!libDb) return res([]);
+    try {
+      const rq = libDb.transaction(LIB_STORE).objectStore(LIB_STORE).getAll();
+      rq.onsuccess = () => res(rq.result || []);
+      rq.onerror = () => res([]);
+    } catch (e) { res([]); }
+  });
+}
+async function libPersist(...entries) {
+  const ok = await libTx(st => entries.forEach(e => st.put(e)));
+  if (!ok) libWarn(true);
+  return ok;
+}
+async function libDrop(id) { const ok = await libTx(st => st.delete(id)); if (!ok) libWarn(true); }
+function libWarn(on) {
+  const w = $('lib-warn');
+  w.hidden = !on;
+  w.textContent = 'This browser is not letting the library be stored (private window or blocked site data?). Patches will last only until you close the page, so use Export to keep them.';
+}
+
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+function makeEntry(o) {
+  const now = Date.now();
+  return { id: newId(), name: 'Untitled', patch: {}, chord: [], tags: [], notes: '', fav: false, changed: false, slot: null, perf: false, dump: null, source: 'saved', added: now, updated: now, ...o };
+}
+const slotLabel = s => !s ? '' : (s.set === 'U' ? 'U' : 'F') + (s.group > 9 ? `${s.group}-${s.bank}-${s.prog}` : `${s.group}${s.bank}${s.prog}`);
+const slotKey = s => s ? `${s.set}:${s.group}:${s.bank}:${s.prog}` : null;
+const slotOrder = s => s ? (s.set === 'F' ? 0 : 1e6) + s.group * 100 + s.bank * 10 + s.prog : 2e6;
+const parseTags = t => [...new Set(String(t).split(/[,;]/).map(x => x.trim().toLowerCase()).filter(Boolean))];
+
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in attrs || {}) {
+    if (k === 'class') e.className = attrs[k];
+    else if (k.startsWith('on')) e[k] = attrs[k];
+    else if (attrs[k] !== false && attrs[k] !== null && attrs[k] !== undefined) e.setAttribute(k, attrs[k] === true ? '' : attrs[k]);
+  }
+  kids.flat().forEach(k => e.append(k));
+  return e;
+}
+
+// --- saving the editor's current patch ---
+function saveCurrentEntry() {                    // updates the entry of the same name that was saved from the editor, otherwise adds one
+  const name = (patchName || '').trim() || 'Untitled';
+  const at = lib.find(e => e.source === 'saved' && e.name === name);
+  const fields = { name, patch: { ...currentActivePatch }, chord: chordNotes.slice(), perf: perfKnown, updated: Date.now() };
+  if (at) { Object.assign(at, fields); return { entry: at, replaced: true }; }
+  const entry = makeEntry(fields);
+  lib.push(entry);
+  return { entry, replaced: false };
+}
+async function addFav() {
+  const { entry, replaced } = saveCurrentEntry();
+  entry.fav = true;
+  await libPersist(entry);
+  renderFavs(); renderLib();
+  setStatus(`Saved "${entry.name}" to favourites${replaced ? ' (replaced the one with that name)' : ''}.`);
+}
+async function libSaveCurrent() {
+  const { entry, replaced } = saveCurrentEntry();
+  await libPersist(entry);
+  renderFavs(); renderLib();
+  setStatus(`Saved "${entry.name}" to the library${replaced ? ' (replaced the one with that name)' : ''}.`);
+}
+
+// --- sending a library patch to the editor and the synth ---
+function loadEntry(id, toEditor) {
+  const e = lib.find(x => x.id === id);
+  if (!e || !requirePort()) return;
+  pushHistory();
+  currentActivePatch = { ...INIT_PATCH, ...e.patch };
+  chordNotes = (e.chord || []).slice();
+  setName(e.name);
+  syncSlidersToUI();
+  const chordMode = currentActivePatch.unison && currentActivePatch.unison_voices === CHORD;
+  transmitCurrentPatch(`Loaded "${e.name}".` + (chordMode ? " Its unison chord notes can't be sent, so the synth keeps whichever chord it already has." : '') + (toEditor ? '' : ' Switch to the Editor tab to tweak it.'), !!e.perf);
+  if (toEditor) showTab('editor');
+}
+
+// --- favourites chips on the main page ---
 function renderFavs() {
   const box = $('fav-list');
   box.innerHTML = '';
-  if (!favs.length) { box.innerHTML = '<span class="muted">No favourites yet. Save the current patch to keep it here.</span>'; return; }
-  favs.forEach((f, i) => {
-    const chip = document.createElement('span');
-    chip.className = 'chip';
-    const load = document.createElement('button');
-    load.textContent = f.name; load.title = 'Load and send to the synth';
-    load.onclick = () => recallFav(i);
-    const del = document.createElement('button');
-    del.className = 'chipx'; del.textContent = '\u00d7'; del.setAttribute('aria-label', 'Delete ' + f.name);
-    del.onclick = () => deleteFav(i);
-    chip.append(load, del);
-    box.appendChild(chip);
+  const favs = lib.filter(e => e.fav).sort((a, b) => a.added - b.added);
+  if (!favs.length) { box.innerHTML = '<span class="muted">No favourites yet. Save the current patch, or star one in the Library.</span>'; return; }
+  favs.forEach(f => {
+    const load = el('button', { title: 'Load and send to the synth', onclick: () => loadEntry(f.id) }, f.name);
+    const del = el('button', { class: 'chipx', 'aria-label': 'Remove ' + f.name + ' from favourites', title: 'Remove from favourites (stays in the Library)', onclick: () => toggleFav(f.id) }, '×');
+    box.appendChild(el('span', { class: 'chip' }, load, del));
   });
 }
-
-function addFav() {
-  const name = (patchName || '').trim() || 'Untitled';
-  const entry = { name, patch: { ...currentActivePatch } };
-  const at = favs.findIndex(f => f.name === name);
-  if (at >= 0) favs[at] = entry; else favs.push(entry);
-  storeFavs(); renderFavs();
-  setStatus(`Saved "${name}" to favourites${at >= 0 ? ' (replaced the one with that name)' : ''}.`);
+async function toggleFav(id) {
+  const e = lib.find(x => x.id === id);
+  if (!e) return;
+  e.fav = !e.fav; e.updated = Date.now();
+  await libPersist(e);
+  renderFavs(); renderLib();
+  setStatus(e.fav ? `"${e.name}" added to favourites.` : `"${e.name}" removed from favourites (it is still in the Library).`);
 }
 
-function recallFav(i) {
-  if (!requirePort()) return;
+// --- library view ---
+function showTab(t) {
+  const isLib = t === 'library';
+  $('dashboard-grid').hidden = isLib;
+  $('library').hidden = !isLib;
+  $('tab-editor').setAttribute('aria-selected', String(!isLib));
+  $('tab-library').setAttribute('aria-selected', String(isLib));
+  if (isLib) renderLib();
+}
+
+function libFilter(k, v) { libUI[k] = v; libUI.limit = 150; if (k === 'set') $('lib-group').disabled = v === 'none'; renderLib(); }
+function libClearFilters() {
+  Object.assign(libUI, { q: '', tag: '', set: '', group: '', origin: '', favOnly: false, changedOnly: false, annotated: false, hideCopies: false, limit: 150 });
+  $('lib-q').value = '';
+  ['lib-set', 'lib-group', 'lib-origin'].forEach(id => { $(id).value = ''; });
+  ['lib-favonly', 'lib-changedonly', 'lib-annotated', 'lib-hidecopies'].forEach(id => { $(id).checked = false; });
+  $('lib-group').disabled = false;
+  renderLib();
+}
+const isRenamed = e => !!e.dump && e.name !== patchFromDump(e.dump, 0).name;
+function libVisible() {
+  const q = libUI.q.trim().toLowerCase();
+  const factory = {};                              // factory dumps by position, for spotting user patches that are still copies
+  if (libUI.hideCopies) lib.forEach(e => { if (e.slot && e.slot.set === 'F' && e.dump) factory[`${e.slot.group}:${e.slot.bank}:${e.slot.prog}`] = e.dump; });
+  const r = lib.filter(e => {
+    if (libUI.favOnly && !e.fav) return false;
+    if (libUI.changedOnly && !e.changed) return false;
+    if (libUI.tag && !e.tags.includes(libUI.tag)) return false;
+    if (libUI.set === 'none' ? e.slot : (libUI.set && (!e.slot || e.slot.set !== libUI.set))) return false;
+    if (libUI.group && (!e.slot || String(e.slot.group) !== libUI.group)) return false;
+    if (libUI.origin && e.source !== libUI.origin) return false;
+    if (libUI.annotated && !(isRenamed(e) || e.tags.length || e.notes)) return false;
+    if (libUI.hideCopies && e.slot && e.slot.set === 'U' && e.dump) {
+      const f = factory[`${e.slot.group}:${e.slot.bank}:${e.slot.prog}`];
+      if (f && sameDump(f, e.dump) && !(isRenamed(e) || e.tags.length || e.notes || e.fav)) return false;   // a copy you have starred, renamed, tagged or annotated stays visible
+    }
+    return !q || (e.name + ' ' + e.tags.join(' ') + ' ' + e.notes + ' ' + slotLabel(e.slot)).toLowerCase().includes(q);
+  });
+  const by = {
+    slot: (a, b) => slotOrder(a.slot) - slotOrder(b.slot) || a.name.localeCompare(b.name),
+    name: (a, b) => a.name.localeCompare(b.name),
+    newest: (a, b) => b.added - a.added
+  };
+  return r.sort(by[libUI.sort] || by.slot);
+}
+function refreshTagSelect() {
+  const sel = $('lib-tag'), all = [...new Set(lib.flatMap(e => e.tags))].sort();
+  if (libUI.tag && !all.includes(libUI.tag)) libUI.tag = '';
+  sel.innerHTML = '';
+  sel.append(el('option', { value: '' }, 'All tags'));
+  all.forEach(t => sel.append(el('option', { value: t }, t)));
+  sel.value = libUI.tag;
+}
+function tagChips(e) { return e.tags.map(t => el('span', { class: 'tagc' }, t)); }
+
+function libRow(e) {
+  const nameEl = el('b', {}, e.name);
+  const tagsEl = el('span', { class: 'tagrow' }, tagChips(e));
+  const star = el('button', { class: 'star', 'aria-pressed': String(e.fav), 'aria-label': 'Favourite', title: 'Favourite', onclick: () => toggleFav(e.id) }, '★');
+  const open = libUI.open.has(e.id);
+  const row = el('div', { class: 'lrow' }, star,
+    el('div', { class: 'lname' }, nameEl, e.slot ? el('span', { class: 'lslot' }, slotLabel(e.slot)) : '', e.changed ? el('span', { class: 'chg', title: 'This slot was different the last time it was captured from the synth' }, 'changed') : '', tagsEl),
+    e.slot ? el('button', { class: 'btn sm', title: 'Select this program on the synth (Bank Select and Program Change) and read it into the editor', onclick: () => goToSlot(e.id) }, 'Go to slot') : '',
+    el('button', { class: 'btn sm', onclick: () => loadEntry(e.id) }, 'Load'),
+    el('button', { class: 'btn sm', 'aria-expanded': String(open), onclick: ev => {
+      if (libUI.open.has(e.id)) libUI.open.delete(e.id); else libUI.open.add(e.id);
+      renderLib(); } }, open ? 'Close' : 'Details'));
+  const out = [row];
+  if (open) {
+    const nm = el('input', { type: 'text', maxlength: 32, value: e.name, 'aria-label': 'Name' });
+    nm.onchange = async () => { e.name = nm.value.trim() || e.name; nm.value = e.name; nameEl.textContent = e.name; e.updated = Date.now(); await libPersist(e); renderFavs(); };
+    const tg = el('input', { type: 'text', value: e.tags.join(', '), placeholder: 'e.g. pad, bass, lead', 'aria-label': 'Tags' });
+    tg.onchange = async () => { e.tags = parseTags(tg.value); tg.value = e.tags.join(', '); tagsEl.replaceChildren(...tagChips(e)); e.updated = Date.now(); await libPersist(e); refreshTagSelect(); };
+    const nt = el('textarea', { rows: 2, placeholder: 'Notes', 'aria-label': 'Notes' }); nt.value = e.notes;
+    nt.onchange = async () => { e.notes = nt.value; e.updated = Date.now(); await libPersist(e); };
+    const meta = [e.source === 'captured' ? 'Captured from the synth' : e.source === 'imported' ? 'Imported' : 'Saved from the editor', new Date(e.added).toLocaleDateString()];
+    const unitName = e.dump ? patchFromDump(e.dump, 0).name : '';
+    const extra = [];
+    if (unitName && unitName !== e.name) extra.push(el('div', { class: 'lact' }, el('span', { class: 'muted' }, `Name on the synth: ${unitName}`),
+      el('button', { class: 'btn sm', onclick: async () => { e.name = unitName; e.updated = Date.now(); await libPersist(e); renderFavs(); renderLib(); } }, 'Use that name')));
+    if (e.changed) extra.push(el('div', { class: 'lact' }, el('span', { class: 'muted' }, 'This slot was different the last time it was captured.'),
+      el('button', { class: 'btn sm', onclick: async () => { e.changed = false; await libPersist(e); renderLib(); } }, 'Mark as seen')));
+    out.push(el('div', { class: 'ldetail' },
+      el('label', {}, 'Name', nm), el('label', {}, 'Tags (comma separated)', tg), el('label', {}, 'Notes', nt), extra,
+      el('div', { class: 'lact' },
+        el('button', { class: 'btn sm', onclick: () => loadEntry(e.id, true) }, 'Load and open in editor'),
+        el('button', { class: 'btn sm', title: "Sends this patch with this name to the synth's working patch and checks it arrived. To keep it, press Record on the synth, then the program button of the slot.", onclick: () => sendEntryWithName(e.id) }, 'Send with name'),
+        el('button', { class: 'btn sm', onclick: () => libDelete(e.id) }, 'Delete'),
+        el('span', { class: 'muted' }, meta.join(' \u00b7 ')))));
+  }
+  return out;
+}
+async function libDelete(id) {
+  const e = lib.find(x => x.id === id);
+  if (!e || !confirm(`Delete "${e.name}" from the library?`)) return;
+  lib = lib.filter(x => x.id !== id);
+  libUI.open.delete(id);
+  await libDrop(id);
+  renderFavs(); renderLib();
+}
+
+function renderLib() {
+  $('lib-count').textContent = lib.length ? `(${lib.length})` : '';
+  if ($('library').hidden) return;
+  refreshTagSelect();
+  const rows = libVisible(), box = $('lib-list');
+  box.replaceChildren();
+  if (!lib.length) box.append(el('p', { class: 'muted' }, 'The library is empty. Save the current patch, capture patches from the synth below, or import a library file.'));
+  else if (!rows.length) box.append(el('p', { class: 'muted' }, 'Nothing matches that search.'));
+  rows.slice(0, libUI.limit).forEach(e => libRow(e).forEach(n => box.append(n)));
+  $('lib-more').hidden = rows.length <= libUI.limit;
+  $('lib-summary').textContent = lib.length ? `${rows.length} of ${lib.length} patches` : '';
+}
+
+// --- export and import ---
+function libExport() {
+  if (!lib.length) return setStatus('The library is empty, so there is nothing to export.');
+  const data = { format: 'rev4-patch-engine-library', version: 1, exported: new Date().toISOString(), patches: lib };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+  const a = el('a', { href: url, download: `rev4-library-${new Date().toISOString().slice(0, 10)}.json` });
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  setStatus(`Exported ${lib.length} patches.`);
+}
+function cleanEntry(o, source) {
+  if (!o || typeof o !== 'object') return null;
+  const src = o.patch && typeof o.patch === 'object' ? o.patch : o;      // also accepts a single patch file saved with the Save button
+  const patch = {};
+  let n = 0;
+  for (const k in PARAM_BY_KEY) {
+    const v = parseInt(src[k]);
+    if (src[k] !== undefined && !isNaN(v)) { patch[k] = clamp(v, 0, PARAM_BY_KEY[k].max); n++; }
+  }
+  if (!n) return null;
+  const s = o.slot && typeof o.slot === 'object' ? { set: o.slot.set === 'U' ? 'U' : 'F', group: clamp(+o.slot.group | 0, 1, 99), bank: clamp(+o.slot.bank | 0, 1, 99), prog: clamp(+o.slot.prog | 0, 1, 99) } : null;
+  const now = Date.now();
+  return makeEntry({
+    id: typeof o.id === 'string' && o.id ? o.id.slice(0, 40) : newId(),
+    name: String(o.name || o._name || 'Untitled').slice(0, 32),
+    patch,
+    chord: Array.isArray(o.chord) ? o.chord.map(x => clamp(+x | 0, 0, 127)).slice(0, 10) : [],
+    tags: Array.isArray(o.tags) ? parseTags(o.tags.join(',')) : [],
+    notes: typeof o.notes === 'string' ? o.notes.slice(0, 2000) : '',
+    fav: !!o.fav, changed: !!o.changed, slot: s, perf: !!o.perf,
+    dump: Array.isArray(o.dump) && o.dump.length <= 256 ? o.dump.map(x => clamp(+x | 0, 0, 255)) : null,
+    source: ['captured', 'saved', 'imported'].includes(o.source) ? o.source : source,
+    added: +o.added || now, updated: +o.updated || now
+  });
+}
+function libImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      const list = Array.isArray(parsed) ? parsed : Array.isArray(parsed.patches) ? parsed.patches : [parsed];
+      let added = 0, updated = 0, skipped = 0, bad = 0;
+      const touched = [];
+      list.forEach(o => {
+        const e = cleanEntry(o, 'imported');
+        if (!e) { bad++; return; }
+        const same = lib.find(x => x.id === e.id);
+        const twin = !same && lib.find(x => x.name === e.name && JSON.stringify(x.patch) === JSON.stringify(e.patch) && slotKey(x.slot) === slotKey(e.slot));
+        if (same) { if (e.updated > same.updated) { Object.assign(same, e); touched.push(same); updated++; } else skipped++; }
+        else if (twin) skipped++;
+        else { lib.push(e); touched.push(e); added++; }
+      });
+      if (!added && !updated && !skipped) throw new Error('nothing usable');
+      if (touched.length) await libPersist(...touched);
+      renderFavs(); renderLib();
+      setStatus(`Imported: ${added} added, ${updated} updated, ${skipped} already there${bad ? `, ${bad} not recognised` : ''}.`);
+    } catch (err) {
+      alert('Could not read that file as a patch or a library from this app.');
+      console.error(err);
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// --- sending a whole patch, name included, to the synth's edit buffer ---
+function packDSI(vals) {                         // inverse of unpackDSI
+  const out = [];
+  for (let i = 0; i < vals.length; i += 7) {
+    const g = vals.slice(i, i + 7);
+    let msb = 0;
+    g.forEach((x, j) => { if (x & 0x80) msb |= 1 << j; });
+    out.push(msb, ...g.map(x => x & 0x7F));
+  }
+  return out;
+}
+function buildDump(patch, name, chord, tpl) {      // start from a real dump so the bytes this app doesn't know about stay as they were
+  const vals = tpl.slice();
+  while (vals.length < 133) vals.push(0);
+  const same = patchFromDump(vals, 0).next;          // a value that already matches the template keeps its exact original byte (the 0-127 to 0-120 conversion is not exactly reversible)
+  NRPN_MAP.forEach(([n, key], i) => {
+    const p = key && PARAM_BY_KEY[key], v = key && patch[key];
+    if (!p || v === undefined || same[key] === v) return;
+    vals[i] = key === 'unison_voices' ? (v === CHORD ? 10 : Math.max(0, v - 1))
+      : (p.max === 120 && !UNSCALED.has(key)) ? Math.round(v * 127 / 120) : v;
+  });
+  if (patch.unison_detune !== undefined) vals[DETUNE_OFFSET] = patch.unison_detune;
+  for (let i = 0; i < 10; i++) vals[55 + i] = i < chord.length ? chord[i] : 0x7F;
+  const pad = vals[84] === 32 ? 32 : 0, text = String(name).slice(0, 20);
+  for (let i = 0; i < 20; i++) { const c = text.charCodeAt(i); vals[65 + i] = i >= text.length ? pad : (c >= 32 && c < 127 ? c : 63); }
+  return vals;
+}
+async function sendWithName(patch, name, chord, tpl, perf, label) {
+  if (!sysexOk) return alert('SysEx permission was not granted. Reload the page and click Allow when Chrome asks.');
+  if (!requirePort() || pendingRead || capturing) return;
+  if (!tpl) return setStatus('Read the patch from the synth once first (or capture some patches), so the parts of a patch this app does not edit can be copied.');
+  const vals = buildDump(patch, name, chord, tpl);
+  capturing = true;                                // keeps the synth's own messages from changing the editor while this runs
+  try {
+    midiOutput.send([0xF0, 0x01, lastDumpId === null ? DUMP_IDS[0] : lastDumpId, 0x03, ...packDSI(vals), 0xF7]);
+    setStatus(`Sent "${label}" to the synth. Checking it arrived...`);
+    await sleep(500);
+    const back = await readEditBuffer();
+    const got = back && sameDump(back.slice(0, 65), vals.slice(0, 65)) && patchFromDump(back, 0).name === String(name).slice(0, 20).trim();
+    if (got) {
+      lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true;
+      setStatus(`The synth now holds "${label}" in its working patch. To keep it, press Record on the synth once, then press the program button of the slot you want it in (pressing Record twice stores nothing).`);
+    } else {
+      transmitCurrentPatch(back ? `The synth did not take the patch dump (it still reports "${patchFromDump(back, 0).name}"), so the controller values were sent instead and the name was not changed.`
+                                : 'No reply when checking the patch dump, so I could not confirm it arrived. The controller values were sent as a fallback.', perf);
+    }
+  } finally { capturing = false; }
+}
+function sendEntryWithName(id) {
+  const e = lib.find(x => x.id === id);
+  if (!e || !requirePort()) return;
+  const tpl = e.dump && e.dump.length >= 133 ? e.dump : (lastDumpFull || (e.dump ? e.dump.concat(new Array(Math.max(0, 133 - e.dump.length)).fill(0)) : null));
   pushHistory();
-  currentActivePatch = { ...INIT_PATCH, ...favs[i].patch };
-  setName(favs[i].name);
+  currentActivePatch = { ...INIT_PATCH, ...e.patch };
+  chordNotes = (e.chord || []).slice();
+  setName(e.name);
   syncSlidersToUI();
-  transmitCurrentPatch(`Loaded favourite "${favs[i].name}".`);
+  sendWithName(currentActivePatch, e.name, chordNotes, tpl, !!e.perf, e.name);
+}
+function sendEditorWithName() {
+  const name = (patchName || '').trim() || 'Untitled';
+  const tpl = lastDumpFull || (lib.find(e => e.dump) ? lib.find(e => e.dump).dump : null);
+  sendWithName(currentActivePatch, name, chordNotes, tpl, perfKnown, name);
 }
 
-function deleteFav(i) {
-  const name = favs[i].name;
-  favs.splice(i, 1);
-  storeFavs(); renderFavs();
-  setStatus(`Removed "${name}" from favourites.`);
+// --- capture from the synth ---
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function selectSlot(slot) {                       // Bank Select (MSB 0, LSB = group) then Program Change (bank and program); factory groups are LSB 5 upwards, user groups LSB 0 upwards
+  const ch = midiChannel - 1;
+  const lsb = slot.set === 'F' ? 4 + slot.group : slot.group - 1;
+  const pc = (slot.bank - 1) * 8 + (slot.prog - 1);
+  try {
+    midiOutput.send([0xB0 | ch, 0, 0]);
+    midiOutput.send([0xB0 | ch, 32, lsb]);
+    midiOutput.send([0xC0 | ch, pc]);
+    return true;
+  } catch (e) { setStatus('Send failed: ' + e.message); return false; }
+}
+function goToSlot(id) {                           // select the entry's program on the synth, then read it into the editor so the two agree
+  const e = lib.find(x => x.id === id);
+  if (!e || !e.slot || !requirePort() || capturing || pendingRead) return;
+  if (!selectSlot(e.slot)) return;
+  if (sysexOk) { setStatus(`Selected ${slotLabel(e.slot)} on the synth. Reading it into the editor...`); setTimeout(readFromSynth, 400); }
+  else setStatus(`Selected ${slotLabel(e.slot)} on the synth.`);
+}
+function captureSlot(slot) {                      // select a program on the synth, then read it; resolves with the unpacked dump or null
+  return new Promise(res => {
+    if (!selectSlot(slot)) return res(null);
+    setTimeout(() => readEditBuffer().then(res), 350);
+  });
+}
+function readEditBuffer() {                        // ask for the edit buffer and resolve with the unpacked dump, or null if it is not answered
+  return new Promise(res => {
+    oddLog.length = 0;
+    const guard = setTimeout(() => { captureCb = null; clearTimeout(pendingRead); pendingRead = null; res(null); }, 3000);
+    captureCb = vals => { clearTimeout(guard); res(vals.length >= NRPN_MAP.length ? vals : null); };
+    pendingRead = setTimeout(() => { pendingRead = null; }, 3000);
+    requestDump(300);
+  });
+}
+const sameDump = (a, b) => { for (let i = 0; i < 85; i++) if (a[i] !== b[i]) return false; return true; };
+function capProgress(text, frac) {
+  $('cap-status').textContent = text;
+  const bar = $('cap-bar');
+  bar.hidden = frac === null;
+  if (frac !== null) bar.value = frac;
+}
+async function startCapture() {
+  if (capturing) return;
+  if (!sysexOk) return alert('SysEx permission was not granted. Reload the page and click Allow when Chrome asks.');
+  if (!requirePort() || pendingRead) return;
+  const set = $('cap-set').value, from = clamp(parseInt($('cap-from').value) || 1, 1, 5), to = clamp(parseInt($('cap-to').value) || from, from, 5);
+  const slots = [];
+  for (let g = from; g <= to; g++) for (let b = 1; b <= 5; b++) for (let p = 1; p <= 8; p++) slots.push({ set, group: g, bank: b, prog: p });
+  const mins = Math.max(1, Math.round(slots.length * 0.7 / 60));
+  if (!confirm(`This steps the synth through ${slots.length} programs (${set === 'F' ? 'factory' : 'user'} group${to > from ? 's ' + from + ' to ' + to : ' ' + from}), about ${mins} minute${mins > 1 ? 's' : ''}. It changes the program on the synth, so any edits on the synth you haven't stored are lost` + ($('cap-restore').checked ? ", although the patch currently in the editor is sent back afterwards." : ".") + ' Continue?')) return;
+  capturing = true; captureCancel = false;
+  document.body.classList.add('capturing');
+  $('cap-go').hidden = true; $('cap-clear').hidden = true; $('cap-stop').hidden = false;
+  const keep = { patch: { ...currentActivePatch }, chord: chordNotes.slice(), name: patchName };
+  const touched = [];
+  let done = 0, failed = 0, streak = 0, added = 0, refreshed = 0, nChanged = 0, abort = '';
+  capProgress('Checking that the synth changes program...', null);      // read the first and last program of the range: they must differ, or the synth is ignoring Program Change
+  const first = await captureSlot(slots[0]);
+  const last = first ? await captureSlot(slots[slots.length - 1]) : null;
+  if (!first || !last) abort = 'Nothing was captured: the synth did not answer the patch request.';
+  else if (slots.length > 1 && JSON.stringify(first.slice(0, 128)) === JSON.stringify(last.slice(0, 128)) &&
+           (set === 'F' || !confirm('The first and last programs in this range read back identical. Either the synth is ignoring Program Change, or both are the same patch (for example Init). Capture anyway?')))
+    abort = 'Nothing was captured: the synth returned the same patch for the first and last program, so it does not seem to be changing program. Check that Program Change receive is on in its Globals, that the MIDI channel matches, and that nothing in the Midihub filters Program Change or Bank Select.';
+  for (const slot of abort ? [] : slots) {
+    if (captureCancel) break;
+    capProgress(`Reading ${slotLabel(slot)} (${done + 1} of ${slots.length})...`, done / slots.length);
+    let vals = await captureSlot(slot);
+    if (!vals && !captureCancel) vals = await captureSlot(slot);          // one retry
+    if (vals) {
+      streak = 0;
+      const parsed = patchFromDump(vals, 0);
+      const fields = { name: parsed.name || 'Untitled ' + slotLabel(slot), patch: parsed.next, chord: parsed.chord, perf: true, slot, dump: vals.slice(0, 256), source: 'captured', updated: Date.now() };
+      const at = lib.find(e => slotKey(e.slot) === slotKey(slot));
+      if (at) {
+        if (at.dump) {
+          if (at.name !== patchFromDump(at.dump, 0).name) fields.name = at.name;          // renamed in the app: keep that name
+          if (!sameDump(at.dump, vals)) { fields.changed = true; nChanged++; }              // the synth's version of this slot is different now
+        }
+        Object.assign(at, fields); touched.push(at); refreshed++;
+      }
+      else { const n = makeEntry(fields); lib.push(n); touched.push(n); added++; }
+    } else if (!captureCancel) {
+      failed++;
+      if (++streak >= 3) { capProgress('Stopped: the synth did not answer three times in a row.', null); break; }
+    }
+    done++;
+    if (touched.length && done % 8 === 0) { await libPersist(...touched.splice(0)); renderLib(); }
+  }
+  if (touched.length) await libPersist(...touched);
+  perfKnown = true;
+  if ($('cap-restore').checked && midiOutput) {
+    currentActivePatch = keep.patch; chordNotes = keep.chord; setName(keep.name);
+    syncSlidersToUI();
+    transmitCurrentPatch('', true);
+  }
+  capturing = false;
+  document.body.classList.remove('capturing');
+  $('cap-go').hidden = false; $('cap-clear').hidden = false; $('cap-stop').hidden = true;
+  const msg = abort || `${captureCancel ? 'Capture cancelled' : 'Capture finished'}: ${added} added, ${refreshed} refreshed${nChanged ? `, ${nChanged} changed on the synth` : ''}${failed ? `, ${failed} not read` : ''}.`;
+  capProgress(msg, null);
+  renderFavs(); renderLib();
+  setStatus(msg);
+}
+async function libClearCaptured() {            // removes patches that were captured from the chosen set (saved, imported and other set's patches stay)
+  const set = $('cap-set').value, name = set === 'F' ? 'factory' : 'user';
+  const doomed = lib.filter(e => e.source === 'captured' && e.slot && e.slot.set === set);
+  if (!doomed.length) return setStatus(`There are no captured ${name} patches to delete.`);
+  const starred = doomed.filter(e => e.fav || e.tags.length || e.notes).length;
+  if (!confirm(`Delete ${doomed.length} captured ${name} patches from the library?` + (starred ? ` ${starred} of them have a star, tags or notes, which will be lost.` : '') + ' The synth is not touched.')) return;
+  const ids = new Set(doomed.map(e => e.id));
+  lib = lib.filter(e => !ids.has(e.id));
+  await libTx(st => ids.forEach(id => st.delete(id)));
+  renderFavs(); renderLib();
+  setStatus(`Deleted ${doomed.length} captured ${name} patches.`);
+  $('cap-status').textContent = '';
+}
+
+function stopCapture() { captureCancel = true; $('cap-status').textContent = 'Stopping...'; }
+
+async function libInit() {
+  const ok = await libOpen();
+  lib = await libReadAll();
+  libWarn(!ok);
+  try {                                            // bring across favourites saved by older versions (the old list is left in place as a backup)
+    if (localStorage.getItem('p5_favs_migrated') !== '1') {
+      const old = JSON.parse(localStorage.getItem('p5_favs') || '[]'), add = [];
+      old.forEach(f => {
+        if (!f || !f.patch || lib.some(e => e.source === 'saved' && e.name === f.name)) return;
+        const n = makeEntry({ name: String(f.name || 'Untitled').slice(0, 32), patch: { ...f.patch }, fav: true });
+        lib.push(n); add.push(n);
+      });
+      if (add.length) await libPersist(...add);
+      localStorage.setItem('p5_favs_migrated', '1');
+    }
+  } catch (e) {}
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+  renderFavs(); renderLib();
 }
 
 function flashChanged(keys) {
@@ -1026,7 +1593,7 @@ function refreshUnisonFromSynth(now) {          // the synth doesn't send its vo
   }, now ? 0 : 300);
 }
 function followSynthCC(d) {                  // a knob or button moved on the Prophet: show it here without sending it back
-  if ((d[0] & 0xF0) !== 0xB0 || !$('follow-synth').checked) return;
+  if (capturing || (d[0] & 0xF0) !== 0xB0 || !$('follow-synth').checked) return;
   const p = PARAM_BY_CC[d[1]], raw = d[2];
   if (!p) return;
   const v = p.type === 'switch' ? (raw ? 1 : 0) : p.key === 'unison_voices' ? (raw === 10 ? CHORD : Math.max(1, Math.min(STEPS.unison_voices.to, raw + 1))) : Math.min(p.max, raw);
@@ -1083,6 +1650,27 @@ function unpackDSI(data) {              // 8-byte packets: first byte holds the 
   return out;
 }
 
+function patchFromDump(vals, detuneKeep) {          // turn an unpacked edit-buffer dump into an app patch (no side effects)
+  const next = { ...INIT_PATCH, unison_detune: detuneKeep };
+  let oddSwitches = 0;
+  NRPN_MAP.forEach(([name, key], i) => {
+    const raw = vals[i];
+    if (!key) return;
+    const p = PARAM_BY_KEY[key];
+    if (p.type === 'switch' && raw > 1) oddSwitches++;
+    let v = raw;
+    if (p.max === 120 && !UNSCALED.has(key)) v = Math.round(raw * 120 / 127);   // dump 0-127 -> CC 0-120
+    if (key === 'unison_voices') v = raw === 10 ? CHORD : raw + 1;      // the dump counts voices from zero (0 = one voice, 2 = three); 10 = chord mode
+    next[key] = clamp(v, key === 'unison_voices' ? 1 : 0, p.max);
+  });
+  if (DETUNE_OFFSET !== null) next.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
+  const chord = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
+  const nb = vals.slice(65, 85);
+  const nameOk = nb.every(x => x === 0 || (x >= 32 && x < 127));
+  const name = nameOk ? String.fromCharCode(...nb.filter(x => x >= 32)).trim() : '';
+  return { next, oddSwitches, chord, name };
+}
+
 function finishSysex(b) {
   if (b[1] === 0x7E && b[3] === 0x06 && b[4] === 0x02 && b[5] === 0x01) {   // device inquiry reply from a Sequential synth
     const manual = pendingPing !== null;
@@ -1103,6 +1691,7 @@ function finishSysex(b) {
   try { localStorage.setItem('p5_dumpid', String(b[2])); } catch (e) {}
 
   const vals = unpackDSI(b.slice(4, b.lastIndexOf(0xF7)));
+  if (captureCb) { const cb = captureCb; captureCb = null; cb(vals); return; }   // library capture: hand the dump over without touching the editor
   if (quietRefresh) {                       // background refresh after Unison was switched on the synth: update only the unison settings
     quietRefresh = false;
     if (vals.length > DETUNE_OFFSET) {
@@ -1118,20 +1707,11 @@ function finishSysex(b) {
   }
   if (vals.length < NRPN_MAP.length) return setStatus(`Reply was too short (${vals.length} values), so I ignored it.`);
 
-  const next = { ...INIT_PATCH, unison_detune: currentActivePatch.unison_detune };
-  let oddSwitches = 0;
+  const parsed = patchFromDump(vals, currentActivePatch.unison_detune);
+  const next = parsed.next, oddSwitches = parsed.oddSwitches;
   const lines = [`Device ID: 0x${b[2].toString(16)}`, `Packed bytes: ${b.length - 5}, decoded values: ${vals.length}`];
   NRPN_MAP.forEach(([name, key], i) => {
-    const raw = vals[i];
-    if (key) {
-      const p = PARAM_BY_KEY[key];
-      if (p.type === 'switch' && raw > 1) oddSwitches++;
-      let v = raw;
-      if (p.max === 120 && !UNSCALED.has(key)) v = Math.round(raw * 120 / 127);   // dump 0-127 -> CC 0-120
-      if (key === 'unison_voices') v = raw === 10 ? CHORD : raw + 1;      // the dump counts voices from zero (0 = one voice, 2 = three); 10 = chord mode
-      next[key] = clamp(v, key === 'unison_voices' ? 1 : 0, p.max);
-    }
-    lines.push(`${String(i).padStart(2)}  ${name}: ${raw}${key ? '' : '  (not used by this app)'}`);
+    lines.push(`${String(i).padStart(2)}  ${name}: ${vals[i]}${key ? '' : '  (not used by this app)'}`);
   });
   lines.push('', 'Bytes 54-127 (likely: 54 unison detune, 55-64 unison chord notes, 65-84 patch name, rest unknown):');
   for (let i = 54; i < 128; i += 16) {
@@ -1145,6 +1725,7 @@ function finishSysex(b) {
     lines.push('', 'Changed since the previous read: ' + (diffs.length ? diffs.join(',  ') : 'nothing'));
   }
   lastDump = vals.slice(0, 128);
+  lastDumpFull = vals.slice();
   if (DETUNE_OFFSET !== null) next.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
   $('raw-pre').innerText = lines.join('\n');
   $('raw-log').hidden = false;
@@ -1154,10 +1735,7 @@ function finishSysex(b) {
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
   syncSlidersToUI();
   perfKnown = true;
-  const nameBytes = vals.slice(65, 85);
-  const nameOk = nameBytes.every(x => x === 0 || (x >= 32 && x < 127));
-  const synthName = nameOk ? String.fromCharCode(...nameBytes.filter(x => x >= 32)).trim() : '';
-  setName(synthName || randomName());
+  setName(parsed.name || randomName());
   setStatus(oddSwitches > 3
     ? 'Patch read, but several switches look wrong. Open the dump below and compare it with the panel.'
     : 'Patch read from the Prophet.' + (next.unison && next.unison_voices === CHORD
@@ -1323,8 +1901,7 @@ buildDashboard();
 initKnobs();
 try { setModel(localStorage.getItem('p5_model') || 'p5'); } catch (e) { setModel('p5'); }
 setName(randomName());
-loadFavs();
-renderFavs();
+libInit();
 </script>
 </body>
 </html>
