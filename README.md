@@ -1,7 +1,6 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png)
-![Screenshot](screenshot2.png)
+![Screenshot](screenshot.png)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a new patch, nudge the current one with Mutate, tweak any control, read the patch that's on the synth into the app, and keep a searchable library of your patches.
 
@@ -64,6 +63,7 @@ The **Library** tab is a searchable list of patches stored in your browser.
 - Controller numbers come from Sequential's published Prophet-5 MIDI Implementation (v1.4).
 - Rev (filter type), Velocity and Aftertouch routing are stored with each patch on the synth. Generate and Mutate leave them alone so they can't override your setup, and they're only sent once you've pressed their button or read from the synth. **Reset** is the exception: it sends them too, returning them to their init values.
 - When you select a program on the synth, the app shows its number (for example "113") next to the patch name, as long as the synth is sending Program Change and Bank Select.
+- The synth doesn't tell the app when you save a patch with Record, so after a save the program number can be out of date. Once you've changed the sound since the synth last reported its program, the number is marked **· edited** as a warning. Selecting any program on the synth refreshes it. (This also affects the "put the synth back" step after a capture: if you've saved into a different slot, select that program on the synth before capturing.)
 - Unison on/off, voice count and detune are handled. If a patch uses a unison chord, the voice count shows as **Chord**, showing the intervals above the lowest key (for example "Chord 0·4·9") with the chord's name on hover. The chord notes can't be edited here: set them on the synth by holding the keys and pressing Unison. To clear a chord, hold a single key and press Unison on the synth, then press **Sync**.
 - The synth doesn't store anything when you use the app's controls. Everything the app sends goes to the working patch until you save it on the synth with Record.
 - **Prophet-10:** the app uses the same controller numbers and dump layout as the Prophet-5, because Sequential publishes one MIDI document for both. That hasn't been verified on a Prophet-10. If something reads or sends wrongly, please open an issue.

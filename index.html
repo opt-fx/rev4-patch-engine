@@ -191,6 +191,7 @@
     .cbtn:active .led { transform:translateY(1px); }
     .cbtn:focus-visible .led { outline:2px solid var(--amber); outline-offset:2px; }
     .cmb-label { margin-top:9px; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--cream); }
+    .progtag .edited { color:#ff4d4d; }
     .progtag { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); border:1px solid var(--line); border-radius:12px; padding:5px 12px; background:#141312; white-space:nowrap; }
     .foot { margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:12px; line-height:1.5; color:#8b8578; }
     .foot p { margin:0 0 6px; }
@@ -1112,7 +1113,7 @@ async function sendWithName(patch, name, chord, tpl, perf, label) {
     const back = await readEditBuffer();
     const got = back && sameDump(back.slice(0, 65), vals.slice(0, 65)) && patchFromDump(back, 0).name === String(name).slice(0, 20).trim();
     if (got) {
-      lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true;
+      lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true; markEdited();
       setStatus(`The synth now holds "${label}" in its working patch. To keep it, press Record on the synth once, then press the program button of the slot you want it in (pressing Record twice stores nothing).`);
     } else {
       transmitCurrentPatch(back ? `The synth did not take the patch dump (it still reports "${patchFromDump(back, 0).name}"), so the controller values were sent instead and the name was not changed.`
@@ -1147,6 +1148,7 @@ function selectSlot(slot) {                       // Bank Select (MSB 0, LSB = g
     midiOutput.send([0xB0 | ch, 0, 0]);
     midiOutput.send([0xB0 | ch, 32, lsb]);
     midiOutput.send([0xC0 | ch, pc]);
+    Object.assign(progState, { msb: 0, lsb, pc }); progEdited = false; showProgTag();      // the synth may not report a program the app selected, so note it here
     return true;
   } catch (e) { setStatus('Send failed: ' + e.message); return false; }
 }
@@ -1187,7 +1189,7 @@ async function startCapture() {
   const slots = [];
   for (let g = from; g <= to; g++) for (let b = 1; b <= 5; b++) for (let p = 1; p <= 8; p++) slots.push({ set, group: g, bank: b, prog: p });
   const mins = Math.max(1, Math.round(slots.length * 0.7 / 60));
-  if (!confirm(`This steps the synth through ${slots.length} programs (${set === 'F' ? 'factory' : 'user'} group${to > from ? 's ' + from + ' to ' + to : ' ' + from}), about ${mins} minute${mins > 1 ? 's' : ''}. It changes the program on the synth, so any edits on the synth you haven't stored are lost` + ($('cap-restore').checked ? ", although afterwards the synth is put back on " + (progState.pc !== null ? 'the program it is on now (' + progLabel(progState) + ')' : 'the last program captured, because I don\'t know which program it is on (select a program on the synth first so the app can see it)') + " and the patch currently in the editor is sent back." : ".") + ' Continue?')) return;
+  if (!confirm(`This steps the synth through ${slots.length} programs (${set === 'F' ? 'factory' : 'user'} group${to > from ? 's ' + from + ' to ' + to : ' ' + from}), about ${mins} minute${mins > 1 ? 's' : ''}. It changes the program on the synth, so any edits on the synth you haven't stored are lost` + ($('cap-restore').checked ? ", although afterwards the synth is put back on " + (progState.pc !== null ? 'the program it is on now (' + progLabel(progState) + (progEdited ? ', as last reported by the synth; if you have stored a patch into a different slot since, select that program on the synth first' : '') + ')' : 'the last program captured, because I don\'t know which program it is on (select a program on the synth first so the app can see it)') + " and the patch currently in the editor is sent back." : ".") + ' Continue?')) return;
   capturing = true; captureCancel = false;
   document.body.classList.add('capturing');
   $('cap-go').hidden = true; $('cap-clear').hidden = true; $('cap-stop').hidden = false;
@@ -1238,6 +1240,7 @@ async function startCapture() {
         if (prog.lsb !== null) midiOutput.send([0xB0 | ch, 32, prog.lsb]);
         midiOutput.send([0xC0 | ch, prog.pc]);
         backOn = ` The synth is back on ${progLabel(prog)}.`;
+        Object.assign(progState, prog); progEdited = false; showProgTag();
       } catch (e) {}
       await sleep(300);
     }
@@ -1402,6 +1405,7 @@ function sendCC(cc, value) {
   const status = 0xB0 | (midiChannel - 1);
   try {
     midiOutput.send([status, cc & 0x7F, value & 0x7F]);
+    if (cc !== 0 && cc !== 32) markEdited();
     $('last-sent').innerText = `Sent: ch ${midiChannel}  CC ${cc} = ${value}`;
   } catch (e) {
     setStatus('Send failed: ' + e.message);
@@ -1567,12 +1571,16 @@ function progLabel(p) {                           // a program as the synth numb
   const factory = p.lsb >= 5;
   return (factory ? 'F' : 'U') + (factory ? p.lsb - 4 : p.lsb + 1) + bankNo + prog;
 }
+let progEdited = false;                          // true once the sound has been changed since the synth last reported its program
 function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and program change sent by the synth
   const t = d[0] & 0xF0;
   if (t === 0xB0 && d[1] === 0) progState.msb = d[2];
   else if (t === 0xB0 && d[1] === 32) progState.lsb = d[2];
-  else if (t === 0xC0) progState.pc = d[1];
+  else if (t === 0xC0) { progState.pc = d[1]; progEdited = false; }
   else return;
+  showProgTag();
+}
+function showProgTag() {
   const el = $('prog-info');
   if (progState.pc === null) return;
   el.hidden = false;
@@ -1585,7 +1593,12 @@ function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and prog
     const bank = [progState.msb, progState.lsb].some(v => v !== null) ? `Bank ${progState.msb ?? '-'}/${progState.lsb ?? '-'} \u00b7 ` : '';
     el.textContent = `Synth: ${bank}Program ${progState.pc}`;
   }
+  if (progEdited) { const w = document.createElement('span'); w.className = 'edited'; w.textContent = 'edited'; el.append(' \u00b7 ', w); }
+  el.title = progEdited
+    ? "The synth last reported this program, and the sound has been changed since. The synth does not tell the app when you store a patch with Record, so if you saved it into a different slot this number is out of date. Select a program on the synth to refresh it."
+    : 'The program the synth last reported or the app last selected.';
 }
+function markEdited() { if (progState.pc !== null && !progEdited) { progEdited = true; showProgTag(); } }
 
 const PARAM_BY_CC = {};
 for (const k in PARAM_BY_KEY) PARAM_BY_CC[PARAM_BY_KEY[k].cc] = PARAM_BY_KEY[k];
@@ -1620,6 +1633,7 @@ function followSynthCC(d) {                  // a knob or button moved on the Pr
   quiet = true;
   try {
     updateParam(p.key, v);
+    markEdited();
     if (p.key === 'unison' && v && currentActivePatch.unison_voices < 1) currentActivePatch.unison_voices = 1;   // a new unison starts on one voice
     syncControls();
   } finally { quiet = false; }
