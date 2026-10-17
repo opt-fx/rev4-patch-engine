@@ -312,7 +312,7 @@
           <label class="capf">Set <select id="cap-set"><option value="F">Factory</option><option value="U">User</option></select></label>
           <label class="capf">From group <input type="number" id="cap-from" min="1" max="5" value="1"></label>
           <label class="capf">To group <input type="number" id="cap-to" min="1" max="5" value="1"></label>
-          <label class="keepopt"><input type="checkbox" id="cap-restore" checked> Put the editor's patch back afterwards</label>
+          <label class="keepopt"><input type="checkbox" id="cap-restore" checked> Put the synth back afterwards (same program, editor's patch)</label>
         </div>
         <div class="libbar">
           <button class="btn" id="cap-go" onclick="startCapture()">Start capture</button>
@@ -1186,11 +1186,12 @@ async function startCapture() {
   const slots = [];
   for (let g = from; g <= to; g++) for (let b = 1; b <= 5; b++) for (let p = 1; p <= 8; p++) slots.push({ set, group: g, bank: b, prog: p });
   const mins = Math.max(1, Math.round(slots.length * 0.7 / 60));
-  if (!confirm(`This steps the synth through ${slots.length} programs (${set === 'F' ? 'factory' : 'user'} group${to > from ? 's ' + from + ' to ' + to : ' ' + from}), about ${mins} minute${mins > 1 ? 's' : ''}. It changes the program on the synth, so any edits on the synth you haven't stored are lost` + ($('cap-restore').checked ? ", although the patch currently in the editor is sent back afterwards." : ".") + ' Continue?')) return;
+  if (!confirm(`This steps the synth through ${slots.length} programs (${set === 'F' ? 'factory' : 'user'} group${to > from ? 's ' + from + ' to ' + to : ' ' + from}), about ${mins} minute${mins > 1 ? 's' : ''}. It changes the program on the synth, so any edits on the synth you haven't stored are lost` + ($('cap-restore').checked ? ", although afterwards the synth is put back on " + (progState.pc !== null ? 'the program it is on now (' + progLabel(progState) + ')' : 'the last program captured, because I don\'t know which program it is on (select a program on the synth first so the app can see it)') + " and the patch currently in the editor is sent back." : ".") + ' Continue?')) return;
   capturing = true; captureCancel = false;
   document.body.classList.add('capturing');
   $('cap-go').hidden = true; $('cap-clear').hidden = true; $('cap-stop').hidden = false;
   const keep = { patch: { ...currentActivePatch }, chord: chordNotes.slice(), name: patchName };
+  const prog = progState.pc !== null ? { msb: progState.msb, lsb: progState.lsb, pc: progState.pc } : null;      // the program the synth was on, as last reported by the synth
   const touched = [];
   let done = 0, failed = 0, streak = 0, added = 0, refreshed = 0, nChanged = 0, abort = '';
   capProgress('Checking that the synth changes program...', null);      // read the first and last program of the range: they must differ, or the synth is ignoring Program Change
@@ -1227,7 +1228,18 @@ async function startCapture() {
   }
   if (touched.length) await libPersist(...touched);
   perfKnown = true;
+  let backOn = '';
   if ($('cap-restore').checked && midiOutput) {
+    if (prog) {                                    // go back to the program the synth was on before the capture
+      const ch = midiChannel - 1;
+      try {
+        if (prog.msb !== null) midiOutput.send([0xB0 | ch, 0, prog.msb]);
+        if (prog.lsb !== null) midiOutput.send([0xB0 | ch, 32, prog.lsb]);
+        midiOutput.send([0xC0 | ch, prog.pc]);
+        backOn = ` The synth is back on ${progLabel(prog)}.`;
+      } catch (e) {}
+      await sleep(300);
+    }
     currentActivePatch = keep.patch; chordNotes = keep.chord; setName(keep.name);
     syncSlidersToUI();
     transmitCurrentPatch('', true);
@@ -1235,7 +1247,7 @@ async function startCapture() {
   capturing = false;
   document.body.classList.remove('capturing');
   $('cap-go').hidden = false; $('cap-clear').hidden = false; $('cap-stop').hidden = true;
-  const msg = abort || `${captureCancel ? 'Capture cancelled' : 'Capture finished'}: ${added} added, ${refreshed} refreshed${nChanged ? `, ${nChanged} changed on the synth` : ''}${failed ? `, ${failed} not read` : ''}.`;
+  const msg = abort || `${captureCancel ? 'Capture cancelled' : 'Capture finished'}: ${added} added, ${refreshed} refreshed${nChanged ? `, ${nChanged} changed on the synth` : ''}${failed ? `, ${failed} not read` : ''}.${backOn}`;
   capProgress(msg, null);
   renderFavs(); renderLib();
   setStatus(msg);
@@ -1548,6 +1560,12 @@ function populateInputSelector() {        // listen on every input so the right 
 }
 
 const progState = { msb: null, lsb: null, pc: null };
+function progLabel(p) {                           // a program as the synth numbers it, for example 113 or U558
+  const bankNo = Math.floor(p.pc / 8) + 1, prog = (p.pc % 8) + 1;
+  if (p.lsb === null || bankNo > 5) return 'program ' + p.pc;
+  const factory = p.lsb >= 5;
+  return (factory ? 'F' : 'U') + (factory ? p.lsb - 4 : p.lsb + 1) + bankNo + prog;
+}
 function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and program change sent by the synth
   const t = d[0] & 0xF0;
   if (t === 0xB0 && d[1] === 0) progState.msb = d[2];

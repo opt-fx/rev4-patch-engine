@@ -1,7 +1,6 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png)
-![Screenshot](screenshot2.png)
+![Screenshot](screenshot.png)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a new patch, nudge the current one with Mutate, tweak any control, read the patch that's on the synth into the app, and keep a searchable library of your patches.
 
@@ -37,7 +36,7 @@ The **Library** tab is a searchable list of patches stored in your browser.
 
 **Adding patches**
 - **Save current patch** adds what's in the editor.
-- **Capture patches from the synth** steps the synth through a set (Factory or User) and a range of groups (5 groups per set, each 5 banks of 8 programs) using Bank Select and Program Change, reads each one, and adds it to the library. It changes the program on the synth while it runs, and by default sends the editor's patch back afterwards. Before it starts it reads the first and last program of the range and stops if they come back identical, because that means the synth isn't changing program.
+- **Capture patches from the synth** steps the synth through a set (Factory or User) and a range of groups (5 groups per set, each 5 banks of 8 programs) using Bank Select and Program Change, reads each one, and adds it to the library. It changes the program on the synth while it runs. By default it then puts the synth back on the program it was on and sends the editor's patch back. The app only knows which program the synth is on if the synth has reported it (select a program on the synth once before capturing); otherwise the synth is left on the last program captured. Before it starts it reads the first and last program of the range and stops if they come back identical, because that means the synth isn't changing program.
 - **Import** merges in a library file (or a single patch saved with the Save button) without duplicating what's already there.
 
 **Finding patches**
