@@ -1,7 +1,6 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png)
-![Screenshot](screenshot2.png)
+![Screenshot](screenshot.png)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a new patch, nudge the current one with Mutate, tweak any control, read the patch that's on the synth into the app, and keep a searchable library of your patches.
 
@@ -25,7 +24,7 @@ A free, browser-based random patch generator, editor and librarian for the Seque
 4. **Generate** makes a new random patch. **Mutate** nudges the current one by the chosen amount. **Back** undoes up to 20 steps.
 5. Every knob and button sends to the synth as you move it.
 6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too (untick "Follow the synth's knobs and buttons" to stop that). After changing program on the synth, press Read from synth again to load the new patch. The synth doesn't report a chord being learned over MIDI, so after holding a chord and pressing Unison on the synth, press **Sync** in the Unison box to bring the voice count, chord and detune into the app.
-7. **Send with name** sends the whole patch, including its name and unison chord notes, to the synth's working patch and reads it back to check it arrived. To keep it, press **Record** on the synth once, then the program button of the slot you want (pressing Record twice stores nothing). The name is stored with the patch. If the synth doesn't accept the patch dump, the app falls back to sending the controller values, which can't carry the name.
+7. **Send with name** sends the whole patch, including its name and unison chord notes, to the synth's working patch and reads it back to check it arrived. To keep it, press **Record** on the synth once, then the program button of the slot you want (pressing Record twice stores nothing). This overwrites whatever is in that slot, so capture it first if you want to keep it. The name is stored with the patch. If the synth doesn't accept the patch dump, the app falls back to sending the controller values, which can't carry the name.
 8. **Lock** on a section keeps it unchanged when you Generate or Mutate. **Keep unison** keeps your unison settings through Generate.
 9. **Save** and **Load** use small JSON files for a single patch. **Favourites** (the chips under the buttons) are patches you've starred in the Library.
 
