@@ -1316,6 +1316,7 @@ async function sendWithName(patch, name, chord, tpl, perf, label) {
     await sleep(500);
     const back = await readEditBuffer();
     const got = back && sameDump(back.slice(0, 65), vals.slice(0, 65)) && patchFromDump(back, 0).name === String(name).slice(0, 20).trim();
+    if (back) showDumpLog(back);                 // the panel shows what the synth reported back
     if (got) {
       lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true; markEdited();
       setStatus(`The synth now holds "${label}" in its working patch. To keep it, press Record on the synth once, then press the program button of the slot you want it in (pressing Record twice stores nothing).`);
@@ -1808,6 +1809,7 @@ async function autoReadProgram() {
   pushHistory(); libLoadedId = null;
   currentActivePatch = parsed.next;
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
+  if (vals.length >= NRPN_MAP.length) showDumpLog(vals);
   lastDump = vals.slice(0, 128); lastDumpFull = vals.slice();
   syncSlidersToUI();
   perfKnown = true; progEdited = false;
@@ -1986,6 +1988,27 @@ function patchFromDump(vals, detuneKeep) {          // turn an unpacked edit-buf
   return { next, oddSwitches, chord, name };
 }
 
+let lastRawInfo = { id: 0, packed: 0 };
+function showDumpLog(vals) {                     // the "Last dump received" panel; compares with the previous read, so call it before lastDump is replaced
+  const lines = [`Device ID: 0x${lastRawInfo.id.toString(16)}`, `Packed bytes: ${lastRawInfo.packed}, decoded values: ${vals.length}`];
+  NRPN_MAP.forEach(([name, key], i) => {
+    lines.push(`${String(i).padStart(2)}  ${name}: ${vals[i]}${key ? '' : '  (not used by this app)'}`);
+  });
+  lines.push('', 'Bytes 54-127 (likely: 54 unison detune, 55-64 unison chord notes, 65-84 patch name, rest unknown):');
+  for (let i = 54; i < 128; i += 16) {
+    const row = vals.slice(i, Math.min(i + 16, 128));
+    lines.push(String(i).padStart(3) + '  ' + row.map(x => x.toString(16).padStart(2, '0')).join(' ').padEnd(47) + '  ' +
+      row.map(x => (x >= 32 && x < 127) ? String.fromCharCode(x) : '.').join(''));
+  }
+  if (lastDump) {
+    const diffs = [];
+    for (let i = 0; i < 128; i++) if (vals[i] !== lastDump[i]) diffs.push(`${i}: ${lastDump[i]} -> ${vals[i]}`);
+    lines.push('', 'Changed since the previous read: ' + (diffs.length ? diffs.join(',  ') : 'nothing'));
+  }
+  $('raw-pre').innerText = lines.join('\n');
+  $('raw-log').hidden = false;
+}
+
 function finishSysex(b) {
   if (b[1] === 0x7E && b[3] === 0x06 && b[4] === 0x02 && b[5] === 0x01) {   // device inquiry reply from a Sequential synth
     const manual = pendingPing !== null;
@@ -2006,6 +2029,7 @@ function finishSysex(b) {
   try { localStorage.setItem('p5_dumpid', String(b[2])); } catch (e) {}
 
   const vals = unpackDSI(b.slice(4, b.lastIndexOf(0xF7)));
+  lastRawInfo = { id: b[2], packed: b.length - 5 };
   if (captureCb) { const cb = captureCb; captureCb = null; cb(vals); return; }   // library capture: hand the dump over without touching the editor
   if (quietRefresh) {                       // background refresh after Unison was switched on the synth: update only the unison settings
     quietRefresh = false;
@@ -2024,26 +2048,10 @@ function finishSysex(b) {
 
   const parsed = patchFromDump(vals, currentActivePatch.unison_detune);
   const next = parsed.next, oddSwitches = parsed.oddSwitches;
-  const lines = [`Device ID: 0x${b[2].toString(16)}`, `Packed bytes: ${b.length - 5}, decoded values: ${vals.length}`];
-  NRPN_MAP.forEach(([name, key], i) => {
-    lines.push(`${String(i).padStart(2)}  ${name}: ${vals[i]}${key ? '' : '  (not used by this app)'}`);
-  });
-  lines.push('', 'Bytes 54-127 (likely: 54 unison detune, 55-64 unison chord notes, 65-84 patch name, rest unknown):');
-  for (let i = 54; i < 128; i += 16) {
-    const row = vals.slice(i, Math.min(i + 16, 128));
-    lines.push(String(i).padStart(3) + '  ' + row.map(x => x.toString(16).padStart(2, '0')).join(' ').padEnd(47) + '  ' +
-      row.map(x => (x >= 32 && x < 127) ? String.fromCharCode(x) : '.').join(''));
-  }
-  if (lastDump) {
-    const diffs = [];
-    for (let i = 0; i < 128; i++) if (vals[i] !== lastDump[i]) diffs.push(`${i}: ${lastDump[i]} -> ${vals[i]}`);
-    lines.push('', 'Changed since the previous read: ' + (diffs.length ? diffs.join(',  ') : 'nothing'));
-  }
+  showDumpLog(vals);
   lastDump = vals.slice(0, 128);
   lastDumpFull = vals.slice();
   if (DETUNE_OFFSET !== null) next.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
-  $('raw-pre').innerText = lines.join('\n');
-  $('raw-log').hidden = false;
 
   pushHistory(); libLoadedId = null;
   currentActivePatch = next;
