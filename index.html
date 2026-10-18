@@ -217,6 +217,7 @@
     .cmb-label { margin-top:9px; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--cream); }
     .btn.step { display:inline-flex; align-items:center; justify-content:center; width:38px; height:32px; padding:0; }
     .btn.step svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+    .btn:disabled { opacity:.4; cursor:default; pointer-events:none; }
     .mutadv { margin-top:10px; font-size:12px; }
     .mutadv summary { cursor:pointer; color:var(--amber); font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:4px 0; }
     .mutadv .muted { margin:6px 0 8px; color:#6f6a60; }
@@ -371,7 +372,7 @@
           <b id="mutate-val">20%</b>
         </label>
       </div>
-      <button class="btn" onclick="undoPatch()">Back</button>
+      <button class="btn" id="back-btn" onclick="undoPatch()" title="Undo the last Generate, Mutate or read" disabled>Back</button>
       <button class="btn" onclick="readFromSynth()">Read from synth</button>
       <button class="btn" onclick="pingSynth()">Ping</button>
       <span class="spacer"></span>
@@ -1353,7 +1354,7 @@ function selectSlot(slot) {                       // Bank Select (MSB 0, LSB = g
   try {
     midiOutput.send([0xB0 | ch, 0, 0]);
     midiOutput.send([0xB0 | ch, 32, lsb]);
-    midiOutput.send([0xC0 | ch, pc]); lastOwnSelect = Date.now();
+    midiOutput.send([0xC0 | ch, pc]); lastOwnSelect = Date.now(); newProgram = true;
     Object.assign(progState, { msb: 0, lsb, pc }); progEdited = false; showProgTag();      // the synth may not report a program the app selected, so note it here
     return true;
   } catch (e) { setStatus('Send failed: ' + e.message); return false; }
@@ -1790,7 +1791,7 @@ function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and prog
   else return;
   showProgTag();
 }
-let autoReadTimer = null, lastOwnSelect = 0;
+let autoReadTimer = null, lastOwnSelect = 0, newProgram = false;      // newProgram: the app chose a program, so the next read starts a fresh Back history
 function scheduleAutoRead(retry) {               // a program was chosen on the synth: wait for the knob to settle, then read it
   clearTimeout(autoReadTimer);
   const box = $('auto-read');
@@ -1806,7 +1807,7 @@ async function autoReadProgram() {
   if (progState.pc !== wanted) return;            // another program was chosen meanwhile; that change reads its own
   if (!vals) return setStatus('The synth changed program but did not answer the patch request, so the editor and Library were not updated.');
   const parsed = patchFromDump(vals, currentActivePatch.unison_detune);
-  pushHistory(); libLoadedId = null;
+  newProgram = false; HISTORY.length = 0; syncBack(); libLoadedId = null;        // a new program starts a new history: Back is for undoing Generate and Mutate, and would otherwise send the previous program's sound to this one
   currentActivePatch = parsed.next;
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
   if (vals.length >= NRPN_MAP.length) showDumpLog(vals);
@@ -2053,7 +2054,8 @@ function finishSysex(b) {
   lastDumpFull = vals.slice();
   if (DETUNE_OFFSET !== null) next.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
 
-  pushHistory(); libLoadedId = null;
+  if (newProgram) { HISTORY.length = 0; syncBack(); newProgram = false; }      // a read is not an edit to undo: Back only covers Generate and Mutate (a program you have just moved to starts a fresh history)
+  libLoadedId = null;
   currentActivePatch = next;
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
   syncSlidersToUI();
@@ -2119,18 +2121,22 @@ function readFromSynth() {
 
 // ---------- Mutate / history ----------
 const HISTORY = [];
+const syncBack = () => { const b = $('back-btn'); if (b) b.disabled = !HISTORY.length; };      // Back is greyed out when there is nothing to go back to
+syncBack();
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const FROZEN = ['oscA_freq', 'oscB_keyboard', 'oscB_lowfreq', 'release_switch', 'glide', 'unison', 'unison_voices', 'unison_detune', 'filter_rev', 'vel_filter', 'vel_amp', 'at_filter', 'at_lfo'];
 
 function pushHistory() {
   HISTORY.push({ ...currentActivePatch, _name: patchName });
   if (HISTORY.length > 20) HISTORY.shift();
+  syncBack();
 }
 
 function undoPatch() {
   if (!HISTORY.length) return setStatus('Nothing to go back to.');
   if (!requirePort()) return;
   const prev = HISTORY.pop();
+  syncBack();
   setName(prev._name || patchName);
   delete prev._name;
   currentActivePatch = prev;
