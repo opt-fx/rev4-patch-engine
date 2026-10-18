@@ -920,6 +920,7 @@ function applyLocks(next, prev) {            // locked sections keep their previ
 const LIB_DB = 'rev4-patch-engine', LIB_STORE = 'patches';
 let lib = [], libDb = null;
 let capturing = false, captureCancel = false, captureCb = null;
+let capSweep = false;                             // true only while Capture from synth steps through programs (capturing is also set briefly while Send with name checks its work)
 const libUI = { q: '', tag: '', set: '', group: '', origin: '', favOnly: false, changedOnly: false, annotated: false, hideCopies: false, sort: 'slot', limit: 150, open: new Set() };
 
 function libOpen() {
@@ -1160,7 +1161,7 @@ function entryDiffers(e) { for (const k in e.patch) if (k in currentActivePatch 
 function refreshLibMarks() {                      // light update of the badges only, so it is cheap enough to run on every knob move
   const lst = $('library');
   if (!lst || lst.hidden) return;
-  const cur = capturing ? null : currentSlotKey();      // no On synth mark while a capture is stepping through programs
+  const cur = capSweep ? null : currentSlotKey();      // no On synth mark while a capture is stepping through programs
   lst.querySelectorAll('.lrow[data-id]').forEach(row => {
     const e = lib.find(x => x.id === row.dataset.id), box = row.querySelector('.lstate');
     if (!e || !box) return;
@@ -1394,7 +1395,7 @@ async function startCapture() {
   for (let g = from; g <= to; g++) for (let b = 1; b <= 5; b++) for (let p = 1; p <= 8; p++) slots.push({ set, group: g, bank: b, prog: p });
   const mins = Math.max(1, Math.round(slots.length * 0.7 / 60));
   if (!confirm(`This steps the synth through ${slots.length} programs (${set === 'F' ? 'factory' : 'user'} group${to > from ? 's ' + from + ' to ' + to : ' ' + from}), about ${mins} minute${mins > 1 ? 's' : ''}. It changes the program on the synth, so any edits on the synth you haven't stored are lost` + ($('cap-restore').checked ? ", although afterwards the synth is put back on " + (progState.pc !== null ? 'the program it is on now (' + progLabel(progState) + (progEdited ? ', as last reported by the synth; if you have stored a patch into a different slot since, select that program on the synth first' : '') + ')' : 'the last program captured, because I don\'t know which program it is on (select a program on the synth first so the app can see it)') + " and the patch currently in the editor is sent back." : ".") + ' Continue?')) return;
-  capturing = true; captureCancel = false;
+  capturing = true; captureCancel = false; capSweep = true;
   document.body.classList.add('capturing');
   $('cap-go').hidden = true; $('cap-clear').hidden = true; $('cap-stop').hidden = false;
   const keep = { patch: { ...currentActivePatch }, chord: chordNotes.slice(), name: patchName };
@@ -1452,7 +1453,7 @@ async function startCapture() {
     syncSlidersToUI();
     transmitCurrentPatch('', true);
   }
-  capturing = false;
+  capturing = false; capSweep = false;
   document.body.classList.remove('capturing');
   showProgTag();
   $('cap-go').hidden = false; $('cap-clear').hidden = false; $('cap-stop').hidden = true;
@@ -1793,7 +1794,7 @@ function showProgTag() {
   if (progState.pc === null) return;
   refreshLibMarks();
   el.hidden = false;
-  if (capturing) {                                // the capture steps through every program: show that instead of flashing each one
+  if (capSweep) {                                 // the capture steps through every program: show that instead of flashing each one
     el.textContent = 'Synth: capturing programs…';
     el.title = 'The app is stepping the synth through its programs to read them. The program tag returns when it finishes.';
     return;
