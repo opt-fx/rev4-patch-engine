@@ -87,9 +87,13 @@
     .env-line { fill:none; stroke:var(--amber); stroke-width:1.2; stroke-linejoin:round; }
     .env-fill { fill:rgba(232,163,61,.14); stroke:none; }
     .ctl { padding:3px 5px; margin:-3px -5px; border-radius:4px; }
-    .ctl.flash { animation:flash 1.8s ease-out; }
-    @keyframes flash { from { background:rgba(232,163,61,.3); } to { background:transparent; } }
-    @media (prefers-reduced-motion:reduce) { .ctl.flash { animation:none; } }
+    .knob.flash .kg circle { animation:flashring 1.6s ease-out; }      /* only the knob's inner white ring flashes amber */
+    @keyframes flashring { 0%, 30% { stroke:#e8a33d; } 100% { stroke:#d2d2d2; } }
+    .led.flash, select.flash { animation:flashbox 1.6s ease-out; }      /* a button flashes an amber ring round its LED and its label turns amber */
+    @keyframes flashbox { 0%, 30% { box-shadow:0 0 0 calc(var(--k, 76px) * 1.6 / 64) rgba(232,163,61,.95); } 100% { box-shadow:0 0 0 calc(var(--k, 76px) * 1.6 / 64) rgba(232,163,61,0); } }      /* the ring is as thick as the knob's inner ring (1.6 units of its 64-unit drawing) */
+    .sw:has(.led.flash) span, .stepb:has(.led.flash) span { animation:flashtext 1.6s ease-out; }
+    @keyframes flashtext { 0%, 30% { color:#e8a33d; } }
+    @media (prefers-reduced-motion:reduce) { .knob.flash .kg circle, .led.flash, select.flash, .sw:has(.led.flash) span, .stepb:has(.led.flash) span { animation:none; } }
     .steps { display:flex; flex-wrap:wrap; gap:6px; }
     select { -webkit-appearance:none; appearance:none; padding-right:32px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b9b3a5' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; }
     .ctl select { padding-right:26px; background-position:right 9px center; }
@@ -223,7 +227,12 @@
     .mrow b { min-width:34px; text-align:right; font-weight:600; color:var(--amber); }
     .mrow.follow b, .mrow.follow .mname { color:#6f6a60; }
     .mrow.follow input[type=range] { opacity:.55; }
-    .mrow .mlock { font-size:10px; letter-spacing:.04em; text-transform:uppercase; color:#ff4d4d; flex:0 0 44px; }
+    .mrow .mpad { flex:0 0 auto; background:none; border:0; padding:2px; color:#6f6a60; cursor:pointer; }
+    .mrow .mpad rect { fill:transparent; }
+    .mrow .mpad[aria-pressed="true"] { color:var(--amber); }
+    .mrow .mpad[aria-pressed="true"] rect { fill:currentColor; }
+    .mrow .mpad:hover { color:var(--cream); }
+    .mrow .mpad:focus-visible { outline:2px solid var(--amber); }
     .progtag .edited { color:#ff4d4d; }
     .progtag { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); border:1px solid var(--line); border-radius:12px; padding:5px 12px; background:#141312; white-space:nowrap; }
     .foot { margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:12px; line-height:1.5; color:#8b8578; }
@@ -650,7 +659,7 @@ function buildDashboard() {
     sect.className = 'sect'; sect.dataset.g = g.toLowerCase().replace(/[^a-z0-9]+/g, '');
     const GFX = {};                       // the envelope, filter and LFO graphics were removed; the draw functions skip a graphic that is not on the page
     const gid = GFX[g];
-    sect.innerHTML = `<h2>${g}</h2><button type="button" class="lock lockicon" aria-pressed="false" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('${g}', this)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
+    sect.innerHTML = `<h2>${g}</h2><button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('${g}')"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
     if (g === 'Unison') {
       sect.querySelector('.ctls').classList.add('uni');    }
     const box = sect.querySelector('.ctls'), sws = sect.querySelector('.sws'), later = [];
@@ -691,7 +700,7 @@ function buildDashboard() {
     later.forEach(c => box.appendChild(c));
     if (g === 'Vintage') {
       vintRow.insertAdjacentHTML('afterbegin', '<h2>Vintage</h2>');
-      vintRow.insertAdjacentHTML('beforeend', `<button type="button" class="lock lockicon" aria-pressed="false" aria-label="Lock Vintage" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('Vintage', this)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`);
+      vintRow.insertAdjacentHTML('beforeend', `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="Vintage" aria-label="Lock Vintage" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('Vintage')"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`);
       return;
     }
     COMBOS.forEach((c, i) => {
@@ -887,13 +896,18 @@ const NAME_WORDS = ["Amber","Anchor","Ash","Atlas","Aurora","Autumn","Azure","Ba
 const randomName = () => { const a = pick(NAME_WORDS); let b; do b = pick(NAME_WORDS); while (b === a); return a + ' ' + b; };      // 190 x 189 = 35,910 names
 function setName(n) { patchName = n; $('patch-name').value = n; }
 
-function toggleLock(g, btn) {
-  const on = !LOCKED.has(g);
-  if (on) LOCKED.add(g); else LOCKED.delete(g);
-  btn.setAttribute('aria-pressed', on);
-  const nm = btn.getAttribute('aria-label').replace(/^(Lock|Unlock) /, '');
-  btn.setAttribute('aria-label', (on ? 'Unlock ' : 'Lock ') + nm);
-  btn.title = on ? 'Locked: Generate and Mutate leave this section alone. Click to unlock.' : 'Lock this section, so Generate and Mutate leave it alone';
+const LOCK_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg>';
+function syncLockButtons() {                  // every padlock for a section (on the section itself and in Mutate by section) shows the same state
+  document.querySelectorAll('button[data-lock]').forEach(btn => {
+    const g = btn.dataset.lock, on = LOCKED.has(g);
+    btn.setAttribute('aria-pressed', on);
+    btn.setAttribute('aria-label', (on ? 'Unlock ' : 'Lock ') + g);
+    btn.title = on ? 'Locked: Generate and Mutate leave this section alone. Click to unlock.' : 'Lock this section, so Generate and Mutate leave it alone';
+  });
+}
+function toggleLock(g) {
+  if (LOCKED.has(g)) LOCKED.delete(g); else LOCKED.add(g);
+  syncLockButtons();
   syncMutAdv();
 }
 
@@ -1485,9 +1499,12 @@ async function libInit() {
 
 function flashChanged(keys) {
   keys.forEach(k => {
-    const el = $('input-' + k) && $('input-' + k).closest('.ctl');
+    const input = $('input-' + k);
+    if (!input) return;
+    const el = input.type === 'checkbox' ? input.nextElementSibling : input.classList.contains('steps') ? input.querySelector('.stepb.on .led') : input;      // the knob, the LED, the chosen step or the dropdown itself
     if (!el) return;
     el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    el.addEventListener('animationend', () => el.classList.remove('flash'), { once: true });
   });
 }
 
@@ -2080,12 +2097,13 @@ function buildMutAdv() {
     const name = el('button', { type: 'button', class: 'mname', title: 'Click to follow the main Mutate amount' }, g);
     const slider = el('input', { type: 'range', min: '0', max: '60', 'aria-label': 'Mutate amount for ' + g });
     const val = el('b', {});
-    const lockTag = el('span', { class: 'mlock' });
-    const row = el('div', { class: 'mrow' }, name, slider, val, lockTag);
+    const lockBtn = el('button', { type: 'button', class: 'lockicon mpad', 'data-lock': g, 'aria-pressed': 'false' });
+    lockBtn.innerHTML = LOCK_SVG; lockBtn.onclick = () => toggleLock(g);
+    const row = el('div', { class: 'mrow' }, name, slider, val, lockBtn);
     row._sync = () => {
       const own = g in SEC_AMT, v = secAmount(g);
       slider.value = v; val.textContent = v + '%'; row.classList.toggle('follow', !own);
-      lockTag.textContent = LOCKED.has(g) ? 'Locked' : ''; paint(slider);
+      syncLockButtons(); paint(slider);
     };
     slider.oninput = () => { SEC_AMT[g] = parseInt(slider.value); row._sync(); };
     name.onclick = () => { delete SEC_AMT[g]; row._sync(); };
