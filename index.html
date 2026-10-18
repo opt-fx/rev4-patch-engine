@@ -39,13 +39,15 @@
     .keepopt { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink); cursor:pointer; }
     .keepopt input { accent-color:var(--amber); width:16px; height:16px; cursor:pointer; }
 
+    @media (min-width:1100px) { .followopt .hint { display:none; } }
+    .followopt { display:block; margin-top:6px; font-size:12px; color:#6f6a60; }
     #status { margin-top:16px; font-size:13px; color:var(--ink); min-height:18px; }
     #last-sent, #last-recv { margin-top:2px; font-size:12px; color:#6f6a60; font-family:Consolas,monospace; min-height:16px; }
 
     #dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:28px 18px; margin-top:28px; }
     @media (max-width:760px) { #dashboard-grid { grid-template-columns:1fr; } }
     .sect { position:relative; border:1.5px solid #b9b5ab; border-radius:10px; padding:20px 16px 22px; background-color:rgba(0,0,0,.2); background-image:linear-gradient(135deg,rgba(255,255,255,.035) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,0) 65%,rgba(255,255,255,.02) 100%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8  0 0 0 0 .8  0 0 0 0 .82  0 0 0 .9 -.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E"); background-size:auto,180px 180px; }
-    .sect h2 { position:absolute; top:-12px; left:12px; margin:0; padding:0 8px; background:#1b1a18; color:var(--amber); font-size:14px; font-weight:600; }
+    .sect h2 { position:absolute; top:-.75px; left:50%; transform:translate(-50%,-50%); margin:0; padding:0 10px; background:#1b1a18; color:var(--cream); font-size:12px; font-weight:700; line-height:1; white-space:nowrap; }
     .ctls { display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:14px 16px; }
     .row { display:flex; justify-content:space-between; font-size:12px; color:var(--ink); margin-bottom:5px; }
     .row b { color:var(--cream); font-weight:500; font-variant-numeric:tabular-nums; }
@@ -78,9 +80,10 @@
     .sw:has(input:checked) { color:var(--cream); }
 
     #raw-log { margin-top:10px; font-size:12px; color:var(--ink); }
-    #raw-log summary { cursor:pointer; }
+    #raw-log summary { cursor:pointer; font-size:11px; font-weight:400; color:#6f6a60; text-transform:none; letter-spacing:0; }
     #raw-pre { user-select:text; -webkit-user-select:text; max-height:220px; overflow:auto; margin:8px 0 0; padding:10px; background:#121110; border:1px solid var(--line); border-radius:5px; font-size:11px; color:#9d978a; }
     .env { width:100%; height:auto; display:block; margin-bottom:18px; background:#121110; border:1px solid #7a766c; border-radius:4px; }
+    .env path { vector-effect:non-scaling-stroke; }
     .env-line { fill:none; stroke:var(--amber); stroke-width:1.2; stroke-linejoin:round; }
     .env-fill { fill:rgba(232,163,61,.14); stroke:none; }
     .ctl { padding:3px 5px; margin:-3px -5px; border-radius:4px; }
@@ -90,8 +93,15 @@
     .steps { display:flex; flex-wrap:wrap; gap:6px; }
     select { -webkit-appearance:none; appearance:none; padding-right:32px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b9b3a5' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; }
     .ctl select { padding-right:26px; background-position:right 9px center; }
-    .lock { position:absolute; top:-13px; right:12px; background:#1b1a18; border:0; padding:0 8px; color:var(--ink); font-size:12px; font-family:inherit; cursor:pointer; }
-    .syncbtn { right:62px; }
+    .lock { position:absolute; top:-.75px; right:10px; transform:translateY(-50%); background:#1b1a18; border:0; padding:0 6px; color:var(--ink); font-size:12px; line-height:1; font-family:inherit; cursor:pointer; }
+    .lockicon { display:flex; align-items:center; height:18px; }
+    .lockicon svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+    .lockicon rect { fill:#1b1a18; }
+    .lockicon .shk-open { display:inline; } .lockicon .shk { display:none; }
+    .lockicon[aria-pressed="true"] .shk { display:inline; } .lockicon[aria-pressed="true"] .shk-open { display:none; }
+    .lockicon[aria-pressed="true"] rect { fill:currentColor; }
+    .lockicon:hover { color:var(--cream); }
+    .syncbtn { right:auto; left:10px; }
     .lock[aria-pressed="true"] { color:var(--amber); font-weight:600; }
     .lock:focus-visible { outline:2px solid var(--amber); }
     .tabs { display:flex; gap:6px; margin-top:22px; border-bottom:1px solid var(--line); }
@@ -110,11 +120,20 @@
     #cap-bar { width:100%; margin-top:10px; accent-color:var(--amber); }
     .warn { margin:14px 0 0; padding:8px 12px; border:1px solid #7a4a1a; border-radius:6px; background:#2a1c10; color:#e8c48a; font-size:13px; }
     #lib-list { margin-top:10px; }
+    .libcols { display:grid; grid-template-columns:minmax(0,1fr); gap:0 28px; align-items:start; }
+    .libhead { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); padding:8px 4px 6px; border-bottom:1px solid var(--line); }
+    .libother { margin-top:16px; }
+    @media (min-width:1100px) { .libcols:not(.single) { grid-template-columns:repeat(2,minmax(0,1fr)); } .libcols .libother { grid-column:1 / -1; } }
     .lrow { display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid var(--line); }
     .lname { flex:1; min-width:0; font-size:14px; display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; }
     .lname b { font-weight:600; overflow-wrap:anywhere; }
     .lslot { font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--amber); border:1px solid var(--line); border-radius:10px; padding:1px 8px; background:#141312; }
     .tagrow { display:contents; }
+    .lstate { display:contents; }
+    .lrow.now { background:#1d1a14; box-shadow:inset 3px 0 0 var(--amber); }
+    .lmark { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#1c1005; background:var(--amber); border-radius:10px; padding:1px 8px; }
+    .lmark.alt { background:#ece6d6; }
+    .ledit { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#ff4d4d; }
     .chg { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#1c1005; background:var(--amber); border-radius:10px; padding:1px 8px; }
     .tagc { font-size:11px; color:var(--ink); border-radius:10px; padding:1px 8px; background:#2a2724; }
     .star { background:none; border:0; color:#5b564d; font-size:20px; line-height:1; cursor:pointer; padding:2px 4px; }
@@ -147,7 +166,7 @@
     .knob text { fill:#d8d2c2; font:600 6.5px 'Helvetica Neue',Helvetica,Arial,sans-serif; text-anchor:middle; }
     .klabel { margin-top:7px; font-size:10.5px; line-height:1.15; color:var(--cream); }
     .kval { margin-top:2px; font-size:11px; font-weight:500; color:var(--amber); font-variant-numeric:tabular-nums; }
-    h2, .sw span, .row span, .klabel, .ports label, .namebar label, .favhead span, .lock, .btn, .keepopt, .masthead p, #raw-log summary { text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
+    h2, .sw span, .row span, .klabel, .ports label, .namebar label, .favhead span, .lock, .btn, .keepopt, .masthead p { text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
     .btn { font-size:12px; }
     .sw span { font-size:10.5px; }
     .sw.below { flex-direction:column-reverse; }
@@ -164,10 +183,11 @@
     .stepb:focus-visible .led { outline:2px solid var(--amber); outline-offset:2px; }
     .ctls.uni { display:flex; flex-wrap:wrap; align-items:flex-end; gap:16px 30px; }
     .ctls.uni .ctl.us { width:70px; flex:none; }
-    .ctls.uni .ctl.vox { align-self:flex-start; margin-top:-4px; }
+    .ctls.uni .ctl.vox { align-self:flex-start; margin-top:-6px; }
     .ctls.uni .ctl.vox select { width:auto; min-width:104px; padding:6px 30px 6px 10px; font-size:12px; }
-    .ctls.uni .ctl.det { flex-basis:100%; padding-left:95px; box-sizing:border-box; display:flex; flex-direction:column-reverse; gap:9px; }
-    .ctls.uni .ctl.det .row { margin:0; }
+    .ctls.uni .ctl.det { flex-basis:100%; padding-left:0; box-sizing:border-box; display:flex; flex-direction:column-reverse; gap:9px; }
+    .ctls.uni .ctl.det .row { margin:0; width:70px; justify-content:center; }
+    .ctls.uni .ctl.det .steps { padding-left:20px; gap:10px 4px; }          /* the first detune step sits under the Unison button, centred on it */
     .ctls.uni .ctl.vox .row { display:none; }
     .ctls.uni .ctl.det .row span { font-size:10.5px; }
     .stack { display:flex; flex-direction:column; gap:28px; }
@@ -191,10 +211,111 @@
     .cbtn:active .led { transform:translateY(1px); }
     .cbtn:focus-visible .led { outline:2px solid var(--amber); outline-offset:2px; }
     .cmb-label { margin-top:9px; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--cream); }
+    .btn.step { display:inline-flex; align-items:center; justify-content:center; width:38px; height:32px; padding:0; }
+    .btn.step svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+    .mutadv { margin-top:10px; font-size:12px; }
+    .mutadv summary { cursor:pointer; color:var(--amber); font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:4px 0; }
+    .mutadv .muted { margin:6px 0 8px; color:#6f6a60; }
+    #mutadv-rows { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:4px 22px; }
+    .mrow { display:flex; align-items:center; gap:8px; }
+    .mrow .mname { flex:0 0 112px; text-align:left; background:none; border:0; padding:2px 0; color:var(--ink); font:inherit; cursor:pointer; }
+    .mrow input[type=range] { flex:1; min-width:0; }
+    .mrow b { min-width:34px; text-align:right; font-weight:600; color:var(--amber); }
+    .mrow.follow b, .mrow.follow .mname { color:#6f6a60; }
+    .mrow.follow input[type=range] { opacity:.55; }
+    .mrow .mlock { font-size:10px; letter-spacing:.04em; text-transform:uppercase; color:#ff4d4d; flex:0 0 44px; }
     .progtag .edited { color:#ff4d4d; }
     .progtag { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); border:1px solid var(--line); border-radius:12px; padding:5px 12px; background:#141312; white-space:nowrap; }
     .foot { margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:12px; line-height:1.5; color:#8b8578; }
     .foot p { margin:0 0 6px; }
+
+    /* ---- compact layout: on screens wide enough, fit the whole editor on one screen ---- */
+    .midbar { display:flex; flex-direction:column; }
+    .midbar .toprow { order:-1; }
+    .mutadv[open] { flex-basis:100%; margin-bottom:10px; }
+    @media (min-width:1100px) {
+      body { padding:10px 10px; --k:clamp(58px, calc(58px + (100vh - 800px) * .05), 80px); --pad:clamp(10px, calc(10px + (100vh - 800px) * .02), 20px); --gap:clamp(16px, calc(16px + (100vh - 800px) * .012), 22px); --envh:clamp(28px, calc(28px + (100vh - 800px) * .05), 52px); --lab:clamp(9.5px, calc(9.5px + (100vh - 800px) * .002), 10.5px); }
+      .synth { max-width:1560px; }
+      .cheek { width:20px; }
+      .panel { padding:12px 22px 12px; }
+      h1 { font-size:26px; }
+      .masthead { padding-bottom:8px; gap:10px; }
+      .masthead p { margin-top:3px; font-size:12px; }
+      .namebar { margin-top:8px; }
+      .actions { margin-top:8px; gap:6px 8px; flex-wrap:nowrap; }
+      .actions .btn { padding:6px 9px; font-size:11px; white-space:nowrap; }
+      .actions .btn.hero { padding:8px 18px; font-size:14px; }
+      .actions .keepopt { font-size:11px; white-space:nowrap; }
+      .spacer { flex:1 1 0; min-width:0; }
+      .mutate { gap:8px; padding:3px 8px; }
+      .mutate input[type=range] { width:80px; }
+      .infobar { display:flex; flex-wrap:wrap; align-items:center; gap:2px 18px; margin-top:8px; }
+      .infobar > * { margin-top:0; min-height:0; }
+      #status { margin-top:0; }
+      .midbar { flex-direction:row; align-items:flex-end; gap:18px; margin-top:8px; border-bottom:1px solid var(--line); }
+      .midbar .toprow { order:0; flex:1; margin:0; padding-bottom:4px; min-width:0; }
+      .midbar .tabs { margin:0; border-bottom:0; flex:none; }
+      .tabs button { padding:7px 16px; }
+      .favs { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; }
+      #fav-list { margin-top:0; }
+      #dashboard-grid { container-type:inline-size; grid-template-columns:repeat(24,minmax(0,1fr)); gap:0 14px; grid-template-rows:repeat(12,auto); margin-top:16px; }
+      .stack { display:contents; }
+      .sect { padding:var(--pad) 12px calc(var(--pad) - 2px); }
+      [data-g="oscillatora"] { grid-column:span 4; order:1; }
+      [data-g="oscillatorb"] { grid-column:span 7; order:2; }
+      [data-g="mixer"] { grid-column:span 7; order:3; }
+      [data-g="unison"] { grid-column:span 6; order:4; }
+      [data-g="filter"] { grid-column:span 7; order:5; }
+      [data-g="filterenvelope"] { grid-column:span 7; order:6; }
+      [data-g="ampenvelope"] { grid-column:span 7; order:7; }
+      [data-g="vintage"] { grid-column:span 3; order:8; }
+      [data-g="lfo"] { grid-column:span 8; order:9; }
+      [data-g="wheelmod"] { grid-column:span 9; order:10; }
+      [data-g="polymod"] { grid-column:span 7; order:11; }
+      .ctls { grid-template-columns:repeat(auto-fill,calc((7 * ((100cqw - 322px) / 24) + 84px - 28px) / 4)); justify-content:start; gap:calc(var(--pad) - 2px) 0; }
+      svg.env { display:none; }
+      .knob { width:var(--k); height:var(--k); }
+      .klabel { margin-top:3px; font-size:var(--lab); white-space:nowrap; }
+      .stack .sect { justify-content:flex-start; }
+      .sws { grid-template-columns:repeat(auto-fit,minmax(54px,1fr)); }
+      .kval { font-size:10px; }
+      .env { height:var(--envh); margin-bottom:6px; }
+      .sws { margin-top:14px; padding-top:0; gap:6px 6px; }
+      .libother .libbody { column-count:2; column-gap:28px; }
+      .libother .libbody .lrow { break-inside:avoid; }
+      .libother .libbody .ldetail { column-span:all; }
+      .libtop { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; position:sticky; top:0; z-index:5; margin-top:8px; padding:8px 0; background:#1b1a18; border-bottom:1px solid var(--line); }
+      .libtop > .libbar { display:contents; }
+      .libtop input[type="search"] { flex:1 1 240px; max-width:340px; min-width:200px; }
+      .libtop select { padding:6px 28px 6px 8px; font-size:13px; }
+      .libtop .keepopt { font-size:11px; }
+
+      /* every section in a row shares its row lines, so knobs, captions and switches line up across the page */
+      #dashboard-grid > .sect:not(.vintbox), #dashboard-grid > .stack > .sect { display:grid; grid-template-rows:subgrid; grid-template-columns:minmax(0,1fr); grid-row:span 4; row-gap:0; align-content:start; }
+      #dashboard-grid .sect > .ctls { grid-row:1; }
+      #dashboard-grid .sect > .ctls + .cap { grid-row:2; }
+      #dashboard-grid .sect > .sws { grid-row:3; }
+      #dashboard-grid .sect > .sws + .cap { grid-row:4; }
+      #dashboard-grid .sect > .ctls:not(.uni) { margin-top:10px; }
+      /* Unison: its controls take part in the shared row lines, so DETUNE lines up with the switch labels (SAW, SQUARE...) in the neighbouring sections */
+      #dashboard-grid .sect[data-g="unison"] { grid-template-columns:70px auto minmax(0,1fr); }
+      #dashboard-grid .sect[data-g="unison"] > .ctls.uni { display:contents; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.us { grid-column:1; grid-row:1; align-self:start; margin-top:6px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.vox { grid-column:2; grid-row:1; align-self:start; margin:3px 0 0 24px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.det { grid-column:1 / -1; grid-row:3; margin-top:11px; align-self:start; }
+      #dashboard-grid .sect[data-g="unison"] .stepb { gap:6px; min-width:26px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.det .steps { gap:10px 3px; padding-left:22px; }
+      @media (min-width:1300px) {       /* wide enough for one row: the buttons sit above the DETUNE word, which lines up with the switch labels */
+        #dashboard-grid .sect[data-g="unison"] .ctl.det { position:relative; flex-direction:column; }
+        #dashboard-grid .sect[data-g="unison"] .ctl.det .steps { position:absolute; left:0; right:0; bottom:calc(100% + 4px); flex-wrap:nowrap; }
+      }
+      #dashboard-grid .sect.sect:is([data-g="oscillatora"],[data-g="oscillatorb"],[data-g="mixer"],[data-g="unison"]) { grid-row:1 / span 4; }
+      #dashboard-grid .sect.sect:is([data-g="filter"],[data-g="filterenvelope"],[data-g="ampenvelope"],[data-g="vintage"]) { grid-row:5 / span 4; margin-top:var(--gap); }
+      #dashboard-grid .sect.sect:is([data-g="lfo"],[data-g="wheelmod"],[data-g="polymod"]) { grid-row:9 / span 4; margin-top:var(--gap); }
+      #dashboard-grid [data-g="unison"] > .ctls { grid-row:1 / span 4; }
+      .foot { margin-top:12px; padding-top:8px; }
+      .foot p { margin-bottom:2px; }
+    }
     @media (max-width:640px) { .cheek { width:12px; } .panel { padding:18px 14px 22px; } .spacer { display:none; } }
 </style>
 </head>
@@ -226,6 +347,8 @@
       <input id="patch-name" type="text" maxlength="32" oninput="patchName = this.value">
       <button class="btn" onclick="setName(randomName())">New name</button>
       <span id="prog-info" class="progtag" hidden></span>
+      <button class="btn step" onclick="stepProgram(-1)" title="Previous program on the synth ( [ )" aria-label="Previous program"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 2.5 5 8l5.5 5.5"/></svg></button>
+      <button class="btn step" onclick="stepProgram(1)" title="Next program on the synth ( ] )" aria-label="Next program"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 2.5 11 8l-5.5 5.5"/></svg></button>
     </div>
 
     <div class="actions">
@@ -235,7 +358,7 @@
         <button class="btn" onclick="mutatePatch()">Mutate</button>
         <label>Amount
           <input type="range" id="mutate-amount" min="5" max="60" value="20"
-                 oninput="$('mutate-val').innerText=this.value+'%'; paint(this)">
+                 oninput="$('mutate-val').innerText=this.value+'%'; paint(this); syncMutAdv()">
           <b id="mutate-val">20%</b>
         </label>
       </div>
@@ -251,13 +374,21 @@
       <button class="btn" onclick="resetSynth()">Reset</button>
     </div>
 
+    <div class="infobar">
+    <details id="mutadv" class="mutadv">
+      <summary>Mutate by section</summary>
+      <p class="muted">Each section follows the main Mutate amount until you move its slider. 0% leaves a section as it is. Click a section's name to make it follow the main amount again.</p>
+      <div id="mutadv-rows"></div>
+    </details>
     <div id="status">Initializing Web MIDI...</div>
     <div id="last-sent"></div>
     <div id="last-recv"></div>
-    <label style="display:block;margin-top:6px;font-size:12px;color:#6f6a60"><input type="checkbox" id="follow-synth" checked> Follow the synth's knobs and buttons (set Param Xmit to CC on the Prophet)</label>
+    <label class="followopt"><input type="checkbox" id="follow-synth" checked> Follow the synth's knobs and buttons <span class="hint">(set Param Xmit to CC on the Prophet)</span></label>
+    </div>
     <details id="raw-log" hidden><summary>Last dump received from the Prophet</summary>
       <button class="btn" style="margin-top:8px" onclick="copyDump()">Copy to clipboard</button><pre id="raw-pre"></pre></details>
 
+    <div class="midbar">
     <div class="toprow">
     <div class="favs">
       <div class="favhead"><span>Favourites</span><button class="btn" onclick="addFav()">Save current</button></div>
@@ -270,10 +401,12 @@
       <button id="tab-library" role="tab" aria-selected="false" onclick="showTab('library')">Library <span id="lib-count"></span></button>
     </div>
 
+    </div>
     <div id="dashboard-grid"></div>
 
     <section id="library" hidden>
       <p id="lib-warn" class="warn" hidden></p>
+      <div class="libtop">
       <div class="libbar">
         <input id="lib-q" type="search" placeholder="Search name, tag, notes or slot" aria-label="Search the library" oninput="libUI.q=this.value; libUI.limit=150; renderLib()">
         <select id="lib-sort" aria-label="Sort" onchange="libUI.sort=this.value; renderLib()">
@@ -301,11 +434,13 @@
       </div>
       <div class="libbar">
         <button class="btn" onclick="libSaveCurrent()">Save current patch</button>
+        <button class="btn" onclick="findCurrent()" title="Clears the filters and scrolls to the patch that is on the synth or loaded in the editor">Find current</button>
         <button class="btn" onclick="libExport()">Export library</button>
         <label class="btn file-label" for="lib-import" tabindex="0">Import</label>
         <input type="file" id="lib-import" accept=".json" onchange="libImport(this)">
         <span class="spacer"></span>
         <span id="lib-summary" class="muted"></span>
+      </div>
       </div>
       <details class="capbox" id="cap">
         <summary>Capture patches from the synth</summary>
@@ -508,14 +643,14 @@ function buildDashboard() {
   const root = $('dashboard-grid');
   root.innerHTML = '';
   const vintRow = document.createElement('div');
-  vintRow.className = 'sect vintbox';
+  vintRow.className = 'sect vintbox'; vintRow.dataset.g = 'vintage';
   let stack = null;
   [...new Set(PARAMS.map(p => p[0]))].forEach(g => {
     const sect = document.createElement('section');
-    sect.className = 'sect';
-    const GFX = { 'Filter envelope': 'env-filter', 'Amp envelope': 'env-amp', 'Filter': 'gfx-filter', 'LFO': 'gfx-lfo' };
+    sect.className = 'sect'; sect.dataset.g = g.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    const GFX = {};                       // the envelope, filter and LFO graphics were removed; the draw functions skip a graphic that is not on the page
     const gid = GFX[g];
-    sect.innerHTML = `<h2>${g}</h2><button type="button" class="lock" aria-pressed="false" onclick="toggleLock('${g}', this)">Lock</button>` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
+    sect.innerHTML = `<h2>${g}</h2><button type="button" class="lock lockicon" aria-pressed="false" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('${g}', this)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
     if (g === 'Unison') {
       sect.querySelector('.ctls').classList.add('uni');    }
     const box = sect.querySelector('.ctls'), sws = sect.querySelector('.sws'), later = [];
@@ -556,7 +691,7 @@ function buildDashboard() {
     later.forEach(c => box.appendChild(c));
     if (g === 'Vintage') {
       vintRow.insertAdjacentHTML('afterbegin', '<h2>Vintage</h2>');
-      vintRow.insertAdjacentHTML('beforeend', `<button type="button" class="lock" aria-pressed="false" onclick="toggleLock('Vintage', this)">Lock</button>`);
+      vintRow.insertAdjacentHTML('beforeend', `<button type="button" class="lock lockicon" aria-pressed="false" aria-label="Lock Vintage" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('Vintage', this)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`);
       return;
     }
     COMBOS.forEach((c, i) => {
@@ -568,13 +703,14 @@ function buildDashboard() {
         `</div><button type="button" class="cbtn" aria-label="${c.label}" onclick="pressCombo(${i})"><i class="led"></i></button><span class="cmb-label">${c.label}</span>`;
       sws.appendChild(d);
     });
-    if (g === 'Mixer') { stack = document.createElement('div'); stack.className = 'stack'; stack.appendChild(sect); root.appendChild(stack); }
+    if (g === 'Mixer') { stack = document.createElement('div'); stack.className = 'stack'; stack.dataset.g = 'stack'; stack.appendChild(sect); root.appendChild(stack); }
     else if (g === 'Unison' && stack) stack.appendChild(sect);
     else root.appendChild(sect);
    });
   root.appendChild(vintRow);
   document.querySelectorAll('#dashboard-grid input[type=range]').forEach(paint);
   paint($('mutate-amount'));
+  buildMutAdv();
   document.querySelectorAll('.knob').forEach(k => setKnob(k, currentActivePatch[k.dataset.key]));
   refreshCombos();
   drawEnvelopes();
@@ -591,6 +727,7 @@ function updateParam(key, value) {
   if (p.type === 'range') setKnob($('input-' + key), v);
   drawEnvelopes();
   sendCC(p.cc, wireValue(key, v));
+  refreshLibMarks();
   if (!quiet && key === 'unison' && v && currentActivePatch.unison_voices < 1) updateParam('unison_voices', 1);   // unison needs at least one voice
 }
 
@@ -755,7 +892,10 @@ function toggleLock(g, btn) {
   const on = !LOCKED.has(g);
   if (on) LOCKED.add(g); else LOCKED.delete(g);
   btn.setAttribute('aria-pressed', on);
-  btn.innerText = on ? 'Locked' : 'Lock';
+  const nm = btn.getAttribute('aria-label').replace(/^(Lock|Unlock) /, '');
+  btn.setAttribute('aria-label', (on ? 'Unlock ' : 'Lock ') + nm);
+  btn.title = on ? 'Locked: Generate and Mutate leave this section alone. Click to unlock.' : 'Lock this section, so Generate and Mutate leave it alone';
+  syncMutAdv();
 }
 
 function applyLocks(next, prev) {            // locked sections keep their previous values
@@ -866,9 +1006,10 @@ function loadEntry(id, toEditor) {
   chordNotes = (e.chord || []).slice();
   setName(e.name);
   syncSlidersToUI();
+  libLoadedId = e.id;
   const chordMode = currentActivePatch.unison && currentActivePatch.unison_voices === CHORD;
   transmitCurrentPatch(`Loaded "${e.name}".` + (chordMode ? " Its unison chord notes can't be sent, so the synth keeps whichever chord it already has." : '') + (toEditor ? '' : ' Switch to the Editor tab to tweak it.'), !!e.perf);
-  if (toEditor) showTab('editor');
+  if (toEditor) showTab('editor'); else refreshLibMarks();
 }
 
 // --- favourites chips on the main page ---
@@ -952,8 +1093,8 @@ function libRow(e) {
   const tagsEl = el('span', { class: 'tagrow' }, tagChips(e));
   const star = el('button', { class: 'star', 'aria-pressed': String(e.fav), 'aria-label': 'Favourite', title: 'Favourite', onclick: () => toggleFav(e.id) }, '★');
   const open = libUI.open.has(e.id);
-  const row = el('div', { class: 'lrow' }, star,
-    el('div', { class: 'lname' }, nameEl, e.slot ? el('span', { class: 'lslot' }, slotLabel(e.slot)) : '', e.changed ? el('span', { class: 'chg', title: 'This slot was different the last time it was captured from the synth' }, 'changed') : '', tagsEl),
+  const row = el('div', { class: 'lrow', 'data-id': e.id }, star,
+    el('div', { class: 'lname' }, nameEl, e.slot ? el('span', { class: 'lslot' }, slotLabel(e.slot)) : '', el('span', { class: 'lstate' }), e.changed ? el('span', { class: 'chg', title: 'This slot was different the last time it was captured from the synth' }, 'changed') : '', tagsEl),
     e.slot ? el('button', { class: 'btn sm', title: 'Select this program on the synth (Bank Select and Program Change) and read it into the editor', onclick: () => goToSlot(e.id) }, 'Go to slot') : '',
     el('button', { class: 'btn sm', onclick: () => loadEntry(e.id) }, 'Load'),
     el('button', { class: 'btn sm', 'aria-expanded': String(open), onclick: ev => {
@@ -993,6 +1134,42 @@ async function libDelete(id) {
   renderFavs(); renderLib();
 }
 
+// --- marking what is on the synth and in the editor ---
+let libLoadedId = null;                           // the library patch most recently loaded or sent from here
+function currentSlotKey() {                       // the program the synth last reported or the app last selected, as a library slot key
+  if (progState.pc === null || progState.lsb === null) return null;
+  const bankNo = Math.floor(progState.pc / 8) + 1;
+  if (bankNo > 5) return null;
+  const factory = progState.lsb >= 5;
+  return `${factory ? 'F' : 'U'}:${factory ? progState.lsb - 4 : progState.lsb + 1}:${bankNo}:${(progState.pc % 8) + 1}`;
+}
+function entryDiffers(e) { for (const k in e.patch) if (k in currentActivePatch && currentActivePatch[k] !== e.patch[k]) return true; return false; }
+function refreshLibMarks() {                      // light update of the badges only, so it is cheap enough to run on every knob move
+  const lst = $('library');
+  if (!lst || lst.hidden) return;
+  const cur = capturing ? null : currentSlotKey();      // no On synth mark while a capture is stepping through programs
+  lst.querySelectorAll('.lrow[data-id]').forEach(row => {
+    const e = lib.find(x => x.id === row.dataset.id), box = row.querySelector('.lstate');
+    if (!e || !box) return;
+    const onSynth = !!cur && slotKey(e.slot) === cur, loaded = libLoadedId === e.id;
+    const edited = (onSynth && progEdited) || (loaded && entryDiffers(e));
+    const sig = [onSynth, loaded && !onSynth, edited].join();
+    row.classList.toggle('now', onSynth || loaded);
+    if (box.dataset.sig === sig) return;
+    box.dataset.sig = sig;
+    box.replaceChildren();
+    if (onSynth) box.append(el('span', { class: 'lmark', title: 'The program the synth last reported, or the last one this app selected' }, 'On synth'));
+    else if (loaded) box.append(el('span', { class: 'lmark alt', title: 'Loaded into the editor and sent to the synth from this library' }, 'Loaded'));
+    if (edited) box.append(el('span', { class: 'ledit', title: 'The sound has been changed since' }, 'edited'));
+  });
+}
+function findCurrent() {                          // clear the filters and bring the marked row into view
+  libClearFilters(); libUI.limit = 1e9; renderLib();
+  const row = document.querySelector('#lib-list .lrow.now');
+  if (row) row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  else setStatus('Nothing in the library matches the program on the synth. Select a program on the synth, or load a patch from the library.');
+}
+
 function renderLib() {
   $('lib-count').textContent = lib.length ? `(${lib.length})` : '';
   if ($('library').hidden) return;
@@ -1001,9 +1178,22 @@ function renderLib() {
   box.replaceChildren();
   if (!lib.length) box.append(el('p', { class: 'muted' }, 'The library is empty. Save the current patch, capture patches from the synth below, or import a library file.'));
   else if (!rows.length) box.append(el('p', { class: 'muted' }, 'Nothing matches that search.'));
-  rows.slice(0, libUI.limit).forEach(e => libRow(e).forEach(n => box.append(n)));
+  const shown = rows.slice(0, libUI.limit);
+  const sets = [['F', 'Factory'], ['U', 'User'], [null, 'Saved and imported']];     // factory on the left, user on the right, anything from outside the synth underneath
+  const groups = sets.map(([k, label]) => ({ k, label, all: rows.filter(e => (e.slot ? e.slot.set : null) === k), list: shown.filter(e => (e.slot ? e.slot.set : null) === k) })).filter(g => g.all.length || (!libUI.set && g.k && lib.length && !libUI.q));
+  if (groups.length) {
+    const cols = el('div', { class: 'libcols' + (libUI.set ? ' single' : '') });
+    groups.forEach(g => {
+      const body = el('div', { class: 'libbody' });
+      g.list.forEach(e => libRow(e).forEach(n => body.append(n)));
+      if (!g.all.length) body.append(el('p', { class: 'muted libnone' }, g.k === 'F' ? 'No factory patches yet. Capture them from the synth below.' : 'No user patches yet. Capture them from the synth below.'));
+      cols.append(el('div', { class: 'libcol' + (g.k ? '' : ' libother'), 'data-set': g.k || 'other' }, el('div', { class: 'libhead' }, `${g.label} (${g.all.length})`), body));
+    });
+    box.append(cols);
+  }
   $('lib-more').hidden = rows.length <= libUI.limit;
   $('lib-summary').textContent = lib.length ? `${rows.length} of ${lib.length} patches` : '';
+  refreshLibMarks();
 }
 
 // --- export and import ---
@@ -1130,6 +1320,7 @@ function sendEntryWithName(id) {
   chordNotes = (e.chord || []).slice();
   setName(e.name);
   syncSlidersToUI();
+  libLoadedId = e.id;
   sendWithName(currentActivePatch, e.name, chordNotes, tpl, !!e.perf, e.name);
 }
 function sendEditorWithName() {
@@ -1250,6 +1441,7 @@ async function startCapture() {
   }
   capturing = false;
   document.body.classList.remove('capturing');
+  showProgTag();
   $('cap-go').hidden = false; $('cap-clear').hidden = false; $('cap-stop').hidden = true;
   const msg = abort || `${captureCancel ? 'Capture cancelled' : 'Capture finished'}: ${added} added, ${refreshed} refreshed${nChanged ? `, ${nChanged} changed on the synth` : ''}${failed ? `, ${failed} not read` : ''}.${backOn}`;
   capProgress(msg, null);
@@ -1439,7 +1631,7 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 function generatePatch() {
   if (!requirePort()) return;
-  pushHistory();
+  pushHistory(); libLoadedId = null;
   setStatus('Generating...');
 
   const oscA_saw = chance(0.6);
@@ -1528,7 +1720,7 @@ function generatePatch() {
 
 function resetSynth() {
   if (!requirePort()) return;
-  pushHistory();
+  pushHistory(); libLoadedId = null;
   currentActivePatch = { ...INIT_PATCH };
   syncSlidersToUI();
   setName('Init');
@@ -1583,12 +1775,18 @@ function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and prog
 function showProgTag() {
   const el = $('prog-info');
   if (progState.pc === null) return;
+  refreshLibMarks();
   el.hidden = false;
+  if (capturing) {                                // the capture steps through every program: show that instead of flashing each one
+    el.textContent = 'Synth: capturing programs…';
+    el.title = 'The app is stepping the synth through its programs to read them. The program tag returns when it finishes.';
+    return;
+  }
   const bankNo = Math.floor(progState.pc / 8) + 1, prog = (progState.pc % 8) + 1;
   if (progState.lsb !== null && bankNo <= 5) {
     // bank-select LSB 5 = group 1, 6 = group 2, ... (checked against 113, 118, 121 and 211); LSB 0-4 is assumed to be user memory
     const factory = progState.lsb >= 5, group = factory ? progState.lsb - 4 : progState.lsb + 1;
-    el.textContent = `Synth: ${factory ? '' : 'User '}${group}${bankNo}${prog} \u00b7 Group ${group} \u00b7 Bank ${bankNo} \u00b7 Program ${prog}`;
+    el.textContent = `Synth: ${factory ? 'Factory' : 'User'} ${group}${bankNo}${prog} \u00b7 Group ${group} \u00b7 Bank ${bankNo} \u00b7 Program ${prog}`;
   } else {
     const bank = [progState.msb, progState.lsb].some(v => v !== null) ? `Bank ${progState.msb ?? '-'}/${progState.lsb ?? '-'} \u00b7 ` : '';
     el.textContent = `Synth: ${bank}Program ${progState.pc}`;
@@ -1598,6 +1796,31 @@ function showProgTag() {
     ? "The synth last reported this program, and the sound has been changed since. The synth does not tell the app when you store a patch with Record, so if you saved it into a different slot this number is out of date. Select a program on the synth to refresh it."
     : 'The program the synth last reported or the app last selected.';
 }
+let stepTimer = null;
+function stepProgram(dir) {                       // move to the next or previous program in the current set, wrapping round: 200 programs per set
+  if (!requirePort() || capturing || pendingRead) return;
+  if (progState.pc === null || progState.lsb === null || Math.floor(progState.pc / 8) + 1 > 5) {
+    setStatus('The app does not know which program the synth is on yet. Select a program on the synth (or use Go to slot in the Library) first.');
+    return;
+  }
+  const factory = progState.lsb >= 5;
+  const group = factory ? progState.lsb - 4 : progState.lsb + 1;
+  let n = (group - 1) * 40 + progState.pc;        // 0 to 199: group, then bank, then program
+  n = (n + dir + 200) % 200;
+  const slot = { set: factory ? 'F' : 'U', group: Math.floor(n / 40) + 1, bank: Math.floor((n % 40) / 8) + 1, prog: (n % 8) + 1 };
+  if (!selectSlot(slot)) return;
+  clearTimeout(stepTimer);
+  if (sysexOk) {
+    setStatus(`Selected ${slotLabel(slot)}. Reading it into the editor...`);
+    stepTimer = setTimeout(readFromSynth, 400);   // wait until the clicking stops
+  } else setStatus(`Selected ${slotLabel(slot)} on the synth.`);
+}
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey || (e.key !== '[' && e.key !== ']')) return;
+  const t = e.target, tag = t && t.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable) || $('library').hidden === false) return;
+  e.preventDefault(); stepProgram(e.key === ']' ? 1 : -1);
+});
 function markEdited() { if (progState.pc !== null && !progEdited) { progEdited = true; showProgTag(); } }
 
 const PARAM_BY_CC = {};
@@ -1763,7 +1986,7 @@ function finishSysex(b) {
   $('raw-pre').innerText = lines.join('\n');
   $('raw-log').hidden = false;
 
-  pushHistory();
+  pushHistory(); libLoadedId = null;
   currentActivePatch = next;
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
   syncSlidersToUI();
@@ -1848,16 +2071,43 @@ function undoPatch() {
   transmitCurrentPatch('Went back one step (' + HISTORY.length + ' more available).');
 }
 
+
+const SEC_AMT = {};                               // section name -> its own mutate amount; absent means follow the main slider
+function secAmount(g) { return g in SEC_AMT ? SEC_AMT[g] : parseInt($('mutate-amount').value); }
+function buildMutAdv() {
+  const box = $('mutadv-rows');
+  box.innerHTML = '';
+  [...new Set(PARAMS.map(p => p[0]))].forEach(g => {
+    const name = el('button', { type: 'button', class: 'mname', title: 'Click to follow the main Mutate amount' }, g);
+    const slider = el('input', { type: 'range', min: '0', max: '60', 'aria-label': 'Mutate amount for ' + g });
+    const val = el('b', {});
+    const lockTag = el('span', { class: 'mlock' });
+    const row = el('div', { class: 'mrow' }, name, slider, val, lockTag);
+    row._sync = () => {
+      const own = g in SEC_AMT, v = secAmount(g);
+      slider.value = v; val.textContent = v + '%'; row.classList.toggle('follow', !own);
+      lockTag.textContent = LOCKED.has(g) ? 'Locked' : ''; paint(slider);
+    };
+    slider.oninput = () => { SEC_AMT[g] = parseInt(slider.value); row._sync(); };
+    name.onclick = () => { delete SEC_AMT[g]; row._sync(); };
+    row.dataset.group = g;
+    box.append(row); row._sync();
+  });
+}
+function syncMutAdv() { document.querySelectorAll('#mutadv-rows .mrow').forEach(r => r._sync()); }
+
 function mutatePatch() {
   if (!requirePort()) return;
   pushHistory();
   const amt = parseInt($('mutate-amount').value);
-  const s = amt / 100;
+  const custom = Object.keys(SEC_AMT).length > 0;
   const next = { ...currentActivePatch };
 
   for (const key in PARAM_BY_KEY) {
     if (FROZEN.includes(key)) continue;
     const p = PARAM_BY_KEY[key];
+    const s = secAmount(p.group) / 100;
+    if (!s) continue;
     if (key === 'oscB_freq') {
       if (Math.random() < s * 0.3) next[key] = clamp(next[key] + pick([-12, 12]), 0, 120);
     } else if (p.type === 'range') {
@@ -1881,7 +2131,7 @@ function mutatePatch() {
   currentActivePatch = next;
   syncSlidersToUI();
   flashChanged(changed);
-  transmitCurrentPatch('Mutated by ' + amt + '%.');
+  transmitCurrentPatch(custom ? 'Mutated, with your per-section amounts.' : 'Mutated by ' + amt + '%.');
 }
 
 // ---------- Files ----------
