@@ -1192,9 +1192,8 @@ function renderLib() {
   box.replaceChildren();
   if (!lib.length) box.append(el('p', { class: 'muted' }, 'The library is empty. Save the current patch, capture patches from the synth below, or import a library file.'));
   else if (!rows.length) box.append(el('p', { class: 'muted' }, 'Nothing matches that search.'));
-  const shown = rows.slice(0, libUI.limit);
   const sets = [['F', 'Factory'], ['U', 'User'], [null, 'Saved and imported']];     // factory on the left, user on the right, anything from outside the synth underneath
-  const groups = sets.map(([k, label]) => ({ k, label, all: rows.filter(e => (e.slot ? e.slot.set : null) === k), list: shown.filter(e => (e.slot ? e.slot.set : null) === k) })).filter(g => g.all.length || (!libUI.set && g.k && lib.length && !libUI.q));
+  const groups = sets.map(([k, label]) => ({ k, label, all: rows.filter(e => (e.slot ? e.slot.set : null) === k), list: rows.filter(e => (e.slot ? e.slot.set : null) === k).slice(0, libUI.limit) })).filter(g => g.all.length || (!libUI.set && g.k && lib.length && !libUI.q));
   if (groups.length) {
     const cols = el('div', { class: 'libcols' + (libUI.set ? ' single' : '') });
     groups.forEach(g => {
@@ -1205,7 +1204,7 @@ function renderLib() {
     });
     box.append(cols);
   }
-  $('lib-more').hidden = rows.length <= libUI.limit;
+  $('lib-more').hidden = !groups.some(g => g.all.length > libUI.limit);      // the limit applies to each column, so a long Factory list can never push the User patches off the page
   $('lib-summary').textContent = lib.length ? `${rows.length} of ${lib.length} patches` : '';
   refreshLibMarks();
 }
