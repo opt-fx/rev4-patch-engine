@@ -1,7 +1,6 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png)
-![Screenshot](screenshot2.png)
+![Screenshot](screenshot.png)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a new patch, nudge the current one with Mutate, tweak any control, read the patch that's on the synth into the app, and keep a searchable library of your patches.
 
@@ -28,7 +27,7 @@ The whole app is one HTML file. There's nothing to install, no account and no se
 3. Press **Test note** to check the connection.
 4. **Generate** makes a new random patch. Its name is just a random label made from two words (such as "Velvet Harp"); it says nothing about the sound, and **New name** only changes the label. **Mutate** nudges the current one by the chosen amount. **Back** undoes up to 20 steps.
 5. Every knob and button sends to the synth as you move it.
-6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too (untick "Follow the synth's knobs and buttons" to stop that). After changing program on the synth, press Read from synth again to load the new patch. The synth doesn't report a chord being learned over MIDI, so after holding a chord and pressing Unison on the synth, press **Sync** in the Unison box to bring the voice count, chord and detune into the app.
+6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too (untick "Follow the synth's knobs and buttons" to stop that). When you choose a program on the synth, the app reads its patch into the editor by itself and refreshes that slot in the Library (marking it **changed** if it differs from the copy it held; untick "Read the patch when the synth changes program" to stop that). The Back button returns to the patch you had before. The synth doesn't report a chord being learned over MIDI, so after holding a chord and pressing Unison on the synth, press **Sync** in the Unison box to bring the voice count, chord and detune into the app.
 7. **Send with name** sends the whole patch, including its name and unison chord notes, to the synth's working patch and reads it back to check it arrived. To keep it, press **Record** on the synth once, then the program button of the slot you want (pressing Record twice stores nothing). This overwrites whatever is in that slot, so capture it first if you want to keep it. The name is stored with the patch. If the synth doesn't accept the patch dump, the app falls back to sending the controller values, which can't carry the name.
 8. The **padlock** on a section's top border (amber when locked) keeps it unchanged when you Generate or Mutate. **Keep unison** keeps your unison settings through Generate.
 9. **‹ and ›** (or the **[** and **]** keys) select the previous or next program on the synth and read it into the editor. They step through programs 1 to 8, then banks, then groups, within the current set (200 programs, wrapping round). They need the app to know which program the synth is on: select one on the synth once, or use Go to slot. They replace the working patch, so use Back if you stepped away from edits you wanted. The keys don't work while you're typing in a field or on the Library tab.

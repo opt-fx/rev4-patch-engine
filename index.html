@@ -393,6 +393,7 @@
     <div id="last-sent"></div>
     <div id="last-recv"></div>
     <label class="followopt"><input type="checkbox" id="follow-synth" checked> Follow the synth's knobs and buttons <span class="hint">(set Param Xmit to CC on the Prophet)</span></label>
+    <label class="followopt" title="When you choose a program on the synth, read its patch into the editor and refresh that slot in the Library"><input type="checkbox" id="auto-read" checked> Read the patch when the synth changes program</label>
     </div>
     <details id="raw-log" hidden><summary>Last dump received from the Prophet</summary>
       <button class="btn" style="margin-top:8px" onclick="copyDump()">Copy to clipboard</button><pre id="raw-pre"></pre></details>
@@ -1351,7 +1352,7 @@ function selectSlot(slot) {                       // Bank Select (MSB 0, LSB = g
   try {
     midiOutput.send([0xB0 | ch, 0, 0]);
     midiOutput.send([0xB0 | ch, 32, lsb]);
-    midiOutput.send([0xC0 | ch, pc]);
+    midiOutput.send([0xC0 | ch, pc]); lastOwnSelect = Date.now();
     Object.assign(progState, { msb: 0, lsb, pc }); progEdited = false; showProgTag();      // the synth may not report a program the app selected, so note it here
     return true;
   } catch (e) { setStatus('Send failed: ' + e.message); return false; }
@@ -1442,7 +1443,7 @@ async function startCapture() {
       try {
         if (prog.msb !== null) midiOutput.send([0xB0 | ch, 0, prog.msb]);
         if (prog.lsb !== null) midiOutput.send([0xB0 | ch, 32, prog.lsb]);
-        midiOutput.send([0xC0 | ch, prog.pc]);
+        midiOutput.send([0xC0 | ch, prog.pc]); lastOwnSelect = Date.now();
         backOn = ` The synth is back on ${progLabel(prog)}.`;
         Object.assign(progState, prog); progEdited = false; showProgTag();
       } catch (e) {}
@@ -1784,9 +1785,51 @@ function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and prog
   const t = d[0] & 0xF0;
   if (t === 0xB0 && d[1] === 0) progState.msb = d[2];
   else if (t === 0xB0 && d[1] === 32) progState.lsb = d[2];
-  else if (t === 0xC0) { progState.pc = d[1]; progEdited = false; }
+  else if (t === 0xC0) { progState.pc = d[1]; progEdited = false; showProgTag(); scheduleAutoRead(); return; }
   else return;
   showProgTag();
+}
+let autoReadTimer = null, lastOwnSelect = 0;
+function scheduleAutoRead(retry) {               // a program was chosen on the synth: wait for the knob to settle, then read it
+  clearTimeout(autoReadTimer);
+  const box = $('auto-read');
+  if (!box || !box.checked || !sysexOk || !midiOutput || capSweep) return;
+  if (Date.now() - lastOwnSelect < 2000) return;   // the app chose this program itself and reads it separately
+  autoReadTimer = setTimeout(autoReadProgram, retry ? 700 : 450);
+}
+async function autoReadProgram() {
+  if (capSweep || !midiOutput) return;
+  if (capturing || pendingRead) return scheduleAutoRead(true);
+  const key = currentSlotKey(), wanted = progState.pc;
+  const vals = await readEditBuffer();
+  if (progState.pc !== wanted) return;            // another program was chosen meanwhile; that change reads its own
+  if (!vals) return setStatus('The synth changed program but did not answer the patch request, so the editor and Library were not updated.');
+  const parsed = patchFromDump(vals, currentActivePatch.unison_detune);
+  pushHistory(); libLoadedId = null;
+  currentActivePatch = parsed.next;
+  chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
+  lastDump = vals.slice(0, 128); lastDumpFull = vals.slice();
+  syncSlidersToUI();
+  perfKnown = true; progEdited = false;
+  setName(parsed.name || randomName());
+  let note = '';
+  if (key) {                                      // keep the Library copy of this slot up to date
+    const [set, group, bank, prog] = key.split(':'), slot = { set, group: +group, bank: +bank, prog: +prog };
+    const fields = { name: parsed.name || 'Untitled ' + slotLabel(slot), patch: parsed.next, chord: parsed.chord, perf: true, slot, dump: vals.slice(0, 256), source: 'captured', updated: Date.now() };
+    const at = lib.find(e => slotKey(e.slot) === key);
+    let touched;
+    if (at) {
+      if (at.dump) {
+        if (at.name !== patchFromDump(at.dump, 0).name) fields.name = at.name;      // renamed in the app: keep that name
+        if (!sameDump(at.dump, vals)) { fields.changed = true; note = ' The Library copy was different, so it is marked changed.'; }
+      }
+      Object.assign(at, fields); touched = at;
+    } else { touched = makeEntry(fields); lib.push(touched); note = ' Added to the Library.'; }
+    await libPersist(touched);
+    renderFavs(); renderLib();
+  }
+  showProgTag();
+  setStatus(`Read ${progLabel(progState)} from the synth.${note}`);
 }
 function showProgTag() {
   const el = $('prog-info');
