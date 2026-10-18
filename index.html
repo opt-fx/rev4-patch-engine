@@ -13,8 +13,8 @@
     .cheek { width:40px; flex:none; background:linear-gradient(90deg,rgba(0,0,0,.35),transparent 30%,transparent 70%,rgba(0,0,0,.35)),repeating-linear-gradient(93deg,#4f2e19 0 3px,#432610 3px 8px,#583420 8px 12px); }
     .cheek:first-child { border-radius:10px 0 0 10px; }
     .cheek:last-child { border-radius:0 10px 10px 0; }
-    .panel { flex:1; min-width:0; padding:26px 30px 30px; background:linear-gradient(#1f1d1b,#161514); border-top:2px solid #0a0908; border-bottom:2px solid #0a0908; }
-    .masthead { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px; padding-bottom:18px; border-bottom:1px solid var(--line); }
+    .panel { flex:1; min-width:0; padding:26px 30px 30px; background:#1b1a18; border-top:2px solid #0a0908; border-bottom:2px solid #0a0908; }
+    .masthead { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px; padding-bottom:18px; }
     h1 { margin:0; font-size:34px; font-weight:300; letter-spacing:.02em; line-height:1.1; }
     .masthead p { margin:10px 0 0; color:var(--amber); font-size:14px; }
     .ports { display:flex; flex-wrap:wrap; gap:12px; }
@@ -39,8 +39,6 @@
     .keepopt { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink); cursor:pointer; }
     .keepopt input { accent-color:var(--amber); width:16px; height:16px; cursor:pointer; }
 
-    @media (min-width:1100px) { .followopt .hint { display:none; } }
-    .followopt { display:block; margin-top:6px; font-size:12px; color:#6f6a60; }
     #status { margin-top:16px; font-size:13px; color:var(--ink); min-height:18px; }
     #last-sent, #last-recv { margin-top:2px; font-size:12px; color:#6f6a60; font-family:Consolas,monospace; min-height:16px; }
 
@@ -108,9 +106,10 @@
     .syncbtn { right:auto; left:10px; }
     .lock[aria-pressed="true"] { color:var(--amber); font-weight:600; }
     .lock:focus-visible { outline:2px solid var(--amber); }
-    .tabs { display:flex; gap:6px; margin-top:22px; border-bottom:1px solid var(--line); }
-    .tabs button { background:none; border:0; border-bottom:2px solid transparent; margin-bottom:-1px; color:var(--ink); padding:10px 18px; font:700 12px 'Helvetica Neue',Helvetica,Arial,sans-serif; text-transform:uppercase; letter-spacing:.04em; cursor:pointer; }
-    .tabs button[aria-selected="true"] { color:var(--amber); border-bottom-color:var(--amber); }
+    .tabs { display:flex; gap:8px; margin-left:auto; }
+    .tabs button { background:#121110; border:1px solid #4a4640; border-radius:5px; color:var(--ink); padding:10px 26px; font:800 16px 'Helvetica Neue',Helvetica,Arial,sans-serif; text-transform:uppercase; letter-spacing:.06em; cursor:pointer; }
+    .tabs button:hover { border-color:var(--amber); }
+    .tabs button[aria-selected="true"] { color:#1a1208; background:var(--amber); border-color:var(--amber); }
     .tabs button:focus-visible { outline:2px solid var(--amber); outline-offset:-2px; }
     #library { margin-top:6px; }
     .libbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px 12px; margin-top:14px; }
@@ -217,6 +216,13 @@
     .cmb-label { margin-top:9px; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--cream); }
     .btn.step { display:inline-flex; align-items:center; justify-content:center; width:38px; height:32px; padding:0; }
     .btn.step svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+    .storebar { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-top:8px; padding:6px 12px; border:1px solid var(--line); border-radius:8px; background:#141312; font-size:12px; }
+    .storebar .sb-q { color:var(--amber); font-weight:700; letter-spacing:.04em; text-transform:uppercase; font-size:11px; }
+    .storebar label { display:flex; align-items:center; gap:6px; color:var(--ink); }
+    .storebar select { width:auto; min-width:0; padding:3px 24px 3px 8px; font-size:12px; background-position:right 8px center; }
+    .storebar[hidden] { display:none; }
+    .ldetail .inl { display:inline-flex; flex-direction:row; align-items:center; gap:6px; margin:0; }
+    .ldetail .inl select { width:auto; min-width:0; padding:3px 22px 3px 8px; font-size:12px; background-position:right 7px center; }
     .btn:disabled { opacity:.4; cursor:default; pointer-events:none; }
     .mutadv { margin-top:10px; font-size:12px; }
     .mutadv summary { cursor:pointer; color:var(--amber); font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:4px 0; }
@@ -236,7 +242,7 @@
     .mrow .mpad:focus-visible { outline:2px solid var(--amber); }
     .progtag .edited { color:#ff4d4d; }
     .progtag { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); border:1px solid var(--line); border-radius:12px; padding:5px 12px; background:#141312; white-space:nowrap; }
-    .foot { margin-top:30px; padding-top:16px; border-top:1px solid var(--line); font-size:12px; line-height:1.5; color:#8b8578; }
+    .foot { margin-top:30px; padding-top:16px; font-size:12px; line-height:1.5; color:#8b8578; }
     .foot p { margin:0 0 6px; }
 
     /* ---- compact layout: on screens wide enough, fit the whole editor on one screen ---- */
@@ -252,8 +258,9 @@
       .masthead { padding-bottom:8px; gap:10px; }
       .masthead p { margin-top:3px; font-size:12px; }
       .namebar { margin-top:8px; }
-      .actions { margin-top:8px; gap:6px 8px; flex-wrap:nowrap; }
-      .actions .btn { padding:6px 9px; font-size:11px; white-space:nowrap; }
+      .actions { margin-top:8px; gap:6px 5px; flex-wrap:nowrap; }
+      @media (max-width:1399px) { .actions { flex-wrap:wrap; } }      /* a narrower window lets the buttons run onto a second line rather than off the edge */
+      .actions .btn { padding:6px 6px; font-size:11px; white-space:nowrap; }
       .actions .btn.hero { padding:8px 18px; font-size:14px; }
       .actions .keepopt { font-size:11px; white-space:nowrap; }
       .spacer { flex:1 1 0; min-width:0; }
@@ -262,10 +269,9 @@
       .infobar { display:flex; flex-wrap:wrap; align-items:center; gap:2px 18px; margin-top:8px; }
       .infobar > * { margin-top:0; min-height:0; }
       #status { margin-top:0; }
-      .midbar { flex-direction:row; align-items:flex-end; gap:18px; margin-top:8px; border-bottom:1px solid var(--line); }
+      .midbar { flex-direction:row; align-items:flex-end; gap:18px; margin-top:8px; }
       .midbar .toprow { order:0; flex:1; margin:0; padding-bottom:4px; min-width:0; }
-      .midbar .tabs { margin:0; border-bottom:0; flex:none; }
-      .tabs button { padding:7px 16px; }
+      .tabs button { padding:8px 22px; font-size:14px; }
       .favs { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; }
       #fav-list { margin-top:0; }
       #dashboard-grid { container-type:inline-size; grid-template-columns:repeat(24,minmax(0,1fr)); gap:0 14px; grid-template-rows:repeat(12,auto); margin-top:16px; }
@@ -294,7 +300,7 @@
       .libother .libbody { column-count:2; column-gap:28px; }
       .libother .libbody .lrow { break-inside:avoid; }
       .libother .libbody .ldetail { column-span:all; }
-      .libtop { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; position:sticky; top:0; z-index:5; margin-top:8px; padding:8px 0; background:#1b1a18; border-bottom:1px solid var(--line); }
+      .libtop { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; position:sticky; top:0; z-index:5; margin-top:8px; padding:8px 0; background:#1b1a18; }
       .libtop > .libbar { display:contents; }
       .libtop input[type="search"] { flex:1 1 240px; max-width:340px; min-width:200px; }
       .libtop select { padding:6px 28px 6px 8px; font-size:13px; }
@@ -334,6 +340,7 @@
 <div class="synth">
   <div class="cheek"></div>
   <main class="panel">
+    <div id="topstick">
     <header class="masthead">
       <div>
         <h1>Rev 4 Patch Engine</h1>
@@ -354,11 +361,15 @@
 
     <div class="namebar">
       <label for="patch-name">Patch name</label>
-      <input id="patch-name" type="text" maxlength="32" oninput="patchName = this.value">
-      <button class="btn" onclick="setName(randomName())">New name</button>
+      <input id="patch-name" type="text" maxlength="32" oninput="patchName = this.value; markEdited()">
+      <button class="btn" onclick="setName(randomName()); markEdited()">New name</button>
       <span id="prog-info" class="progtag" hidden></span>
       <button class="btn step" onclick="stepProgram(-1)" title="Previous program on the synth ( [ )" aria-label="Previous program"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10.5 2.5 5 8l5.5 5.5"/></svg></button>
       <button class="btn step" onclick="stepProgram(1)" title="Next program on the synth ( ] )" aria-label="Next program"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 2.5 11 8l-5.5 5.5"/></svg></button>
+      <div class="tabs" role="tablist">
+        <button id="tab-editor" role="tab" aria-selected="true" onclick="showTab('editor')">Editor</button>
+        <button id="tab-library" role="tab" aria-selected="false" onclick="showTab('library')">Library <span id="lib-count"></span></button>
+      </div>
     </div>
 
     <div class="actions">
@@ -372,16 +383,25 @@
           <b id="mutate-val">20%</b>
         </label>
       </div>
-      <button class="btn" id="back-btn" onclick="undoPatch()" title="Undo the last Generate, Mutate or read" disabled>Back</button>
+      <button class="btn" id="back-btn" onclick="undoPatch()" title="Undo the last Generate or Mutate" disabled>Back</button>
+      <button class="btn" id="fwd-btn" onclick="redoPatch()" title="Redo what Back undid" disabled>Forward</button>
       <button class="btn" onclick="readFromSynth()">Read from synth</button>
       <button class="btn" onclick="pingSynth()">Ping</button>
       <span class="spacer"></span>
       <button class="btn" onclick="testNote()">Test note</button>
-      <button class="btn" title="Sends the whole patch including its name to the synth's working patch, then checks it arrived. To keep it, press Record on the synth, then the program button of the slot." onclick="sendEditorWithName()">Send with name</button>
-      <button class="btn" onclick="downloadPresetFile()">Save</button>
-      <label class="btn file-label" for="load-file-input" tabindex="0">Load</label>
+      <button class="btn" id="store-open" title="Save this patch into a user program slot on the synth" onclick="openStoreBar()">Save to synth…</button>
+      <button class="btn" title="Export this program as a small file" onclick="downloadPresetFile()">Export program</button>
+      <label class="btn file-label" for="load-file-input" tabindex="0" title="Import a program file">Import program</label>
       <input type="file" id="load-file-input" accept=".json" onchange="loadPresetFile(this)">
       <button class="btn" onclick="resetSynth()">Reset</button>
+    </div>
+    <div class="storebar" id="store-bar" hidden>
+      <span class="sb-q">Save to user slot</span>
+      <label>Group <select id="st-group" aria-label="Group"></select></label>
+      <label>Bank <select id="st-bank" aria-label="Bank"></select></label>
+      <label>Program <select id="st-prog" aria-label="Program"></select></label>
+      <button class="btn sm" id="st-store" onclick="storeToSlot()" title="Save this patch, with its name and chord, into this user program on the synth, replacing what is there. The app then selects the slot and reads it back to check it was saved.">Save</button>
+      <button class="btn sm" onclick="hideStoreBar()" aria-label="Dismiss" title="Dismiss">×</button>
     </div>
 
     <div class="infobar">
@@ -393,8 +413,6 @@
     <div id="status">Initializing Web MIDI...</div>
     <div id="last-sent"></div>
     <div id="last-recv"></div>
-    <label class="followopt"><input type="checkbox" id="follow-synth" checked> Follow the synth's knobs and buttons <span class="hint">(set Param Xmit to CC on the Prophet)</span></label>
-    <label class="followopt" title="When you choose a program on the synth, read its patch into the editor and refresh that slot in the Library"><input type="checkbox" id="auto-read" checked> Read the patch when the synth changes program</label>
     </div>
     <details id="raw-log" hidden><summary>Last dump received from the Prophet</summary>
       <button class="btn" style="margin-top:8px" onclick="copyDump()">Copy to clipboard</button><pre id="raw-pre"></pre></details>
@@ -407,11 +425,7 @@
     </div>
     </div>
 
-    <div class="tabs" role="tablist">
-      <button id="tab-editor" role="tab" aria-selected="true" onclick="showTab('editor')">Editor</button>
-      <button id="tab-library" role="tab" aria-selected="false" onclick="showTab('library')">Library <span id="lib-count"></span></button>
     </div>
-
     </div>
     <div id="dashboard-grid"></div>
 
@@ -447,7 +461,7 @@
         <button class="btn" onclick="libSaveCurrent()">Save current patch</button>
         <button class="btn" onclick="findCurrent()" title="Clears the filters and scrolls to the patch that is on the synth or loaded in the editor">Find current</button>
         <button class="btn" onclick="libExport()">Export library</button>
-        <label class="btn file-label" for="lib-import" tabindex="0">Import</label>
+        <label class="btn file-label" for="lib-import" tabindex="0">Import library</label>
         <input type="file" id="lib-import" accept=".json" onchange="libImport(this)">
         <span class="spacer"></span>
         <span id="lib-summary" class="muted"></span>
@@ -465,7 +479,7 @@
         <div class="libbar">
           <button class="btn" id="cap-go" onclick="startCapture()">Start capture</button>
           <button class="btn" id="cap-stop" onclick="stopCapture()" hidden>Cancel</button>
-          <button class="btn" id="cap-clear" onclick="libClearCaptured()">Delete captured patches of this set</button>
+          <button class="btn" id="cap-clear" onclick="libClearCaptured()">Delete captured patches in this selection</button>
           <span id="cap-status" class="muted" aria-live="polite"></span>
         </div>
         <progress id="cap-bar" max="1" value="0" hidden></progress>
@@ -922,7 +936,7 @@ function applyLocks(next, prev) {            // locked sections keep their previ
 const LIB_DB = 'rev4-patch-engine', LIB_STORE = 'patches';
 let lib = [], libDb = null;
 let capturing = false, captureCancel = false, captureCb = null;
-let capSweep = false;                             // true only while Capture from synth steps through programs (capturing is also set briefly while Send with name checks its work)
+let capSweep = false;                             // true only while Capture from synth steps through programs (capturing is also set briefly while Send to synth checks its work)
 const libUI = { q: '', tag: '', set: '', group: '', origin: '', favOnly: false, changedOnly: false, annotated: false, hideCopies: false, sort: 'slot', limit: 150, open: new Set() };
 
 function libOpen() {
@@ -1017,14 +1031,23 @@ async function libSaveCurrent() {
 function loadEntry(id, toEditor) {
   const e = lib.find(x => x.id === id);
   if (!e || !requirePort()) return;
+  if (toEditor && e.slot && !capturing && !pendingRead && selectSlot(e.slot)) {      // a patch with a synth slot: go to that program first, then load the patch into it
+    clearHistory(); newProgram = false;
+    setStatus(`Selected ${slotLabel(e.slot)} on the synth. Loading "${e.name}"...`);
+    setTimeout(() => applyEntry(e, toEditor, !e.changed), 300);
+    return;
+  }
   pushHistory();
+  applyEntry(e, toEditor);
+}
+function applyEntry(e, toEditor, clean) {
   currentActivePatch = { ...INIT_PATCH, ...e.patch };
   chordNotes = (e.chord || []).slice();
   setName(e.name);
   syncSlidersToUI();
   libLoadedId = e.id;
   const chordMode = currentActivePatch.unison && currentActivePatch.unison_voices === CHORD;
-  transmitCurrentPatch(`Loaded "${e.name}".` + (chordMode ? " Its unison chord notes can't be sent, so the synth keeps whichever chord it already has." : '') + (toEditor ? '' : ' Switch to the Editor tab to tweak it.'), !!e.perf);
+  transmitCurrentPatch(`Loaded "${e.name}".` + (chordMode ? " Its unison chord notes can't be sent, so the synth keeps whichever chord it already has." : '') + (toEditor ? '' : ' Switch to the Editor tab to tweak it.'), !!e.perf, clean);
   if (toEditor) showTab('editor'); else refreshLibMarks();
 }
 
@@ -1058,6 +1081,7 @@ function showTab(t) {
   $('tab-library').setAttribute('aria-selected', String(isLib));
   if (isLib) renderLib();
 }
+
 
 function libFilter(k, v) { libUI[k] = v; libUI.limit = 150; if (k === 'set') $('lib-group').disabled = v === 'none'; renderLib(); }
 function libClearFilters() {
@@ -1111,8 +1135,7 @@ function libRow(e) {
   const open = libUI.open.has(e.id);
   const row = el('div', { class: 'lrow', 'data-id': e.id }, star,
     el('div', { class: 'lname' }, nameEl, e.slot ? el('span', { class: 'lslot' }, slotLabel(e.slot)) : '', el('span', { class: 'lstate' }), e.changed ? el('span', { class: 'chg', title: 'This slot was different the last time it was captured from the synth' }, 'changed') : '', tagsEl),
-    e.slot ? el('button', { class: 'btn sm', title: 'Select this program on the synth (Bank Select and Program Change) and read it into the editor', onclick: () => goToSlot(e.id) }, 'Go to slot') : '',
-    el('button', { class: 'btn sm', onclick: () => loadEntry(e.id) }, 'Load'),
+    el('button', { class: 'btn sm', onclick: () => loadEntry(e.id, true) }, 'Load'),
     el('button', { class: 'btn sm', 'aria-expanded': String(open), onclick: ev => {
       if (libUI.open.has(e.id)) libUI.open.delete(e.id); else libUI.open.add(e.id);
       renderLib(); } }, open ? 'Close' : 'Details'));
@@ -1131,11 +1154,16 @@ function libRow(e) {
       el('button', { class: 'btn sm', onclick: async () => { e.name = unitName; e.updated = Date.now(); await libPersist(e); renderFavs(); renderLib(); } }, 'Use that name')));
     if (e.changed) extra.push(el('div', { class: 'lact' }, el('span', { class: 'muted' }, 'This slot was different the last time it was captured.'),
       el('button', { class: 'btn sm', onclick: async () => { e.changed = false; await libPersist(e); renderLib(); } }, 'Mark as seen')));
+    const dg = el('select', { 'aria-label': 'Group' }), db = el('select', { 'aria-label': 'Bank' }), dp = el('select', { 'aria-label': 'Program' });
+    [[dg, 5], [db, 5], [dp, 8]].forEach(([sel, n]) => { for (let i = 1; i <= n; i++) sel.append(el('option', { value: String(i) }, String(i))); });
+    if (e.slot) { dg.value = String(e.slot.group); db.value = String(e.slot.bank); dp.value = String(e.slot.prog); }      // the same numbers in the user memory
+    const store = el('div', { class: 'lact' }, el('span', { class: 'muted' }, 'Save in user slot'), el('label', { class: 'inl' }, 'Group', dg), el('label', { class: 'inl' }, 'Bank', db), el('label', { class: 'inl' }, 'Program', dp),
+      el('button', { class: 'btn sm', title: 'Copy this patch, with this name, into that user program on the synth, replacing what is there, then read it back to check', onclick: () => storeEntryToSlot(e.id, { set: 'U', group: +dg.value, bank: +db.value, prog: +dp.value }) }, 'Save'));
     out.push(el('div', { class: 'ldetail' },
-      el('label', {}, 'Name', nm), el('label', {}, 'Tags (comma separated)', tg), el('label', {}, 'Notes', nt), extra,
+      el('label', {}, 'Name', nm), el('label', {}, 'Tags (comma separated)', tg), el('label', {}, 'Notes', nt), extra, store,
       el('div', { class: 'lact' },
         el('button', { class: 'btn sm', onclick: () => loadEntry(e.id, true) }, 'Load and open in editor'),
-        el('button', { class: 'btn sm', title: "Sends this patch with this name to the synth's working patch and checks it arrived. To keep it, press Record on the synth, then the program button of the slot.", onclick: () => sendEntryWithName(e.id) }, 'Send with name'),
+        el('button', { class: 'btn sm', title: "Sends this patch, with its name and chord, to the synth's working patch and checks it arrived. It is not saved: use Save in user slot to keep it.", onclick: () => sendEntryWithName(e.id) }, 'Send to synth'),
         el('button', { class: 'btn sm', onclick: () => libDelete(e.id) }, 'Delete'),
         el('span', { class: 'muted' }, meta.join(' \u00b7 ')))));
   }
@@ -1320,7 +1348,8 @@ async function sendWithName(patch, name, chord, tpl, perf, label) {
     if (back) showDumpLog(back);                 // the panel shows what the synth reported back
     if (got) {
       lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true; markEdited();
-      setStatus(`The synth now holds "${label}" in its working patch. To keep it, press Record on the synth once, then press the program button of the slot you want it in (pressing Record twice stores nothing).`);
+      showStoreBar();
+      setStatus(`The synth now holds "${label}" in its working patch. To keep it, use Save to synth below, or press Record on the synth once and then the program button of the slot you want (pressing Record twice stores nothing).`);
     } else {
       transmitCurrentPatch(back ? `The synth did not take the patch dump (it still reports "${patchFromDump(back, 0).name}"), so the controller values were sent instead and the name was not changed.`
                                 : 'No reply when checking the patch dump, so I could not confirm it arrived. The controller values were sent as a fallback.', perf);
@@ -1339,11 +1368,6 @@ function sendEntryWithName(id) {
   libLoadedId = e.id;
   sendWithName(currentActivePatch, e.name, chordNotes, tpl, !!e.perf, e.name);
 }
-function sendEditorWithName() {
-  const name = (patchName || '').trim() || 'Untitled';
-  const tpl = lastDumpFull || (lib.find(e => e.dump) ? lib.find(e => e.dump).dump : null);
-  sendWithName(currentActivePatch, name, chordNotes, tpl, perfKnown, name);
-}
 
 // --- capture from the synth ---
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -1358,13 +1382,6 @@ function selectSlot(slot) {                       // Bank Select (MSB 0, LSB = g
     Object.assign(progState, { msb: 0, lsb, pc }); progEdited = false; showProgTag();      // the synth may not report a program the app selected, so note it here
     return true;
   } catch (e) { setStatus('Send failed: ' + e.message); return false; }
-}
-function goToSlot(id) {                           // select the entry's program on the synth, then read it into the editor so the two agree
-  const e = lib.find(x => x.id === id);
-  if (!e || !e.slot || !requirePort() || capturing || pendingRead) return;
-  if (!selectSlot(e.slot)) return;
-  if (sysexOk) { setStatus(`Selected ${slotLabel(e.slot)} on the synth. Reading it into the editor...`); setTimeout(readFromSynth, 400); }
-  else setStatus(`Selected ${slotLabel(e.slot)} on the synth.`);
 }
 function captureSlot(slot) {                      // select a program on the synth, then read it; resolves with the unpacked dump or null
   return new Promise(res => {
@@ -1396,11 +1413,11 @@ async function startCapture() {
   const slots = [];
   for (let g = from; g <= to; g++) for (let b = 1; b <= 5; b++) for (let p = 1; p <= 8; p++) slots.push({ set, group: g, bank: b, prog: p });
   const mins = Math.max(1, Math.round(slots.length * 0.7 / 60));
-  if (!confirm(`This steps the synth through ${slots.length} programs (${set === 'F' ? 'factory' : 'user'} group${to > from ? 's ' + from + ' to ' + to : ' ' + from}), about ${mins} minute${mins > 1 ? 's' : ''}. It changes the program on the synth, so any edits on the synth you haven't stored are lost` + ($('cap-restore').checked ? ", although afterwards the synth is put back on " + (progState.pc !== null ? 'the program it is on now (' + progLabel(progState) + (progEdited ? ', as last reported by the synth; if you have stored a patch into a different slot since, select that program on the synth first' : '') + ')' : 'the last program captured, because I don\'t know which program it is on (select a program on the synth first so the app can see it)') + " and the patch currently in the editor is sent back." : ".") + ' Continue?')) return;
-  capturing = true; captureCancel = false; capSweep = true;
+  if (!confirm(`This steps the synth through ${slots.length} programs (${set === 'F' ? 'factory' : 'user'} group${to > from ? 's ' + from + ' to ' + to : ' ' + from}), about ${mins} minute${mins > 1 ? 's' : ''}. It changes the program on the synth, so any edits on the synth you haven't saved are lost` + ($('cap-restore').checked ? ", although afterwards the synth is put back on " + (progState.pc !== null ? 'the program it is on now (' + progLabel(progState) + (progEdited ? ', as last reported by the synth; if you have saved a patch into a different slot since, select that program on the synth first' : '') + ')' : 'the last program captured, because I don\'t know which program it is on (select a program on the synth first so the app can see it)') + " and the patch currently in the editor is sent back." : ".") + ' Continue?')) return;
+  capturing = true; captureCancel = false; capSweep = true; hideStoreBar();
   document.body.classList.add('capturing');
   $('cap-go').hidden = true; $('cap-clear').hidden = true; $('cap-stop').hidden = false;
-  const keep = { patch: { ...currentActivePatch }, chord: chordNotes.slice(), name: patchName };
+  const keep = { patch: { ...currentActivePatch }, chord: chordNotes.slice(), name: patchName }, wasEdited = progEdited;
   const prog = progState.pc !== null ? { msb: progState.msb, lsb: progState.lsb, pc: progState.pc } : null;      // the program the synth was on, as last reported by the synth
   const touched = [];
   let done = 0, failed = 0, streak = 0, added = 0, refreshed = 0, nChanged = 0, abort = '';
@@ -1453,7 +1470,7 @@ async function startCapture() {
     }
     currentActivePatch = keep.patch; chordNotes = keep.chord; setName(keep.name);
     syncSlidersToUI();
-    transmitCurrentPatch('', true);
+    transmitCurrentPatch('', true, !!prog && !wasEdited);      // putting the patch back is not an edit, unless it already was one
   }
   capturing = false; capSweep = false;
   document.body.classList.remove('capturing');
@@ -1465,8 +1482,9 @@ async function startCapture() {
   setStatus(msg);
 }
 async function libClearCaptured() {            // removes patches that were captured from the chosen set (saved, imported and other set's patches stay)
-  const set = $('cap-set').value, name = set === 'F' ? 'factory' : 'user';
-  const doomed = lib.filter(e => e.source === 'captured' && e.slot && e.slot.set === set);
+  const set = $('cap-set').value, from = clamp(parseInt($('cap-from').value) || 1, 1, 5), to = clamp(parseInt($('cap-to').value) || from, from, 5);
+  const name = (set === 'F' ? 'factory' : 'user') + (to > from ? ` group ${from} to ${to}` : ` group ${from}`);
+  const doomed = lib.filter(e => e.source === 'captured' && e.slot && e.slot.set === set && e.slot.group >= from && e.slot.group <= to);
   if (!doomed.length) return setStatus(`There are no captured ${name} patches to delete.`);
   const starred = doomed.filter(e => e.fav || e.tags.length || e.notes).length;
   if (!confirm(`Delete ${doomed.length} captured ${name} patches from the library?` + (starred ? ` ${starred} of them have a star, tags or notes, which will be lost.` : '') + ' The synth is not touched.')) return;
@@ -1631,8 +1649,9 @@ function testNote() {
   $('last-sent').innerText = `Sent: ch ${midiChannel}  note C3/60`;
 }
 
-function transmitCurrentPatch(statusMsg, sendPerf) {
+function transmitCurrentPatch(statusMsg, sendPerf, clean) {
   let delay = 0;
+  if (clean) holdEdited = true;
   for (const key in PARAM_BY_KEY) {
     const p = PARAM_BY_KEY[key];
     if (PERF_KEYS.has(key) && !perfKnown && !sendPerf) continue;
@@ -1640,7 +1659,7 @@ function transmitCurrentPatch(statusMsg, sendPerf) {
     setTimeout(() => sendCC(p.cc, wireValue(key, v)), delay);
     delay += 8;
   }
-  setTimeout(() => setStatus(statusMsg), delay);
+  setTimeout(() => { setStatus(statusMsg); if (clean) holdEdited = false; }, delay);
 }
 
 // ---------- Random generation ----------
@@ -1787,15 +1806,90 @@ function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and prog
   const t = d[0] & 0xF0;
   if (t === 0xB0 && d[1] === 0) progState.msb = d[2];
   else if (t === 0xB0 && d[1] === 32) progState.lsb = d[2];
-  else if (t === 0xC0) { progState.pc = d[1]; progEdited = false; showProgTag(); scheduleAutoRead(); return; }
+  else if (t === 0xC0) { progState.pc = d[1]; progEdited = false; hideStoreBar(); showProgTag(); scheduleAutoRead(); return; }
   else return;
   showProgTag();
+}
+let pendingStore = null;                         // set while the Save to user slot line is open
+(function buildStoreBar() {
+  const fill = (id, n) => { const sel = $(id); for (let i = 1; i <= n; i++) sel.append(el('option', { value: String(i) }, String(i))); };
+  fill('st-group', 5); fill('st-bank', 5); fill('st-prog', 8);
+})();
+function currentDump() {                           // the patch in the editor, with its name and chord, as a full dump (null if no template to start from)
+  const name = ((patchName || '').trim() || 'Untitled').slice(0, 20).trim();
+  const tpl = lastDumpFull || (lib.find(e => e.dump && e.dump.length >= 133) ? lib.find(e => e.dump && e.dump.length >= 133).dump : null);
+  if (!tpl) { setStatus('Read the patch from the synth once first (or capture some patches), so the parts of a patch this app does not edit can be copied.'); return null; }
+  return { vals: buildDump(currentActivePatch, name, chordNotes, tpl), name };
+}
+function openStoreBar() { if ($('store-bar').hidden) showStoreBar(); else hideStoreBar(); }
+function showStoreBar() {
+  pendingStore = true;
+  const [, g, b, p] = (currentSlotKey() || 'U:1:1:1').split(':');      // starts on the numbers of the program the synth was last on (a factory program starts on the same numbers in the user memory)
+  $('st-group').value = g; $('st-bank').value = b; $('st-prog').value = p;
+  $('store-bar').hidden = false;
+}
+function hideStoreBar() { pendingStore = null; $('store-bar').hidden = true; }
+const storeSlot = () => ({ set: 'U', group: +$('st-group').value, bank: +$('st-bank').value, prog: +$('st-prog').value });
+async function putStoredInLibrary(slot, vals, name, fromBar) {      // file the patch that was stored under the slot, and note that the synth is now on it
+  const parsed = patchFromDump(vals, 0);
+  const fields = { name: name || parsed.name || 'Untitled ' + slotLabel(slot), patch: parsed.next, chord: parsed.chord, perf: true, slot, dump: vals.slice(0, 256), source: 'captured', updated: Date.now() };
+  const at = lib.find(e => slotKey(e.slot) === slotKey(slot));
+  let entry, what;
+  if (at) {
+    if (at.dump && !sameDump(at.dump, vals)) fields.changed = true;
+    Object.assign(at, fields); entry = at; what = 'updated in the Library';
+  } else { entry = makeEntry(fields); lib.push(entry); what = 'added to the Library'; }
+  await libPersist(entry);
+  const lsb = slot.set === 'F' ? 4 + slot.group : slot.group - 1;
+  Object.assign(progState, { msb: 0, lsb, pc: (slot.bank - 1) * 8 + (slot.prog - 1) }); progEdited = false;      // storing leaves the synth on that program
+  if (fromBar) hideStoreBar();
+  showProgTag(); renderFavs(); renderLib();
+  return `${slotLabel(slot)} ${what} as "${entry.name}".`;
+}
+async function writeProgram(vals, name, slot) {     // send a Program Data Dump for the slot, select the slot and read it back; resolves with { ok, message }
+  capturing = true;                                // keeps the synth's own messages from changing the editor while this runs
+  try {
+    const group = slot.set === 'F' ? 4 + slot.group : slot.group - 1, prog = (slot.bank - 1) * 8 + (slot.prog - 1);
+    midiOutput.send([0xF0, 0x01, lastDumpId === null ? DUMP_IDS[0] : lastDumpId, 0x02, group, prog, ...packDSI(vals), 0xF7]);
+    setStatus(`Sent the program dump for ${slotLabel(slot)}. Checking...`);
+    await sleep(700);
+    if (!selectSlot(slot)) return { ok: false, message: 'Could not select the slot.' };
+    await sleep(500);
+    const back = await readEditBuffer();
+    if (back && sameDump(back.slice(0, 65), vals.slice(0, 65)) && patchFromDump(back, 0).name === name) return { ok: true };
+    return { ok: false, message: back ? `The synth did not save it: ${slotLabel(slot)} still holds "${patchFromDump(back, 0).name}".` + (slot.set === 'F' ? ' Factory programs are protected.' : '')
+                                      : 'No reply when reading the slot back, so I could not confirm the save. Nothing was added to the Library.' };
+  } finally { capturing = false; }
+}
+function occupantNote(slot) {                     // what the Library believes the slot holds now, so the warning can say what is about to be replaced
+  const at = lib.find(e => slotKey(e.slot) === slotKey(slot));
+  if (!at) return `The Library has nothing for ${slotLabel(slot)}, so I can't tell what it holds now. If you might want it, cancel and capture the user set first.`;
+  return `${slotLabel(slot)} currently holds "${at.name}" in your Library` + (at.changed ? ' (the synth had a different version when it was last captured, so what is there now may be newer)' : '') + '. That program will be replaced for good.';
+}
+async function storeToSlot() {
+  if (!pendingStore || !requirePort() || !sysexOk || capturing || pendingRead) return;
+  const slot = storeSlot(), d = currentDump();
+  if (!d) return;
+  const { vals, name } = d;
+  if (!confirm(`Save "${name}" into ${slotLabel(slot)} on the synth?\n\n${occupantNote(slot)}`)) return;
+  const r = await writeProgram(vals, name, slot);
+  setStatus(r.ok ? 'Saved. ' + await putStoredInLibrary(slot, vals, name, true) : r.message + ' The patch is still in the editor, so you can try again, or save it on the synth with Record.');
+}
+async function storeEntryToSlot(id, slot) {         // copy a Library patch into a user slot on the synth
+  const e = lib.find(x => x.id === id);
+  if (!e || !requirePort() || !sysexOk || capturing || pendingRead) return;
+  if (slot.set === 'F') return setStatus('Factory programs are protected on the synth.');
+  const tpl = e.dump && e.dump.length >= 133 ? e.dump : lastDumpFull;
+  if (!tpl) return setStatus('Read the patch from the synth once first (or capture some patches), so the parts of a patch this app does not edit can be copied.');
+  const name = String(e.name).slice(0, 20).trim(), vals = buildDump(e.patch, name, e.chord || [], tpl);
+  if (!confirm(`Save "${name}" into ${slotLabel(slot)} on the synth?\n\n${occupantNote(slot)}`)) return;
+  const r = await writeProgram(vals, name, slot);
+  setStatus(r.ok ? 'Saved. ' + await putStoredInLibrary(slot, vals, name, false) : r.message);
 }
 let autoReadTimer = null, lastOwnSelect = 0, newProgram = false;      // newProgram: the app chose a program, so the next read starts a fresh Back history
 function scheduleAutoRead(retry) {               // a program was chosen on the synth: wait for the knob to settle, then read it
   clearTimeout(autoReadTimer);
-  const box = $('auto-read');
-  if (!box || !box.checked || !sysexOk || !midiOutput || capSweep) return;
+  if (!sysexOk || !midiOutput || capSweep) return;
   if (Date.now() - lastOwnSelect < 2000) return;   // the app chose this program itself and reads it separately
   autoReadTimer = setTimeout(autoReadProgram, retry ? 700 : 450);
 }
@@ -1807,7 +1901,7 @@ async function autoReadProgram() {
   if (progState.pc !== wanted) return;            // another program was chosen meanwhile; that change reads its own
   if (!vals) return setStatus('The synth changed program but did not answer the patch request, so the editor and Library were not updated.');
   const parsed = patchFromDump(vals, currentActivePatch.unison_detune);
-  newProgram = false; HISTORY.length = 0; syncBack(); libLoadedId = null;        // a new program starts a new history: Back is for undoing Generate and Mutate, and would otherwise send the previous program's sound to this one
+  newProgram = false; clearHistory(); libLoadedId = null;        // a new program starts a new history: Back is for undoing Generate and Mutate, and would otherwise send the previous program's sound to this one
   currentActivePatch = parsed.next;
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
   if (vals.length >= NRPN_MAP.length) showDumpLog(vals);
@@ -1855,14 +1949,14 @@ function showProgTag() {
   }
   if (progEdited) { const w = document.createElement('span'); w.className = 'edited'; w.textContent = 'edited'; el.append(' \u00b7 ', w); }
   el.title = progEdited
-    ? "The synth last reported this program, and the sound has been changed since. The synth does not tell the app when you store a patch with Record, so if you saved it into a different slot this number is out of date. Select a program on the synth to refresh it."
+    ? "The synth last reported this program, and the sound has been changed since. The synth does not tell the app when you save a patch with Record, so if you saved it into a different slot this number is out of date. Select a program on the synth to refresh it."
     : 'The program the synth last reported or the app last selected.';
 }
 let stepTimer = null;
 function stepProgram(dir) {                       // move to the next or previous program in the current set, wrapping round: 200 programs per set
   if (!requirePort() || capturing || pendingRead) return;
   if (progState.pc === null || progState.lsb === null || Math.floor(progState.pc / 8) + 1 > 5) {
-    setStatus('The app does not know which program the synth is on yet. Select a program on the synth (or use Go to slot in the Library) first.');
+    setStatus('The app does not know which program the synth is on yet. Select a program on the synth (or use Load on a Library entry) first.');
     return;
   }
   const factory = progState.lsb >= 5;
@@ -1883,7 +1977,8 @@ document.addEventListener('keydown', e => {
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable) || $('library').hidden === false) return;
   e.preventDefault(); stepProgram(e.key === ']' ? 1 : -1);
 });
-function markEdited() { if (progState.pc !== null && !progEdited) { progEdited = true; showProgTag(); } }
+let holdEdited = false;   // true while a library patch is loaded into its own slot, so the loading is not counted as an edit
+function markEdited() { if (!holdEdited && progState.pc !== null && !progEdited) { progEdited = true; showProgTag(); } }
 
 const PARAM_BY_CC = {};
 for (const k in PARAM_BY_KEY) PARAM_BY_CC[PARAM_BY_KEY[k].cc] = PARAM_BY_KEY[k];
@@ -1910,7 +2005,7 @@ function refreshUnisonFromSynth(now) {          // the synth doesn't send its vo
   }, now ? 0 : 300);
 }
 function followSynthCC(d) {                  // a knob or button moved on the Prophet: show it here without sending it back
-  if (capturing || (d[0] & 0xF0) !== 0xB0 || !$('follow-synth').checked) return;
+  if (capturing || (d[0] & 0xF0) !== 0xB0) return;
   const p = PARAM_BY_CC[d[1]], raw = d[2];
   if (!p) return;
   const v = p.type === 'switch' ? (raw ? 1 : 0) : p.key === 'unison_voices' ? (raw === 10 ? CHORD : Math.max(1, Math.min(STEPS.unison_voices.to, raw + 1))) : Math.min(p.max, raw);
@@ -2054,7 +2149,7 @@ function finishSysex(b) {
   lastDumpFull = vals.slice();
   if (DETUNE_OFFSET !== null) next.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
 
-  if (newProgram) { HISTORY.length = 0; syncBack(); newProgram = false; }      // a read is not an edit to undo: Back only covers Generate and Mutate (a program you have just moved to starts a fresh history)
+  if (newProgram) { clearHistory(); newProgram = false; }      // a read is not an edit to undo: Back only covers Generate and Mutate (a program you have just moved to starts a fresh history)
   libLoadedId = null;
   currentActivePatch = next;
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
@@ -2121,7 +2216,9 @@ function readFromSynth() {
 
 // ---------- Mutate / history ----------
 const HISTORY = [];
-const syncBack = () => { const b = $('back-btn'); if (b) b.disabled = !HISTORY.length; };      // Back is greyed out when there is nothing to go back to
+const FORWARD = [];                                // steps that Back has undone, for the Forward button
+const syncBack = () => { const b = $('back-btn'), f = $('fwd-btn'); if (b) b.disabled = !HISTORY.length; if (f) f.disabled = !FORWARD.length; };      // each is greyed out when there is nothing to go to
+const clearHistory = () => { HISTORY.length = 0; FORWARD.length = 0; syncBack(); };
 syncBack();
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const FROZEN = ['oscA_freq', 'oscB_keyboard', 'oscB_lowfreq', 'release_switch', 'glide', 'unison', 'unison_voices', 'unison_detune', 'filter_rev', 'vel_filter', 'vel_amp', 'at_filter', 'at_lfo'];
@@ -2129,12 +2226,14 @@ const FROZEN = ['oscA_freq', 'oscB_keyboard', 'oscB_lowfreq', 'release_switch', 
 function pushHistory() {
   HISTORY.push({ ...currentActivePatch, _name: patchName });
   if (HISTORY.length > 20) HISTORY.shift();
+  FORWARD.length = 0;                             // a new edit ends the Forward trail
   syncBack();
 }
 
 function undoPatch() {
   if (!HISTORY.length) return setStatus('Nothing to go back to.');
   if (!requirePort()) return;
+  FORWARD.push({ ...currentActivePatch, _name: patchName });
   const prev = HISTORY.pop();
   syncBack();
   setName(prev._name || patchName);
@@ -2142,6 +2241,18 @@ function undoPatch() {
   currentActivePatch = prev;
   syncSlidersToUI();
   transmitCurrentPatch('Went back one step (' + HISTORY.length + ' more available).');
+}
+function redoPatch() {
+  if (!FORWARD.length) return setStatus('Nothing to go forward to.');
+  if (!requirePort()) return;
+  HISTORY.push({ ...currentActivePatch, _name: patchName });
+  const next = FORWARD.pop();
+  syncBack();
+  setName(next._name || patchName);
+  delete next._name;
+  currentActivePatch = next;
+  syncSlidersToUI();
+  transmitCurrentPatch('Went forward one step (' + FORWARD.length + ' more available).');
 }
 
 
