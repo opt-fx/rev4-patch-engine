@@ -38,6 +38,7 @@ Every knob and button sends to the synth as you move it. Nothing is saved on the
 
 **Generate and Mutate**
 - **Generate** makes a new random patch. Its name is just a random two-word label (such as "Velvet Lagoon"). **New name** changes only the label.
+- The **Any sound** dropdown next to it (Pluck, Pad or Drone) shapes the envelopes so the new patch fits that style. Everything else stays random, and locked sections still win. Leave it on Any sound for fully random.
 - **Mutate** nudges the current patch by the amount you choose. Open **Mutate by section** for a separate slider per section: each follows the main amount until you move it, and 0% leaves that section alone. Click a section's name to make it follow the main amount again.
 - The **padlock** on a section (amber when locked) keeps it unchanged through Generate and Mutate. **Keep unison** keeps your unison settings through Generate.
 - **Back** undoes up to 20 Generate and Mutate steps, and **Forward** redoes them. Both grey out when there's nothing to go to, and both start afresh when the program changes.
@@ -85,6 +86,7 @@ The **Library** tab is a searchable list of patches stored in your browser. It h
 
 **Keeping track**
 - A small **chord** tag marks patches that carry a unison chord. Hover over it to see the notes.
+- **Details** also shows a quiet **Detected** line: unison (with voice count), sync, poly-mod, noise, glide, and rough sound types worked out from the envelopes: pluck, pad and drone. They are guesses, are never saved, and you can filter by them from the tag dropdown.
 - The program the synth is on is highlighted and marked **On synth**. A patch you loaded into the editor is marked **Loaded**. A red **edited** appears once the sound has changed since. **Find current** clears the filters and scrolls to the marked row.
 - If you rename a patch in the Library, recapturing keeps your name until you use Rename on synth.
 - If a recapture finds that a slot's patch differs from the stored copy, the entry gets a **changed** badge. It stays until you open the patch's Details and press **Mark as seen**.
