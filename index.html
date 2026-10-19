@@ -146,6 +146,9 @@
     .btn.sm { padding:6px 12px; font-size:11px; }
     .ldetail { display:grid; gap:10px; padding:10px 4px 16px 34px; border-bottom:1px solid var(--line); background:#161514; }
     .ldetail label { display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--ink); text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
+    .ldetail .nrow { display:flex; align-items:flex-end; gap:10px; }
+    .ldetail .nrow label { flex:0 1 280px; }
+    .ldetail .nrow .btn { align-self:flex-end; box-sizing:border-box; height:35px; padding:0 14px; }
     .ldetail textarea { resize:vertical; text-transform:none; letter-spacing:0; font-weight:400; }
     .ldetail input[type="text"] { text-transform:none; letter-spacing:0; font-weight:400; }
     .lact { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
@@ -1149,29 +1152,29 @@ function libRow(e) {
   const out = [row];
   if (open) {
     const nm = el('input', { type: 'text', maxlength: 32, value: e.name, 'aria-label': 'Name' });
-    nm.onchange = async () => { e.name = nm.value.trim() || e.name; nm.value = e.name; nameEl.textContent = e.name; e.updated = Date.now(); await libPersist(e); renderFavs(); };
+    const unitNow = e.dump ? patchFromDump(e.dump, 0).name : '';
+    const canRename = !!e.slot && e.slot.set === 'U' && !!e.dump;
+    const rn = canRename ? el('button', { class: 'btn sm', title: 'Writes this name to the program on the synth. The sound is read from the synth first and left exactly as it is.', onclick: () => renameOnSynth(e.id) }, 'Rename on synth') : null;
+    const syncRn = () => { if (rn) rn.disabled = (nm.value.trim() || e.name) === unitNow; };
+    nm.onchange = async () => { e.name = nm.value.trim() || e.name; nm.value = e.name; nameEl.textContent = e.name; e.updated = Date.now(); syncRn(); await libPersist(e); renderFavs(); };
+    nm.oninput = syncRn; syncRn();
     const tg = el('input', { type: 'text', value: e.tags.join(', '), placeholder: 'e.g. pad, bass, lead', 'aria-label': 'Tags' });
     tg.onchange = async () => { e.tags = parseTags(tg.value); tg.value = e.tags.join(', '); tagsEl.replaceChildren(...tagChips(e)); e.updated = Date.now(); await libPersist(e); refreshTagSelect(); };
     const nt = el('textarea', { rows: 2, placeholder: 'Notes', 'aria-label': 'Notes' }); nt.value = e.notes;
     nt.onchange = async () => { e.notes = nt.value; e.updated = Date.now(); await libPersist(e); };
     const meta = [e.source === 'captured' ? 'Captured from the synth' : e.source === 'imported' ? 'Imported' : 'Saved from the editor', new Date(e.added).toLocaleDateString()];
-    const unitName = e.dump ? patchFromDump(e.dump, 0).name : '';
     const extra = [];
-    if (unitName && unitName !== e.name) extra.push(el('div', { class: 'lact' }, el('span', { class: 'muted' }, `Name on the synth: ${unitName}`),
-      el('button', { class: 'btn sm', onclick: async () => { e.name = unitName; e.updated = Date.now(); await libPersist(e); renderFavs(); renderLib(); } }, 'Use that name')));
     if (e.changed) extra.push(el('div', { class: 'lact' }, el('span', { class: 'muted' }, 'This slot was different the last time it was captured.'),
       el('button', { class: 'btn sm', onclick: async () => { e.changed = false; await libPersist(e); renderLib(); } }, 'Mark as seen')));
     const dg = el('select', { 'aria-label': 'Group' }), db = el('select', { 'aria-label': 'Bank' }), dp = el('select', { 'aria-label': 'Program' });
     [[dg, 5], [db, 5], [dp, 8]].forEach(([sel, n]) => { for (let i = 1; i <= n; i++) sel.append(el('option', { value: String(i) }, String(i))); });
     if (e.slot) { dg.value = String(e.slot.group); db.value = String(e.slot.bank); dp.value = String(e.slot.prog); }      // the same numbers in the user memory
-    const store = el('div', { class: 'lact' }, el('span', { class: 'muted' }, 'Save in user slot'), el('label', { class: 'inl' }, 'Group', dg), el('label', { class: 'inl' }, 'Bank', db), el('label', { class: 'inl' }, 'Program', dp),
-      el('button', { class: 'btn sm', title: 'Copy this patch, with this name, into that user program on the synth, replacing what is there, then read it back to check', onclick: () => storeEntryToSlot(e.id, { set: 'U', group: +dg.value, bank: +db.value, prog: +dp.value }) }, 'Save'));
+    const store = el('div', { class: 'lact' }, el('span', { class: 'muted' }, 'Copy to user slot'), el('label', { class: 'inl' }, 'Group', dg), el('label', { class: 'inl' }, 'Bank', db), el('label', { class: 'inl' }, 'Program', dp),
+      el('button', { class: 'btn sm', title: 'Copy this patch, with this name, into that user program on the synth, replacing what is there, then read it back to check', onclick: () => storeEntryToSlot(e.id, { set: 'U', group: +dg.value, bank: +db.value, prog: +dp.value }) }, 'Copy'));
     out.push(el('div', { class: 'ldetail' },
-      el('label', {}, 'Name', nm), el('label', {}, 'Tags (comma separated)', tg), el('label', {}, 'Notes', nt), extra, store,
+      el('div', { class: 'nrow' }, el('label', {}, 'Name', nm), rn || ''), el('label', {}, 'Tags (comma separated)', tg), el('label', {}, 'Notes', nt), extra, store,
       el('div', { class: 'lact' },
-        el('button', { class: 'btn sm', onclick: () => loadEntry(e.id, true) }, 'Load and open in editor'),
-        el('button', { class: 'btn sm', title: "Sends this patch, with its name and chord, to the synth's working patch and checks it arrived. It is not saved: use Save in user slot to keep it.", onclick: () => sendEntryWithName(e.id) }, 'Send to synth'),
-        el('button', { class: 'btn sm', onclick: () => libDelete(e.id) }, 'Delete'),
+        e.slot ? '' : el('button', { class: 'btn sm', onclick: () => libDelete(e.id) }, 'Delete'),      // patches that live in a synth slot are not deleted from here: recapture or delete captured sets from the Capture box
         el('span', { class: 'muted' }, meta.join(' \u00b7 ')))));
   }
   return out;
@@ -1364,19 +1367,6 @@ async function sendWithName(patch, name, chord, tpl, perf, label) {
     }
   } finally { capturing = false; }
 }
-function sendEntryWithName(id) {
-  const e = lib.find(x => x.id === id);
-  if (!e || !requirePort()) return;
-  const tpl = e.dump && e.dump.length >= 133 ? e.dump : (lastDumpFull || (e.dump ? e.dump.concat(new Array(Math.max(0, 133 - e.dump.length)).fill(0)) : null));
-  pushHistory();
-  currentActivePatch = { ...INIT_PATCH, ...e.patch };
-  chordNotes = (e.chord || []).slice();
-  setName(e.name);
-  syncSlidersToUI();
-  libLoadedId = e.id;
-  sendWithName(currentActivePatch, e.name, chordNotes, tpl, !!e.perf, e.name);
-}
-
 // --- capture from the synth ---
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function selectSlot(slot) {                       // Bank Select (MSB 0, LSB = group) then Program Change (bank and program); factory groups are LSB 5 upwards, user groups LSB 0 upwards
@@ -1893,6 +1883,25 @@ async function storeEntryToSlot(id, slot) {         // copy a Library patch into
   if (!confirm(`Save "${name}" into ${slotLabel(slot)} on the synth?\n\n${occupantNote(slot)}`)) return;
   const r = await writeProgram(vals, name, slot);
   setStatus(r.ok ? 'Saved. ' + await putStoredInLibrary(slot, vals, name, false) : r.message);
+}
+async function renameOnSynth(id) {                  // housekeeping: write a new name to a user program, leaving its sound as the synth holds it
+  const e = lib.find(x => x.id === id);
+  if (!e || !e.slot || e.slot.set !== 'U' || !requirePort() || !sysexOk || capturing || pendingRead) return;
+  const name = String(e.name).slice(0, 20).trim(), slot = e.slot;
+  if (!name) return;
+  capturing = true;
+  let vals;
+  try { if (!selectSlot(slot)) return; await sleep(500); vals = await readEditBuffer(); } finally { capturing = false; }
+  if (!vals) return setStatus('No reply when reading the program from the synth, so the name was not changed.');
+  const nv = vals.slice(), pad = nv[84] === 32 ? 32 : 0;
+  for (let i = 0; i < 20; i++) { const c = name.charCodeAt(i); nv[65 + i] = i >= name.length ? pad : (c >= 32 && c < 127 ? c : 63); }
+  const soundDiffers = !!e.dump && !sameDump(e.dump.slice(0, 65), nv.slice(0, 65)), wasChanged = e.changed;
+  const r = await writeProgram(nv, name, slot);
+  if (!r.ok) return setStatus(r.message);
+  await putStoredInLibrary(slot, nv, name, false);
+  e.changed = wasChanged || soundDiffers; await libPersist(e);      // only the name was meant to change, so a name difference alone is not a change
+  lastOwnSelect = 0; await autoReadProgram();                       // bring the editor onto the program that is now selected
+  setStatus(`Renamed ${slotLabel(slot)} on the synth to "${name}".` + (soundDiffers ? ' The sound on the synth was different from the Library copy, so the entry is marked changed.' : ''));
 }
 let autoReadTimer = null, lastOwnSelect = 0, newProgram = false;      // newProgram: the app chose a program, so the next read starts a fresh Back history
 function scheduleAutoRead(retry) {               // a program was chosen on the synth: wait for the knob to settle, then read it

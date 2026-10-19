@@ -17,7 +17,7 @@ The whole app is one HTML file. There's nothing to install, no account and no se
 
 - **Chrome or Edge.** Safari and Firefox don't support Web MIDI, so they can't talk to a synth.
 - A MIDI route from your computer to the synth (USB or a MIDI interface).
-- On the synth, in Globals: **Param Rcv** set to **CC**. For Read from synth, Send to synth, Save to synth and the Library's capture, also set **MIDI SysEx** to the route you use (MIDI or USB) and make sure MIDI Out is sending on that route.
+- On the synth, in Globals: **Param Rcv** set to **CC**. For Read from synth, Save to synth and the Library's capture, also set **MIDI SysEx** to the route you use (MIDI or USB) and make sure MIDI Out is sending on that route.
 - To have the app follow knobs and buttons you move on the synth, also set **Param Xmit** to **CC** in Globals. NRPN isn't supported for this.
 - For capturing patches and loading patches that have a slot, the synth must accept Program Change and Bank Select, and the app's **Channel** menu must match the synth's MIDI channel.
 
@@ -30,7 +30,6 @@ The whole app is one HTML file. There's nothing to install, no account and no se
 5. Every knob and button sends to the synth as you move it.
 6. **Read from synth** pulls the current patch (including its name and unison settings) into the app. With Param Xmit set to CC, knobs and buttons you move on the synth then move on screen too. When you choose a program on the synth, the app reads its patch into the editor by itself and refreshes that slot in the Library (marking it **changed** if it differs from the copy it held). This starts a fresh Back history, because Back is for undoing Generate and Mutate on the patch you are working on. The synth doesn't report a chord being learned over MIDI, so after holding a chord and pressing Unison on the synth, press **Sync** in the Unison box to bring the voice count, chord and detune into the app.
 7. **Save to synth…** opens a line with dropdowns for a user slot (Group, Bank, Program). **Save** sends the editor's patch, with its name and unison chord notes, to that slot as a Program Data Dump, selects the slot and reads it back, and only updates the Library if the synth really holds the new patch. It overwrites that program for good, so check the slot first. Factory programs are permanent on the synth (the user guide says you can only save sounds to the User set), so only user slots are offered. If you save a patch on the synth itself with **Record** and the program button, the synth sends nothing, so the app can't see it; press that program button again and the app reads it and refreshes the Library.
-   **Send to synth** (in a Library entry's Details) sends the whole patch, including its name and chord notes, to the synth's working patch and reads it back to check it arrived, so you can hear a chord patch exactly as it will be saved. It does not save it. The synth only takes the name and chord through this route; if it doesn't accept the patch dump, the app falls back to sending the controller values.
 8. The **padlock** on a section's top border (amber when locked) keeps it unchanged when you Generate or Mutate. **Keep unison** keeps your unison settings through Generate.
 9. **‹ and ›** (or the **[** and **]** keys) select the previous or next program on the synth and read it into the editor. They step through programs 1 to 8, then banks, then groups, within the current set (200 programs, wrapping round). They need the app to know which program the synth is on: select one on the synth once, or use Load on a Library entry. They replace the working patch, so use Back if you stepped away from edits you wanted. The keys don't work while you're typing in a field or on the Library tab.
 10. **Export program** and **Import program** use small JSON files for a single patch. The **Scratchpad** (the chips under the buttons) is a temporary holding area: **Save** keeps the editor's patch there without adding it to the Library. Click a chip to load it, **+** to add it to the Library, or **×** to delete it.
@@ -61,13 +60,14 @@ The list is split by where each patch lives: **Factory** patches on the left, **
 - **Clear filters** resets them all.
 
 **Using patches**
-- **Load** (on any entry) sends the patch to the synth and switches to the Editor. If the entry has a synth slot (captured or saved from the app), the app first selects that program on the synth with Bank Select and Program Change, then loads the patch into it. Nothing is written to the slot until you save. Chord notes can't be sent this way; use Send to synth for those.
-- **Save in user slot** (in Details) copies a Library patch, with its name, into any user program on the synth and checks it by reading it back, so you can copy a factory patch into user memory, or put a patch back after a backup. The slot starts on the same numbers as the patch's own, and the Library gets an entry for the destination.
-- Star a patch to make it a favourite. Open **Details** to rename it, add tags and notes, send it with its name, or delete it.
+- **Load** (on any entry) sends the patch to the synth and switches to the Editor. If the entry has a synth slot (captured or saved from the app), the app first selects that program on the synth with Bank Select and Program Change, then loads the patch into it. Nothing is written to the slot until you save. Chord notes can't be sent this way; to carry a chord, copy the patch into a user slot.
+- **Copy to user slot** (in Details) copies a Library patch, with its name, into any user program on the synth and checks it by reading it back, so you can copy a factory patch into user memory, or put a patch back after a backup. The slot starts on the same numbers as the patch's own, and the Library gets an entry for the destination.
+- **Rename on synth** (beside the Name field in Details, for patches in a user slot) is for housekeeping: type a new name and press it, and just the name is written to that program on the synth. The app first reads the program from the synth and writes it back with only the name changed, so the sound stays exactly as it is on the unit, even if your Library copy is out of date. The button is greyed out until the name differs from the one on the synth. It selects that program on the synth, and it doesn't ask for confirmation, since only the name changes.
+- Star a patch to make it a favourite. Open **Details** to rename it, add tags and notes, copy it to a user slot, or (for saved and imported patches only) delete it.
 
 **Keeping track of changes**
 - The row for the program the synth is on is highlighted and marked **On synth**. A patch you've loaded from the library into the editor is marked **Loaded**. A red **edited** appears when the sound has been changed since (the same information as the "· edited" warning next to the patch name, so it has the same limit: the app can't see a save made with Record). **Find current** clears the filters and scrolls to the marked row.
-- If you rename a patch in the app, recapturing keeps your name. Details shows the name the synth has, with a button to use it instead.
+- If you rename a patch in the Library, recapturing keeps your name until you use Rename on synth to write it to the unit.
 - If a recapture finds that a slot's patch is different from the stored copy, the entry gets a **changed** badge. The badge stays until you open the patch's **Details** and press **Mark as seen**.
 
 **Backups**
@@ -93,7 +93,6 @@ The list is split by where each patch lives: **Factory** patches on the left, **
 - **Knobs move but the synth doesn't respond:** check Param Rcv is set to CC in Globals and that the MIDI channel matches.
 - **"No reply from the Prophet" on Read from synth:** check MIDI SysEx in Globals matches your route, and that nothing in between (a MIDI router such as a Midihub) is filtering SysEx in either direction.
 - **Capture stops with "the synth returned the same patch":** the synth isn't changing program. Check that the Channel menu matches the synth's MIDI channel, that Program Change receive is on, and that nothing in between filters Program Change or Bank Select.
-- **Send to synth says the synth did not take the patch dump:** the name couldn't be written. The controller values were sent instead. Check MIDI SysEx in Globals.
 - **A message says the library can't be stored:** the browser is blocking site storage (a private window, for example). Use Export to keep your patches.
 - **Param Xmit switched itself to Off on the synth:** this was seen once or twice after changing banks and the cause isn't known. Set it back to CC to keep the app following your knobs.
 
