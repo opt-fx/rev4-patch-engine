@@ -1,7 +1,6 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png)
-![Screenshot](screenshot2.png)
+![Screenshot](screenshot.png)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a new patch, nudge the current one with Mutate, tweak any control, read the patch that's on the synth into the app, and keep a searchable library of your patches.
 
@@ -32,12 +31,12 @@ The whole app is one HTML file. There's nothing to install, no account and no se
 7. **Save to synth…** opens a line with dropdowns for a user slot (Group, Bank, Program). **Save** sends the editor's patch, with its name and unison chord notes, to that slot as a Program Data Dump, selects the slot and reads it back, and only updates the Library if the synth really holds the new patch. It overwrites that program for good, so check the slot first. Factory programs are permanent on the synth (the user guide says you can only save sounds to the User set), so only user slots are offered. If you save a patch on the synth itself with **Record** and the program button, the synth sends nothing, so the app can't see it; press that program button again and the app reads it and refreshes the Library.
    **Send to synth** (in a Library entry's Details) sends the whole patch, including its name and chord notes, to the synth's working patch and reads it back to check it arrived, so you can hear a chord patch exactly as it will be saved. It does not save it. The synth only takes the name and chord through this route; if it doesn't accept the patch dump, the app falls back to sending the controller values.
 8. The **padlock** on a section's top border (amber when locked) keeps it unchanged when you Generate or Mutate. **Keep unison** keeps your unison settings through Generate.
-9. **‹ and ›** (or the **[** and **]** keys) select the previous or next program on the synth and read it into the editor. They step through programs 1 to 8, then banks, then groups, within the current set (200 programs, wrapping round). They need the app to know which program the synth is on: select one on the synth once, or use Go to slot. They replace the working patch, so use Back if you stepped away from edits you wanted. The keys don't work while you're typing in a field or on the Library tab.
-10. **Export program** and **Import program** use small JSON files for a single patch. **Favourites** (the chips under the buttons) are patches you've starred in the Library.
+9. **‹ and ›** (or the **[** and **]** keys) select the previous or next program on the synth and read it into the editor. They step through programs 1 to 8, then banks, then groups, within the current set (200 programs, wrapping round). They need the app to know which program the synth is on: select one on the synth once, or use Load on a Library entry. They replace the working patch, so use Back if you stepped away from edits you wanted. The keys don't work while you're typing in a field or on the Library tab.
+10. **Export program** and **Import program** use small JSON files for a single patch. The **Scratchpad** (the chips under the buttons) is a temporary holding area: **Save** keeps the editor's patch there without adding it to the Library. Click a chip to load it, **+** to add it to the Library, or **×** to delete it.
 
 **Mutate by section:** under the buttons, this opens one Mutate slider per section. Each follows the main Mutate amount until you move its slider; 0% leaves that section as it is, and clicking a section's name makes it follow the main amount again. Locked sections stay unchanged whatever their slider says.
 
-**Layout:** on a wide window (about 1100 pixels or more) the editor uses a compact layout with the sections in three rows, and the knobs and spacing grow with the window's height, so a large display shows the whole editor at once. On a MacBook-sized window the bottom row may sit just below the fold. The Library lists patches in two columns, with its filters kept in view as you scroll. Narrower windows, such as phones and tablets, use a single stacked column.
+**Layout:** on a wide window (about 1100 pixels or more) the editor uses a compact layout with the sections in three rows, and the knobs and spacing grow with the window's height, so a large display shows the whole editor at once. On a MacBook-sized window the bottom row may sit just below the fold. The Library lists patches in up to three columns (Factory, User, and Saved and imported), with its filters kept in view as you scroll. Narrower windows, such as phones and tablets, use a single stacked column.
 
 Knobs: drag up or down (hold Shift for fine control), use the mouse wheel or arrow keys while a knob is focused, double-click to reset. The number under each knob is the synth's own value (mostly 0 to 120), not the 0 to 10 printed on the panel.
 
@@ -46,11 +45,12 @@ Knobs: drag up or down (hold Shift for fine control), use the mouse wheel or arr
 The **Library** tab is a searchable list of patches stored in your browser.
 
 **Adding patches**
-- **Save current patch** adds what's in the editor.
-- **Capture patches from the synth** steps the synth through a set (Factory or User) and a range of groups (5 groups per set, each 5 banks of 8 programs) using Bank Select and Program Change, reads each one, and adds it to the library. It changes the program on the synth while it runs. By default it then puts the synth back on the program it was on and sends the editor's patch back. The app only knows which program the synth is on if the synth has reported it (select a program on the synth once before capturing); otherwise the synth is left on the last program captured. Before it starts it reads the first and last program of the range and stops if they come back identical, because that means the synth isn't changing program.
+- **Capture patches from the synth** steps the synth through a set (Factory or User) and a range of groups (5 groups per set, each 5 banks of 8 programs) using Bank Select and Program Change, reads each one, and adds it to the library. It changes the program on the synth while it runs. By default it then puts the synth back on the program it was on and sends the editor's patch back. The app only knows which program the synth is on if the synth has reported it (select a program on the synth once before capturing); otherwise the synth is left on the last program captured. Before it starts it reads the first and last program of the range and stops if they come back identical, because that means the synth isn't changing program. **Delete captured patches in this selection** removes only the captured patches in the chosen set and group range; saved and imported patches stay.
+- **Save to synth…** (in the editor) writes the current patch into a user slot and adds it to the Library with that slot.
+- **Scratchpad** chips (in the editor) can be added to the Library with the **+** on the chip.
 - **Import library** merges in a library file (or a single program exported with Export program) without duplicating what's already there.
 
-The list is split by where each patch lives: **Factory** patches on the left, **User** patches on the right, and anything saved or imported from outside the synth in a **Saved and imported** section underneath (on a narrow window they stack one above the other). Choosing a set in the filter shows just that one.
+The list is split by where each patch lives: **Factory** patches on the left, **User** patches in the middle, and anything saved or imported from outside the synth in a **Saved and imported** column on the right (on a narrower window the last one sits underneath, and on a phone they all stack). Choosing a set in the filter shows just that one.
 
 **Finding patches**
 - Search matches names, tags, notes and slot numbers (such as F117 or U558). Sort by synth slot, name or newest.

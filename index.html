@@ -15,7 +15,7 @@
     .cheek:last-child { border-radius:0 10px 10px 0; }
     .panel { flex:1; min-width:0; padding:26px 30px 30px; background:#1b1a18; border-top:2px solid #0a0908; border-bottom:2px solid #0a0908; }
     .masthead { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px; padding-bottom:18px; }
-    h1 { margin:0; font-size:34px; font-weight:300; letter-spacing:.02em; line-height:1.1; }
+    h1 { margin:0; font-size:34px; font-weight:700; letter-spacing:.02em; line-height:1.1; }
     .masthead p { margin:10px 0 0; color:var(--amber); font-size:14px; }
     .ports { display:flex; flex-wrap:wrap; gap:12px; }
     .ports label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--ink); }
@@ -127,6 +127,7 @@
     .libhead { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); padding:8px 4px 6px; border-bottom:1px solid var(--line); }
     .libother { margin-top:16px; }
     @media (min-width:1100px) { .libcols:not(.single) { grid-template-columns:repeat(2,minmax(0,1fr)); } .libcols .libother { grid-column:1 / -1; } }
+    @media (min-width:1300px) { .libcols:not(.single) { grid-template-columns:repeat(var(--n,2),minmax(0,1fr)); } .libcols .libother { grid-column:auto; margin-top:0; } .libcols .libother .libbody { column-count:1 !important; } }
     .lrow { display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid var(--line); }
     .lname { flex:1; min-width:0; font-size:14px; display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; }
     .lname b { font-weight:600; overflow-wrap:anywhere; }
@@ -300,8 +301,9 @@
       .libother .libbody { column-count:2; column-gap:28px; }
       .libother .libbody .lrow { break-inside:avoid; }
       .libother .libbody .ldetail { column-span:all; }
-      .libtop { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; position:sticky; top:0; z-index:5; margin-top:8px; padding:8px 0; background:#1b1a18; }
-      .libtop > .libbar { display:contents; }
+      .libtop { display:flex; flex-direction:column; gap:8px; position:sticky; top:0; z-index:5; margin-top:8px; padding:8px 0; background:#1b1a18; }
+      .libtop > .libbar { margin-top:0; gap:8px 10px; }
+      .libtop .btn { padding:6px 12px; font-size:12px; }
       .libtop input[type="search"] { flex:1 1 240px; max-width:340px; min-width:200px; }
       .libtop select { padding:6px 28px 6px 8px; font-size:13px; }
       .libtop .keepopt { font-size:11px; }
@@ -420,7 +422,7 @@
     <div class="midbar">
     <div class="toprow">
     <div class="favs">
-      <div class="favhead"><span>Favourites</span><button class="btn" onclick="addFav()">Save current</button></div>
+      <div class="favhead"><span>Scratchpad</span><button class="btn" onclick="saveIdea()" title="Keep the editor's patch here for now, without adding it to the Library">Save</button></div>
       <div id="fav-list"></div>
     </div>
     </div>
@@ -437,8 +439,6 @@
         <select id="lib-sort" aria-label="Sort" onchange="libUI.sort=this.value; renderLib()">
           <option value="slot">Sort: synth slot</option><option value="name">Sort: name</option><option value="newest">Sort: newest</option>
         </select>
-      </div>
-      <div class="libbar">
         <select id="lib-set" aria-label="Filter by set" onchange="libFilter('set', this.value)">
           <option value="">All sets</option><option value="F">Factory</option><option value="U">User</option><option value="none">Not from the synth</option>
         </select>
@@ -449,21 +449,18 @@
           <option value="">Any origin</option><option value="captured">Captured from the synth</option><option value="saved">Saved from the editor</option><option value="imported">Imported</option>
         </select>
         <select id="lib-tag" aria-label="Filter by tag" onchange="libFilter('tag', this.value)"></select>
+        <button class="btn" onclick="libClearFilters()">Clear filters</button>
       </div>
       <div class="libbar">
         <label class="keepopt"><input type="checkbox" id="lib-favonly" onchange="libFilter('favOnly', this.checked)"> Favourites only</label>
         <label class="keepopt"><input type="checkbox" id="lib-changedonly" onchange="libFilter('changedOnly', this.checked)"> Changed on synth</label>
         <label class="keepopt" title="Patches you have renamed, tagged or added notes to"><input type="checkbox" id="lib-annotated" onchange="libFilter('annotated', this.checked)"> Renamed or annotated</label>
         <label class="keepopt" title="Hides user patches that are identical to the factory patch in the same position (unless you have starred, renamed, tagged or annotated them)"><input type="checkbox" id="lib-hidecopies" onchange="libFilter('hideCopies', this.checked)"> Hide user copies of factory</label>
-        <button class="btn sm" onclick="libClearFilters()">Clear filters</button>
-      </div>
-      <div class="libbar">
-        <button class="btn" onclick="libSaveCurrent()">Save current patch</button>
+        <span class="spacer"></span>
         <button class="btn" onclick="findCurrent()" title="Clears the filters and scrolls to the patch that is on the synth or loaded in the editor">Find current</button>
         <button class="btn" onclick="libExport()">Export library</button>
         <label class="btn file-label" for="lib-import" tabindex="0">Import library</label>
         <input type="file" id="lib-import" accept=".json" onchange="libImport(this)">
-        <span class="spacer"></span>
         <span id="lib-summary" class="muted"></span>
       </div>
       </div>
@@ -1004,29 +1001,37 @@ function el(tag, attrs, ...kids) {
 }
 
 // --- saving the editor's current patch ---
-function saveCurrentEntry() {                    // updates the entry of the same name that was saved from the editor, otherwise adds one
+function saveCurrentEntry(idea) {                // updates the entry of the same name that was saved from the editor, otherwise adds one; ideas and library patches are kept apart
   const name = (patchName || '').trim() || 'Untitled';
-  const at = lib.find(e => e.source === 'saved' && e.name === name);
-  const fields = { name, patch: { ...currentActivePatch }, chord: chordNotes.slice(), perf: perfKnown, updated: Date.now() };
+  const at = lib.find(e => e.source === 'saved' && e.name === name && !!e.idea === !!idea);
+  const fields = { name, idea: !!idea, patch: { ...currentActivePatch }, chord: chordNotes.slice(), perf: perfKnown, updated: Date.now() };
   if (at) { Object.assign(at, fields); return { entry: at, replaced: true }; }
   const entry = makeEntry(fields);
   lib.push(entry);
   return { entry, replaced: false };
 }
-async function addFav() {
-  const { entry, replaced } = saveCurrentEntry();
-  entry.fav = true;
+async function saveIdea() {
+  const { entry, replaced } = saveCurrentEntry(true);
   await libPersist(entry);
-  renderFavs(); renderLib();
-  setStatus(`Saved "${entry.name}" to favourites${replaced ? ' (replaced the one with that name)' : ''}.`);
+  renderFavs();
+  setStatus(`Saved "${entry.name}" to the scratchpad${replaced ? ' (replaced the one with that name)' : ''}. Add it to the Library when you want to keep it.`);
 }
-async function libSaveCurrent() {
-  const { entry, replaced } = saveCurrentEntry();
-  await libPersist(entry);
+async function promoteIdea(id) {
+  const e = lib.find(x => x.id === id);
+  if (!e) return;
+  e.idea = false; e.updated = Date.now();
+  await libPersist(e);
   renderFavs(); renderLib();
-  setStatus(`Saved "${entry.name}" to the library${replaced ? ' (replaced the one with that name)' : ''}.`);
+  setStatus(`Added "${e.name}" to the Library.`);
 }
-
+async function deleteIdea(id) {
+  const e = lib.find(x => x.id === id);
+  if (!e) return;
+  lib = lib.filter(x => x.id !== id);
+  await libDrop(id);
+  renderFavs();
+  setStatus(`Deleted "${e.name}" from the scratchpad.`);
+}
 // --- sending a library patch to the editor and the synth ---
 function loadEntry(id, toEditor) {
   const e = lib.find(x => x.id === id);
@@ -1052,15 +1057,16 @@ function applyEntry(e, toEditor, clean) {
 }
 
 // --- favourites chips on the main page ---
-function renderFavs() {
+function renderFavs() {                            // the Scratchpad row: scratch patches that are not in the Library until you add them
   const box = $('fav-list');
   box.innerHTML = '';
-  const favs = lib.filter(e => e.fav).sort((a, b) => a.added - b.added);
-  if (!favs.length) { box.innerHTML = '<span class="muted">No favourites yet. Save the current patch, or star one in the Library.</span>'; return; }
-  favs.forEach(f => {
-    const load = el('button', { title: 'Load and send to the synth', onclick: () => loadEntry(f.id) }, f.name);
-    const del = el('button', { class: 'chipx', 'aria-label': 'Remove ' + f.name + ' from favourites', title: 'Remove from favourites (stays in the Library)', onclick: () => toggleFav(f.id) }, '×');
-    box.appendChild(el('span', { class: 'chip' }, load, del));
+  const ideas = lib.filter(e => e.idea).sort((a, b) => a.added - b.added);
+  if (!ideas.length) { box.innerHTML = '<span class="muted">Nothing here yet. Save a patch to come back to, then add it to the Library or delete it.</span>'; return; }
+  ideas.forEach(f => {
+    const load = el('button', { title: 'Load and send to the synth', onclick: () => loadEntry(f.id, true) }, f.name);
+    const add = el('button', { class: 'chipx', 'aria-label': 'Add ' + f.name + ' to the Library', title: 'Add to the Library', onclick: () => promoteIdea(f.id) }, '+');
+    const del = el('button', { class: 'chipx', 'aria-label': 'Delete ' + f.name + ' from the scratchpad', title: 'Delete from the scratchpad', onclick: () => deleteIdea(f.id) }, '×');
+    box.appendChild(el('span', { class: 'chip' }, load, add, del));
   });
 }
 async function toggleFav(id) {
@@ -1098,6 +1104,7 @@ function libVisible() {
   const factory = {};                              // factory dumps by position, for spotting user patches that are still copies
   if (libUI.hideCopies) lib.forEach(e => { if (e.slot && e.slot.set === 'F' && e.dump) factory[`${e.slot.group}:${e.slot.bank}:${e.slot.prog}`] = e.dump; });
   const r = lib.filter(e => {
+    if (e.idea) return false;
     if (libUI.favOnly && !e.fav) return false;
     if (libUI.changedOnly && !e.changed) return false;
     if (libUI.tag && !e.tags.includes(libUI.tag)) return false;
@@ -1215,17 +1222,19 @@ function findCurrent() {                          // clear the filters and bring
 }
 
 function renderLib() {
-  $('lib-count').textContent = lib.length ? `(${lib.length})` : '';
+  const nLib = lib.filter(e => !e.idea).length;
+  $('lib-count').textContent = nLib ? `(${nLib})` : '';
   if ($('library').hidden) return;
   refreshTagSelect();
   const rows = libVisible(), box = $('lib-list');
   box.replaceChildren();
-  if (!lib.length) box.append(el('p', { class: 'muted' }, 'The library is empty. Save the current patch, capture patches from the synth below, or import a library file.'));
+  if (!nLib) box.append(el('p', { class: 'muted' }, 'The library is empty. Save a patch to the synth or the scratchpad, capture patches from the synth below, or import a library file.'));
   else if (!rows.length) box.append(el('p', { class: 'muted' }, 'Nothing matches that search.'));
   const sets = [['F', 'Factory'], ['U', 'User'], [null, 'Saved and imported']];     // factory on the left, user on the right, anything from outside the synth underneath
   const groups = sets.map(([k, label]) => ({ k, label, all: rows.filter(e => (e.slot ? e.slot.set : null) === k), list: rows.filter(e => (e.slot ? e.slot.set : null) === k).slice(0, libUI.limit) })).filter(g => g.all.length || (!libUI.set && g.k && lib.length && !libUI.q));
   if (groups.length) {
     const cols = el('div', { class: 'libcols' + (libUI.set ? ' single' : '') });
+    cols.style.setProperty('--n', groups.length);
     groups.forEach(g => {
       const body = el('div', { class: 'libbody' });
       g.list.forEach(e => libRow(e).forEach(n => body.append(n)));
@@ -1235,7 +1244,7 @@ function renderLib() {
     box.append(cols);
   }
   $('lib-more').hidden = !groups.some(g => g.all.length > libUI.limit);      // the limit applies to each column, so a long Factory list can never push the User patches off the page
-  $('lib-summary').textContent = lib.length ? `${rows.length} of ${lib.length} patches` : '';
+  $('lib-summary').textContent = nLib ? `${rows.length} of ${nLib} patches` : '';
   refreshLibMarks();
 }
 
@@ -1268,7 +1277,7 @@ function cleanEntry(o, source) {
     chord: Array.isArray(o.chord) ? o.chord.map(x => clamp(+x | 0, 0, 127)).slice(0, 10) : [],
     tags: Array.isArray(o.tags) ? parseTags(o.tags.join(',')) : [],
     notes: typeof o.notes === 'string' ? o.notes.slice(0, 2000) : '',
-    fav: !!o.fav, changed: !!o.changed, slot: s, perf: !!o.perf,
+    fav: !!o.fav, idea: !!o.idea, changed: !!o.changed, slot: s, perf: !!o.perf,
     dump: Array.isArray(o.dump) && o.dump.length <= 256 ? o.dump.map(x => clamp(+x | 0, 0, 255)) : null,
     source: ['captured', 'saved', 'imported'].includes(o.source) ? o.source : source,
     added: +o.added || now, updated: +o.updated || now
