@@ -138,6 +138,7 @@
     .lmark { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#1c1005; background:var(--amber); border-radius:10px; padding:1px 8px; }
     .lmark.alt { background:#ece6d6; }
     .ledit { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#ff4d4d; }
+    .lchord { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink); border:1px solid #4a4640; border-radius:10px; padding:1px 8px; }
     .chg { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#1c1005; background:var(--amber); border-radius:10px; padding:1px 8px; }
     .tagc { font-size:11px; color:var(--ink); border-radius:10px; padding:1px 8px; background:#2a2724; }
     .star { background:none; border:0; color:#5b564d; font-size:20px; line-height:1; cursor:pointer; padding:2px 4px; }
@@ -321,11 +322,11 @@
       /* Unison: its controls take part in the shared row lines, so DETUNE lines up with the switch labels (SAW, SQUARE...) in the neighbouring sections */
       #dashboard-grid .sect[data-g="unison"] { grid-template-columns:70px auto minmax(0,1fr); }
       #dashboard-grid .sect[data-g="unison"] > .ctls.uni { display:contents; }
-      #dashboard-grid .sect[data-g="unison"] .ctl.us { grid-column:1; grid-row:1; align-self:start; margin-top:6px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.us { grid-column:1; grid-row:1; align-self:start; margin-top:12px; transform:translateX(12px); }
       #dashboard-grid .sect[data-g="unison"] .ctl.vox { grid-column:2; grid-row:1; align-self:start; margin:3px 0 0 24px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.det { grid-column:1 / -1; grid-row:3; margin-top:11px; align-self:start; }
       #dashboard-grid .sect[data-g="unison"] .stepb { gap:6px; min-width:26px; }
-      #dashboard-grid .sect[data-g="unison"] .ctl.det .steps { gap:10px 3px; padding-left:22px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.det .steps { gap:10px 3px; padding-left:34px; margin-right:-12px; }
       @media (min-width:1300px) {       /* wide enough for one row: the buttons sit above the DETUNE word, which lines up with the switch labels */
         #dashboard-grid .sect[data-g="unison"] .ctl.det { position:relative; flex-direction:column; }
         #dashboard-grid .sect[data-g="unison"] .ctl.det .steps { position:absolute; left:0; right:0; bottom:calc(100% + 4px); flex-wrap:nowrap; }
@@ -443,7 +444,7 @@
           <option value="slot">Sort: synth slot</option><option value="name">Sort: name</option><option value="newest">Sort: newest</option>
         </select>
         <select id="lib-set" aria-label="Filter by set" onchange="libFilter('set', this.value)">
-          <option value="">All sets</option><option value="F">Factory</option><option value="U">User</option><option value="none">Not from the synth</option>
+          <option value="">All sets</option><option value="F">Factory</option><option value="U">User</option><option value="none">Saved and imported</option>
         </select>
         <select id="lib-group" aria-label="Filter by group" onchange="libFilter('group', this.value)">
           <option value="">All groups</option><option value="1">Group 1</option><option value="2">Group 2</option><option value="3">Group 3</option><option value="4">Group 4</option><option value="5">Group 5</option>
@@ -1048,6 +1049,25 @@ function loadEntry(id, toEditor) {
   pushHistory();
   applyEntry(e, toEditor);
 }
+async function loadWithChord(e, tpl, clean) {      // send the whole patch, chord included, to the synth's working patch and check it arrived
+  const name = String(e.name).slice(0, 20).trim(), vals = buildDump(currentActivePatch, name, chordNotes, tpl);
+  capturing = true;
+  try {
+    midiOutput.send([0xF0, 0x01, lastDumpId === null ? DUMP_IDS[0] : lastDumpId, 0x03, ...packDSI(vals), 0xF7]);
+    setStatus(`Loading "${e.name}" with its chord...`);
+    await sleep(500);
+    const back = await readEditBuffer();
+    const got = back && sameDump(back.slice(0, 65), vals.slice(0, 65)) && patchFromDump(back, 0).name === name;
+    if (back) showDumpLog(back);
+    if (got) {
+      lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true;
+      if (!clean) markEdited();
+      setStatus(`Loaded "${e.name}", including its chord.`);
+    } else {
+      transmitCurrentPatch(back ? 'The synth did not take the whole patch, so the knob and button values were sent. The chord notes were not sent.' : 'No reply when checking the patch, so the knob and button values were sent instead. The chord notes may not have arrived.', !!e.perf, clean);
+    }
+  } finally { capturing = false; }
+}
 function applyEntry(e, toEditor, clean) {
   currentActivePatch = { ...INIT_PATCH, ...e.patch };
   chordNotes = (e.chord || []).slice();
@@ -1055,6 +1075,12 @@ function applyEntry(e, toEditor, clean) {
   syncSlidersToUI();
   libLoadedId = e.id;
   const chordMode = currentActivePatch.unison && currentActivePatch.unison_voices === CHORD;
+  const tpl = e.dump && e.dump.length >= 133 ? e.dump : lastDumpFull;
+  if (chordMode && chordNotes.length && sysexOk && tpl && !capturing && !pendingRead) {      // a patch with a chord goes as a whole patch dump, because the chord can't be sent as controller values
+    loadWithChord(e, tpl, clean);
+    if (toEditor) showTab('editor'); else refreshLibMarks();
+    return;
+  }
   transmitCurrentPatch(`Loaded "${e.name}".` + (chordMode ? " Its unison chord notes can't be sent, so the synth keeps whichever chord it already has." : '') + (toEditor ? '' : ' Switch to the Editor tab to tweak it.'), !!e.perf, clean);
   if (toEditor) showTab('editor'); else refreshLibMarks();
 }
@@ -1138,13 +1164,18 @@ function refreshTagSelect() {
 }
 function tagChips(e) { return e.tags.map(t => el('span', { class: 'tagc' }, t)); }
 
+function chordBadge(e) {                          // shows that the patch carries a unison chord
+  if (!e.patch || !e.patch.unison || e.patch.unison_voices !== CHORD || !(e.chord || []).length) return '';
+  const nm = describeChord(e.chord);
+  return el('span', { class: 'lchord', title: `Unison chord: ${e.chord.join('\u00b7')}${nm ? ' (' + nm + ')' : ''}` }, 'chord');
+}
 function libRow(e) {
   const nameEl = el('b', {}, e.name);
   const tagsEl = el('span', { class: 'tagrow' }, tagChips(e));
   const star = el('button', { class: 'star', 'aria-pressed': String(e.fav), 'aria-label': 'Favourite', title: 'Favourite', onclick: () => toggleFav(e.id) }, '★');
   const open = libUI.open.has(e.id);
   const row = el('div', { class: 'lrow', 'data-id': e.id }, star,
-    el('div', { class: 'lname' }, nameEl, e.slot ? el('span', { class: 'lslot' }, slotLabel(e.slot)) : '', el('span', { class: 'lstate' }), e.changed ? el('span', { class: 'chg', title: 'This slot was different the last time it was captured from the synth' }, 'changed') : '', tagsEl),
+    el('div', { class: 'lname' }, nameEl, e.slot ? el('span', { class: 'lslot' }, slotLabel(e.slot)) : '', chordBadge(e), el('span', { class: 'lstate' }), e.changed ? el('span', { class: 'chg', title: 'This slot was different the last time it was captured from the synth' }, 'changed') : '', tagsEl),
     el('button', { class: 'btn sm', onclick: () => loadEntry(e.id, true) }, 'Load'),
     el('button', { class: 'btn sm', 'aria-expanded': String(open), onclick: ev => {
       if (libUI.open.has(e.id)) libUI.open.delete(e.id); else libUI.open.add(e.id);
@@ -1233,14 +1264,14 @@ function renderLib() {
   box.replaceChildren();
   if (!nLib) box.append(el('p', { class: 'muted' }, 'The library is empty. Save a patch to the synth or the scratchpad, capture patches from the synth below, or import a library file.'));
   const sets = [['F', 'Factory'], ['U', 'User'], [null, 'Saved and imported']];     // factory on the left, user on the right, anything from outside the synth underneath
-  const groups = sets.map(([k, label]) => ({ k, label, all: rows.filter(e => (e.slot ? e.slot.set : null) === k), list: rows.filter(e => (e.slot ? e.slot.set : null) === k).slice(0, libUI.limit) })).filter(g => g.all.length || (!libUI.set && !libUI.q && (g.k ? nLib : lib.some(e => !e.idea && !e.slot))));      // with no set chosen, every column that has patches somewhere stays, so the layout doesn't jump when a filter empties one
+  const groups = sets.map(([k, label]) => ({ k, label, all: rows.filter(e => (e.slot ? e.slot.set : null) === k), list: rows.filter(e => (e.slot ? e.slot.set : null) === k).slice(0, libUI.limit) })).filter(g => g.all.length || !libUI.set);      // with no set chosen all three columns always show, even when empty, so the layout never jumps
   if (groups.length) {
     const cols = el('div', { class: 'libcols' + (libUI.set ? ' single' : '') });
     cols.style.setProperty('--n', groups.length);
     groups.forEach(g => {
       const body = el('div', { class: 'libbody' });
       g.list.forEach(e => libRow(e).forEach(n => body.append(n)));
-      if (!g.all.length) body.append(el('p', { class: 'muted libnone' }, nLib && (libUI.favOnly || libUI.changedOnly || libUI.annotated || libUI.hideCopies || libUI.tag || libUI.origin || libUI.group) ? 'No patches match the filters here.' : g.k === 'F' ? 'No factory patches yet. Capture them from the synth below.' : g.k === 'U' ? 'No user patches yet. Capture them from the synth below.' : 'No saved or imported patches.'));
+      if (!g.all.length) body.append(el('p', { class: 'muted libnone' }, nLib && (libUI.q || libUI.favOnly || libUI.changedOnly || libUI.annotated || libUI.hideCopies || libUI.tag || libUI.origin || libUI.group) ? 'No patches match the filters here.' : g.k === 'F' ? 'No factory patches yet. Capture them from the synth below.' : g.k === 'U' ? 'No user patches yet. Capture them from the synth below.' : 'No saved or imported patches.'));
       cols.append(el('div', { class: 'libcol' + (g.k ? '' : ' libother'), 'data-set': g.k || 'other' }, el('div', { class: 'libhead' }, `${g.label} (${g.all.length})`), body));
     });
     box.append(cols);
