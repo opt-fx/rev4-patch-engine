@@ -15,7 +15,7 @@
     .cheek:last-child { border-radius:0 10px 10px 0; }
     .panel { flex:1; min-width:0; padding:26px 30px 30px; background:#1b1a18; border-top:2px solid #0a0908; border-bottom:2px solid #0a0908; }
     .masthead { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px; padding-bottom:18px; }
-    h1 { margin:0; font-size:34px; font-weight:700; letter-spacing:.02em; line-height:1.1; }
+    h1 { margin:0; font-size:34px; font-weight:400; letter-spacing:.02em; line-height:1.1; }
     .masthead p { margin:10px 0 0; color:var(--amber); font-size:14px; }
     .ports { display:flex; flex-wrap:wrap; gap:12px; }
     .ports label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--ink); }
@@ -1229,16 +1229,15 @@ function renderLib() {
   const rows = libVisible(), box = $('lib-list');
   box.replaceChildren();
   if (!nLib) box.append(el('p', { class: 'muted' }, 'The library is empty. Save a patch to the synth or the scratchpad, capture patches from the synth below, or import a library file.'));
-  else if (!rows.length) box.append(el('p', { class: 'muted' }, 'Nothing matches that search.'));
   const sets = [['F', 'Factory'], ['U', 'User'], [null, 'Saved and imported']];     // factory on the left, user on the right, anything from outside the synth underneath
-  const groups = sets.map(([k, label]) => ({ k, label, all: rows.filter(e => (e.slot ? e.slot.set : null) === k), list: rows.filter(e => (e.slot ? e.slot.set : null) === k).slice(0, libUI.limit) })).filter(g => g.all.length || (!libUI.set && g.k && lib.length && !libUI.q));
+  const groups = sets.map(([k, label]) => ({ k, label, all: rows.filter(e => (e.slot ? e.slot.set : null) === k), list: rows.filter(e => (e.slot ? e.slot.set : null) === k).slice(0, libUI.limit) })).filter(g => g.all.length || (!libUI.set && !libUI.q && (g.k ? nLib : lib.some(e => !e.idea && !e.slot))));      // with no set chosen, every column that has patches somewhere stays, so the layout doesn't jump when a filter empties one
   if (groups.length) {
     const cols = el('div', { class: 'libcols' + (libUI.set ? ' single' : '') });
     cols.style.setProperty('--n', groups.length);
     groups.forEach(g => {
       const body = el('div', { class: 'libbody' });
       g.list.forEach(e => libRow(e).forEach(n => body.append(n)));
-      if (!g.all.length) body.append(el('p', { class: 'muted libnone' }, g.k === 'F' ? 'No factory patches yet. Capture them from the synth below.' : 'No user patches yet. Capture them from the synth below.'));
+      if (!g.all.length) body.append(el('p', { class: 'muted libnone' }, nLib && (libUI.favOnly || libUI.changedOnly || libUI.annotated || libUI.hideCopies || libUI.tag || libUI.origin || libUI.group) ? 'No patches match the filters here.' : g.k === 'F' ? 'No factory patches yet. Capture them from the synth below.' : g.k === 'U' ? 'No user patches yet. Capture them from the synth below.' : 'No saved or imported patches.'));
       cols.append(el('div', { class: 'libcol' + (g.k ? '' : ' libother'), 'data-set': g.k || 'other' }, el('div', { class: 'libhead' }, `${g.label} (${g.all.length})`), body));
     });
     box.append(cols);
