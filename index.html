@@ -8,7 +8,8 @@
     :root { --amber:#e8a33d; --cream:#ece6d6; --ink:#b9b3a5; --panel:#1a1918; --line:#363330; --led:#ff4a2b; }
     * { box-sizing:border-box; }
     [hidden] { display:none !important; }
-    body { margin:0; padding:28px 10px; background:#0d0b0a; color:var(--cream); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+    html { overflow-x:auto; }
+    body { box-sizing:border-box; width:1440px; margin:0 auto; padding:28px 10px; background:#0d0b0a; color:var(--cream); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
     .synth { display:flex; max-width:1120px; margin:0 auto; box-shadow:0 18px 50px rgba(0,0,0,.7); border-radius:10px; }
     .cheek { width:40px; flex:none; background:linear-gradient(90deg,rgba(0,0,0,.35),transparent 30%,transparent 70%,rgba(0,0,0,.35)),repeating-linear-gradient(93deg,#4f2e19 0 3px,#432610 3px 8px,#583420 8px 12px); }
     .cheek:first-child { border-radius:10px 0 0 10px; }
@@ -33,7 +34,6 @@
     .mutate .btn { border-color:var(--amber); color:var(--amber); font-weight:600; }
     .mutate label { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink); }
     .mutate input[type=range] { width:110px; min-width:0; }
-    @media (max-width:400px) { .mutate { gap:8px; padding:6px 8px; } .mutate input[type=range] { width:80px; } }
     .mutate b { color:var(--amber); font-weight:600; min-width:34px; }
     .spacer { flex:1; }
     .genstyle { height:35px; width:92px; padding-left:8px; background-position:right 6px center; }
@@ -44,7 +44,6 @@
     #last-sent, #last-recv { margin-top:2px; font-size:12px; color:#6f6a60; font-family:Consolas,monospace; min-height:16px; }
 
     #dashboard-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:28px 18px; margin-top:28px; }
-    @media (max-width:760px) { #dashboard-grid { grid-template-columns:1fr; } }
     .sect { position:relative; border:1.5px solid #b9b5ab; border-radius:10px; padding:20px 16px 22px; background-color:rgba(0,0,0,.2); background-image:linear-gradient(135deg,rgba(255,255,255,.035) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,0) 65%,rgba(255,255,255,.02) 100%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8  0 0 0 0 .8  0 0 0 0 .82  0 0 0 .9 -.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.3'/%3E%3C/svg%3E"); background-size:auto,180px 180px; }
     .sect h2 { position:absolute; top:-.75px; left:50%; transform:translate(-50%,-50%); margin:0; padding:0 10px; background:#1b1a18; color:var(--cream); font-size:12px; font-weight:700; line-height:1; white-space:nowrap; }
     .ctls { display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:14px 16px; }
@@ -68,7 +67,7 @@
     .cap { display:flex; align-items:center; gap:8px; margin-top:10px; font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--cream); }
     .cap::before, .cap::after { content:''; flex:1; height:1px; background:#5a564e; }
     .sws .ctl { display:flex; justify-content:center; }
-    .sw { position:relative; display:flex; flex-direction:column; align-items:center; gap:9px; font-size:11px; line-height:1.15; text-align:center; color:var(--ink); cursor:pointer; }
+    .sw { position:relative; display:flex; flex-direction:column-reverse; align-items:center; gap:9px; font-size:11px; line-height:1.15; text-align:center; color:var(--ink); cursor:pointer; }
     .sw input { position:absolute; opacity:0; }
     .led { position:relative; width:21px; height:21px; border-radius:5px; background:#0b0a0a; border:1px solid #000; box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 3px rgba(0,0,0,.7); transition:box-shadow .12s, border-color .12s; }
     .led::before { content:''; position:absolute; inset:1px; border-radius:3px; background:#403e3c; transition:background .12s, box-shadow .12s; }
@@ -104,7 +103,7 @@
     .lockicon[aria-pressed="true"] .shk { display:inline; } .lockicon[aria-pressed="true"] .shk-open { display:none; }
     .lockicon[aria-pressed="true"] rect { fill:currentColor; }
     .lockicon:hover { color:var(--cream); }
-    .syncbtn { right:auto; left:10px; }
+    .syncbtn { right:10px; left:auto; }
     .lock[aria-pressed="true"] { color:var(--amber); font-weight:600; }
     .lock:focus-visible { outline:2px solid var(--amber); }
     .tabs { display:flex; gap:8px; margin-left:auto; }
@@ -127,8 +126,7 @@
     .libcols { display:grid; grid-template-columns:minmax(0,1fr); gap:0 28px; align-items:start; }
     .libhead { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); padding:8px 4px 6px; border-bottom:1px solid var(--line); }
     .libother { margin-top:16px; }
-    @media (min-width:1100px) { .libcols:not(.single) { grid-template-columns:repeat(2,minmax(0,1fr)); } .libcols .libother { grid-column:1 / -1; } }
-    @media (min-width:1300px) { .libcols:not(.single) { grid-template-columns:repeat(var(--n,2),minmax(0,1fr)); } .libcols .libother { grid-column:auto; margin-top:0; } .libcols .libother .libbody { column-count:1 !important; } }
+    .libcols:not(.single) { grid-template-columns:repeat(var(--n,2),minmax(0,1fr)); } .libcols .libother { grid-column:auto; margin-top:0; } .libcols .libother .libbody { column-count:1 !important; }
     .lrow { display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid var(--line); }
     .lname { flex:1; min-width:0; font-size:14px; display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; }
     .lname b { font-weight:600; overflow-wrap:anywhere; }
@@ -157,7 +155,6 @@
     .ldetail input[type="text"] { text-transform:none; letter-spacing:0; font-weight:400; }
     .lact { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
     .capturing .actions, .capturing #dashboard-grid, .capturing .namebar { pointer-events:none; opacity:.5; }
-    @media (max-width:560px) { .lrow { flex-wrap:wrap; } .lname { flex-basis:calc(100% - 44px); } .ldetail { padding-left:4px; } }
     .favs { margin-top:16px; }
     .favhead { display:flex; align-items:center; gap:12px; font-size:13px; color:var(--amber); font-weight:600; }
     .favhead .btn { padding:6px 12px; font-size:12px; font-weight:400; }
@@ -200,7 +197,10 @@
     .ctls.uni .ctl.det .row { margin:0; width:70px; justify-content:center; }
     .ctls.uni .ctl.det .steps { padding-left:20px; gap:10px 4px; }          /* the first detune step sits under the Unison button, centred on it */
     .ctls.uni .ctl.vox .row { display:none; }
-    .ctls.uni .ctl.chd { flex-basis:100%; display:flex; align-items:center; gap:10px; }
+    .ctls.uni .ctl.chd, .ctls.uni .ctl.gl { flex-basis:100%; display:flex; align-items:center; gap:10px; }
+    .ctls.uni .ctl.gl .row { margin:0; width:70px; justify-content:center; }
+    .ctls.uni .ctl.gl .row span { font-size:10.5px; }
+    .ctls.uni .ctl.gl input[type=range] { width:116px; flex:none; }
     .ctls.uni .ctl.chd .row { margin:0; width:70px; justify-content:center; }
     .ctls.uni .ctl.chd .row span { font-size:10.5px; }
     .ctls.uni .ctl.chd select { width:auto; min-width:104px; padding:4px 30px 4px 10px; font-size:12px; }
@@ -262,18 +262,17 @@
     .midbar { display:flex; flex-direction:column; }
     .midbar .toprow { order:-1; }
     .mutadv[open] { flex-basis:100%; margin-bottom:10px; }
-    @media (min-width:1100px) {
-      body { padding:10px 10px; --k:clamp(58px, calc(58px + (100vh - 800px) * .05), 80px); --pad:clamp(10px, calc(10px + (100vh - 800px) * .02), 20px); --gap:clamp(16px, calc(16px + (100vh - 800px) * .012), 22px); --envh:clamp(28px, calc(28px + (100vh - 800px) * .05), 52px); --lab:clamp(9.5px, calc(9.5px + (100vh - 800px) * .002), 10.5px); }
-      .synth { max-width:1560px; }
+    @media all {
+      body { padding:10px 10px; --k:66px; --pad:13px; --gap:18px; --envh:36px; --lab:9.8px; }
+      .synth { max-width:none; }
       .cheek { width:20px; }
       .panel { padding:12px 22px 12px; }
       h1 { font-size:26px; }
       .masthead { padding-bottom:8px; gap:10px; }
       .masthead p { margin-top:3px; font-size:12px; }
       .namebar { margin-top:8px; }
-      .actions { margin-top:8px; gap:6px 3px; flex-wrap:nowrap; }
-      @media (max-width:1469px) { .actions { flex-wrap:wrap; column-gap:5px; } }      /* a narrower window lets the buttons run onto a second line rather than off the edge */
-      .actions .btn { padding:6px 5px; font-size:11px; white-space:nowrap; }
+      .actions { margin-top:8px; gap:6px 2px; flex-wrap:nowrap; }
+      .actions .btn { padding:6px 4px; font-size:11px; white-space:nowrap; letter-spacing:0; }
       .actions .btn.hero { padding:8px 14px; font-size:14px; }
       .actions .genstyle { box-sizing:border-box; height:28px; width:110px; font-size:11px; padding:0 22px 0 8px; margin-left:4px; background:#262422 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b9b3a5' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 7px center; border-radius:6px; text-transform:uppercase; letter-spacing:.02em; font-weight:700; cursor:pointer; }
       .actions .genstyle:hover { background-color:#34312e; }
@@ -291,21 +290,22 @@
       .tabs button { padding:8px 22px; font-size:14px; }
       .favs { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; }
       #fav-list { margin-top:0; }
-      #dashboard-grid { container-type:inline-size; grid-template-columns:repeat(24,minmax(0,1fr)); gap:0 14px; grid-template-rows:repeat(12,auto); margin-top:16px; }
+      #dashboard-grid { container-type:inline-size; grid-template-columns:repeat(24,minmax(0,1fr)); gap:0 14px; grid-template-rows:minmax(118px,auto) 0 minmax(76.3px,auto) minmax(32.2px,auto) repeat(8,auto); margin-top:16px; }
       .stack { display:contents; }
       .sect { padding:var(--pad) 12px calc(var(--pad) - 2px); }
-      [data-g="oscillatora"] { grid-column:span 4; order:1; }
+      [data-g="oscillatora"] { grid-column:span 5; order:1; }
       [data-g="oscillatorb"] { grid-column:span 7; order:2; }
-      [data-g="mixer"] { grid-column:span 7; order:3; }
+      [data-g="mixer"] { grid-column:span 6; order:3; }
       [data-g="unison"] { grid-column:span 6; order:4; }
-      [data-g="filter"] { grid-column:span 7; order:5; }
-      [data-g="filterenvelope"] { grid-column:span 7; order:6; }
-      [data-g="ampenvelope"] { grid-column:span 7; order:7; }
-      [data-g="vintage"] { grid-column:span 3; order:8; }
-      [data-g="lfo"] { grid-column:span 8; order:9; }
-      [data-g="wheelmod"] { grid-column:span 9; order:10; }
-      [data-g="polymod"] { grid-column:span 7; order:11; }
-      .ctls { grid-template-columns:repeat(auto-fill,calc((7 * ((100cqw - 322px) / 24) + 84px - 28px) / 4)); justify-content:start; gap:calc(var(--pad) - 2px) 0; }
+      [data-g="filter"] { grid-column:span 6; order:5; }
+      [data-g="filterenvelope"] { grid-column:span 8; order:6; }
+      [data-g="ampenvelope"] { grid-column:span 8; order:7; }
+      [data-g="vintage"] { grid-column:span 2; order:8; }
+      [data-g="lfo"] { grid-column:span 6; order:9; }
+      [data-g="wheelmod"] { grid-column:span 7; order:10; }
+      [data-g="polymod"] { grid-column:span 6; order:11; }
+      [data-g="response"] { grid-column:span 5; order:12; }
+      .ctls { grid-template-columns:repeat(auto-fit,98px); justify-content:center; gap:calc(var(--pad) - 2px) 0; }
       svg.env { display:none; }
       .knob { width:var(--k); height:var(--k); }
       .klabel { margin-top:3px; font-size:var(--lab); white-space:nowrap; }
@@ -329,13 +329,19 @@
       #dashboard-grid .sect > .ctls { grid-row:1; }
       #dashboard-grid .sect > .ctls + .cap { grid-row:2; }
       #dashboard-grid .sect > .sws { grid-row:3; }
+      #dashboard-grid .vintbox { align-items:flex-start; padding-top:22px; }
       #dashboard-grid .sect > .sws + .cap { grid-row:4; }
+      #dashboard-grid .sect[data-g="ampenvelope"] > .sws { position:relative; top:-20px; }
+      /* the little SOURCE AMOUNT / DESTINATION captions take no row height, so every button in a row lines up */
+      #dashboard-grid .sect > .cap { height:0; margin:0; overflow:visible; position:relative; align-items:flex-start; }
+      #dashboard-grid .sect > .ctls + .cap { top:6px; }
+      #dashboard-grid .sect > .sws + .cap { top:12px; }
       #dashboard-grid .sect > .ctls:not(.uni) { margin-top:10px; }
       /* Unison: its own little grid, spaced evenly; the three captions (UNISON, DETUNE, CHORD) share one centre line under the first button */
-      #dashboard-grid .sect[data-g="unison"] > .ctls.uni { display:grid; grid-column:1; grid-row:1 / span 4; grid-template-columns:70px minmax(0,1fr); align-content:start; align-items:center; align-self:stretch; grid-template-rows:28px 28px 28px; row-gap:16px; column-gap:0; padding:32px 0 8px; margin:0; }
+      #dashboard-grid .sect[data-g="unison"] > .ctls.uni { display:grid; grid-column:1; grid-row:1 / span 4; grid-template-columns:70px minmax(0,1fr); align-content:start; align-items:center; align-self:stretch; grid-template-rows:28px 28px 28px; row-gap:14px; column-gap:0; padding:34px 0 6px; margin:0; }
       #dashboard-grid .sect[data-g="unison"] .ctl.us { grid-column:1; grid-row:1; margin:0; transform:none; height:28px; display:flex; align-items:center; justify-content:center; }
       #dashboard-grid .sect[data-g="unison"] .ctl.us .sw { flex-direction:column; gap:0; }
-      #dashboard-grid .sect[data-g="unison"] .ctl.us .sw .led { position:absolute; left:50%; margin-left:-10.5px; bottom:calc(100% + 7px); }
+      #dashboard-grid .sect[data-g="unison"] .ctl.us .sw .led { position:absolute; left:50%; margin-left:-10.5px; bottom:calc(100% + 9px); }
       #dashboard-grid .sect[data-g="unison"] .ctl.vox { grid-column:2; grid-row:1; margin:-3px 0 0 10px; min-width:0; display:flex; align-items:center; gap:8px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.vox select { min-width:116px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.det { grid-column:1 / -1; grid-row:3; margin:0; padding:0; min-width:0; display:flex; flex-direction:row; align-items:center; gap:10px; align-self:center; }
@@ -345,22 +351,21 @@
       #dashboard-grid .sect[data-g="unison"] .ctl.vox select { width:116px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd select { flex:none; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd .row { flex:none; }
+      #dashboard-grid .sect[data-g="wheelmod"] > .sws { grid-template-columns:repeat(auto-fit,minmax(44px,1fr)); }
+      #dashboard-grid .sect[data-g="response"] > .sws { grid-row:3 / span 2; align-self:start; grid-template-columns:repeat(2,minmax(0,1fr)); }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd { gap:8px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd select { margin-left:7px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd .chdrand { height:28px; width:32px; padding:0; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; flex:none; border:0; background:none; color:var(--amber); cursor:pointer; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd .chdrand:hover { background:none; filter:brightness(1.25) drop-shadow(0 0 4px rgba(240,160,40,.55)); }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd .chdrand:active { transform:translateY(1px); }
-      @media (max-width:1199px) { #dashboard-grid .sect[data-g="unison"] .ctl:is(.vox,.det,.chd) select, #dashboard-grid .sect[data-g="unison"] .ctl.vox select { width:90px; min-width:0; } #dashboard-grid .sect[data-g="unison"] .ctl.chd { gap:6px; } }
       #dashboard-grid .sect[data-g="unison"] .ctl.det .row { margin:0; width:70px; justify-content:center; }
-      @media (max-width:1299px) { #dashboard-grid .sect[data-g="unison"] .ctl.vox select { font-size:11px; padding:6px 24px 6px 8px; background-position:right 7px center; } }
       #dashboard-grid .sect.sect:is([data-g="oscillatora"],[data-g="oscillatorb"],[data-g="mixer"],[data-g="unison"]) { grid-row:1 / span 4; }
       #dashboard-grid .sect.sect:is([data-g="filter"],[data-g="filterenvelope"],[data-g="ampenvelope"],[data-g="vintage"]) { grid-row:5 / span 4; margin-top:var(--gap); }
-      #dashboard-grid .sect.sect:is([data-g="lfo"],[data-g="wheelmod"],[data-g="polymod"]) { grid-row:9 / span 4; margin-top:var(--gap); }
+      #dashboard-grid .sect.sect:is([data-g="lfo"],[data-g="wheelmod"],[data-g="polymod"],[data-g="response"]) { grid-row:9 / span 4; margin-top:var(--gap); }
       #dashboard-grid [data-g="unison"] > .ctls { grid-row:1 / span 4; }
       .foot { margin-top:12px; padding-top:8px; }
       .foot p { margin-bottom:2px; }
     }
-    @media (max-width:640px) { .cheek { width:12px; } .panel { padding:18px 14px 22px; } .spacer { display:none; } }
 </style>
 </head>
 <body>
@@ -596,7 +601,6 @@ const PARAMS = [
   ['Mixer', 'mix_oscA',         'Osc A level',       27, 'range', 120, 100],
   ['Mixer', 'mix_oscB',         'Osc B level',       28, 'range', 120, 0],
   ['Mixer', 'mix_noise',        'Noise level',       29, 'range', 120, 0],
-  ['Mixer', 'glide',            'Glide rate',        26, 'range', 120, 0],
   ['Unison', 'unison',        'Unison',            112, 'switch',  1, 0],
   ['Unison', 'unison_voices', 'Voices',     113, 'select', 11, 0],
   ['Unison', 'unison_detune', 'Detune',     114, 'steps',   7, 0],
@@ -618,10 +622,11 @@ const PARAMS = [
   ['Amp envelope',   'amp_sustain',      'Sustain',          108, 'range', 120, 120],
   ['Amp envelope',   'amp_release',      'Release',          110, 'range', 120, 10],
     ['Amp envelope',   'release_switch',   'Release hold',     111, 'switch',  1, 1],
-  ['Amp envelope',   'vel_filter',       'Velocity to filter', 90, 'switch',  1, 0],
-  ['Amp envelope',   'vel_amp',          'Velocity to amp',   102, 'switch',  1, 0],
-  ['Amp envelope',   'at_filter',        'Aftertouch to filter', 86, 'switch', 1, 0],
-  ['Amp envelope',   'at_lfo',           'Aftertouch to LFO',  87, 'switch',  1, 0],
+  ['Response',   'glide',            'Glide rate',        26, 'range', 120, 0],
+  ['Response',   'vel_filter',       'Velocity to filter', 90, 'switch',  1, 0],
+  ['Response',   'vel_amp',          'Velocity to amp',   102, 'switch',  1, 0],
+  ['Response',   'at_filter',        'Aftertouch to filter', 86, 'switch', 1, 0],
+  ['Response',   'at_lfo',           'Aftertouch to LFO',  87, 'switch',  1, 0],
 
   ['LFO',            'lfo_freq',         'Frequency',         46, 'range', 120, 30],
   ['LFO',            'lfo_amount',       'Initial amount',    47, 'range', 120, 0],
@@ -658,10 +663,10 @@ const COMBOS = [
   { group: 'Filter', label: 'Keyboard',
     leds: [{ t: 'Half', c: 'red', dx: -5, on: P => P.filter_kbd === 1 }, { t: 'Full', c: 'amber', dx: 5, on: P => P.filter_kbd === 2 }],
     press: P => ({ filter_kbd: (P.filter_kbd + 1) % 3 }) },
-  { group: 'Amp envelope', label: 'Velocity',
+  { group: 'Response', label: 'Velocity',
     leds: [{ t: 'Filt', c: 'red', dx: -3, on: P => P.vel_filter }, { t: 'Amp', c: 'amber', dx: 3, on: P => P.vel_amp }],
     press: P => { const n = (P.vel_filter + 2 * P.vel_amp + 1) % 4; return { vel_filter: n & 1, vel_amp: n >> 1 }; } },
-  { group: 'Amp envelope', label: 'Aftertouch',
+  { group: 'Response', label: 'Aftertouch',
     leds: [{ t: 'Filt', c: 'red', dx: -3, on: P => P.at_filter }, { t: 'LFO', c: 'amber', dx: 3, on: P => P.at_lfo }],
     press: P => { const n = (P.at_filter + 2 * P.at_lfo + 1) % 4; return { at_filter: n & 1, at_lfo: n >> 1 }; } }
 ];
@@ -704,7 +709,7 @@ function buildDashboard() {
     sect.className = 'sect'; sect.dataset.g = g.toLowerCase().replace(/[^a-z0-9]+/g, '');
     const GFX = {};                       // the envelope, filter and LFO graphics were removed; the draw functions skip a graphic that is not on the page
     const gid = GFX[g];
-    sect.innerHTML = `<h2>${g}</h2><button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('${g}')"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
+    sect.innerHTML = `<h2>${g}</h2>${(g === 'Unison' || g === 'Response') ? '' : `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('${g}')"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`}` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
     if (g === 'Unison') {
       sect.querySelector('.ctls').classList.add('uni');    }
     const box = sect.querySelector('.ctls'), sws = sect.querySelector('.sws'), later = [];
@@ -754,7 +759,6 @@ function buildDashboard() {
     later.forEach(c => box.appendChild(c));
     if (g === 'Vintage') {
       vintRow.insertAdjacentHTML('afterbegin', '<h2>Vintage</h2>');
-      vintRow.insertAdjacentHTML('beforeend', `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="Vintage" aria-label="Lock Vintage" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('Vintage')"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`);
       return;
     }
     COMBOS.forEach((c, i) => {
@@ -854,6 +858,7 @@ function knobSvg(key) {
 
 function setKnob(el, v) {
   if (!el) return;
+  if (el.tagName === 'INPUT') { el.value = v; paint(el); return; }       // Glide is a slider in the Unison box
   const frac = v / +el.dataset.max;      // full sweep; the dead zones at each end of the unit's knobs are in the hardware
   el.querySelector('.kg').setAttribute('transform', `rotate(${(-135 + frac * 270).toFixed(1)} 32 32)`);
   el.setAttribute('aria-valuenow', v);
@@ -1853,13 +1858,13 @@ function generatePatch() {
     mix_oscA: rnd(70, 120),
     mix_oscB: rnd(0, 120),
     mix_noise: chance(0.25) ? rnd(0, 25) : 0,
-    glide: 0,
+    glide: currentActivePatch.glide,
 
     cutoff: rnd(30, 105),
     resonance: rnd(0, 75),
     filter_env_amount: rnd(0, 100),
     filter_kbd: pick([0, 1, 1, 2]),
-    vintage: rnd(0, 127),
+    vintage: currentActivePatch.vintage,
 
     filter_attack: rnd(0, 40),
     filter_decay: rnd(0, 80),
@@ -2382,7 +2387,7 @@ const syncBack = () => { const b = $('back-btn'), f = $('fwd-btn'); if (b) b.dis
 const clearHistory = () => { HISTORY.length = 0; FORWARD.length = 0; syncBack(); };
 syncBack();
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const FROZEN = ['oscA_freq', 'oscB_keyboard', 'oscB_lowfreq', 'release_switch', 'glide', 'unison', 'unison_voices', 'unison_detune', 'filter_rev', 'vel_filter', 'vel_amp', 'at_filter', 'at_lfo'];
+const FROZEN = ['oscA_freq', 'oscB_keyboard', 'oscB_lowfreq', 'release_switch', 'glide', 'unison', 'unison_voices', 'unison_detune', 'filter_rev', 'vintage', 'vel_filter', 'vel_amp', 'at_filter', 'at_lfo'];
 
 function pushHistory() {
   HISTORY.push({ ...currentActivePatch, _name: patchName });
@@ -2422,7 +2427,7 @@ function secAmount(g) { return g in SEC_AMT ? SEC_AMT[g] : parseInt($('mutate-am
 function buildMutAdv() {
   const box = $('mutadv-rows');
   box.innerHTML = '';
-  [...new Set(PARAMS.map(p => p[0]))].forEach(g => {
+  [...new Set(PARAMS.map(p => p[0]))].filter(g => g !== 'Unison' && g !== 'Response' && g !== 'Vintage').forEach(g => {
     const name = el('button', { type: 'button', class: 'mname', title: 'Click to follow the main Mutate amount' }, g);
     const slider = el('input', { type: 'range', min: '0', max: '60', 'aria-label': 'Mutate amount for ' + g });
     const val = el('b', {});
@@ -2531,6 +2536,10 @@ initKnobs();
 try { setModel(localStorage.getItem('p5_model') || 'p5'); } catch (e) { setModel('p5'); }
 setName(randomName());
 libInit();
+
+// Fixed 1440px design, nudged up slightly on big screens (never more than 1.1x, never below 1x)
+function fitZoom() { try { document.body.style.zoom = Math.min(1.1, Math.max(1, window.innerWidth / 1440)); } catch (e) {} }
+fitZoom(); window.addEventListener('resize', fitZoom);
 </script>
 </body>
 </html>

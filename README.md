@@ -59,11 +59,11 @@ Every knob and button sends to the synth as you move it. Nothing is saved on the
 **Controls**
 - Knobs: drag up or down (hold Shift for fine control), use the mouse wheel or arrow keys when a knob is focused, or double-click to reset.
 - The number under each knob is the synth's own value (mostly 0 to 120), not the 0 to 10 on the panel.
-- On a wide window (about 1100 pixels or more) the editor uses a compact layout, and a large display shows the whole editor at once. Narrower windows, such as phones and tablets, use a single column.
+- The editor is laid out for a desktop window about 1440 pixels wide. On a wider window it stays centred at that size; on a narrower one the page scrolls sideways. It is not designed for phones or tablets.
 
 ## The Library
 
-The **Library** tab is a searchable list of patches stored in your browser. It has three columns: **Factory**, **User**, and **Saved and imported** (these stack on narrower windows). Choosing a set in the filter shows just that one.
+The **Library** tab is a searchable list of patches stored in your browser. It has three columns: **Factory**, **User**, and **Saved and imported**. Choosing a set in the filter shows just that one.
 
 **Adding patches**
 - **Capture patches from the synth** steps the synth through a set and a range of groups (each set has 5 groups of 5 banks of 8 programs), reads each program and adds it. The synth's program changes while it runs. By default it puts the synth back on the program it was on, and sends the editor's patch back. For that, the app needs to know the program the synth is on, so select one on the synth first. Capture stops if the first and last program of the range come back identical, because that means the synth isn't changing program.
@@ -93,6 +93,7 @@ The **Library** tab is a searchable list of patches stored in your browser. It h
 
 ## Good to know
 
+- **Glide**, **Velocity** and **Aftertouch** live together in the **Response** panel. Like Rev, Keyboard and the Unison settings, they are stored with each patch; Generate keeps them and Mutate leaves them alone, so those panels have no lock icon. The **Vintage** knob works the same way: Generate and Mutate never touch it, so it has no lock either. The **Sync** button in the Unison box reads the voice count, chord and detune from the synth.
 - Rev (filter type), Velocity and Aftertouch routing are stored with each patch. Generate and Mutate leave them alone so they can't override your setup. **Reset** is the exception: it sends them too, returning them to their init values.
 - When you choose a program on the synth, the app shows whether it's Factory or User and its number (for example "Factory 113") next to the patch name, as long as the synth is sending Program Change and Bank Select.
 - Unison on/off, voice count and detune are handled. A unison chord shows as **Chord** with its intervals above the lowest key (for example "Chord 0·4·9"). You can't edit the notes here: hold the keys on the synth and press Unison. To clear a chord, hold a single key and press Unison; the app follows, or press **Sync**.
