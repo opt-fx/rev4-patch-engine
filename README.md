@@ -1,7 +1,7 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png?v=3)
-![Screenshot](screenshot2.png?v=3)
+![Screenshot](screenshot1.png?v=2)
+![Screenshot](screenshot2.png?v=2)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a patch, nudge it with Mutate, tweak any control, read the patch on the synth into the app, save patches back to your synth, and keep a searchable library.
 
@@ -39,6 +39,7 @@ Every knob and button sends to the synth as you move it. Nothing is saved on the
 **Generate and Mutate**
 - **Generate** makes a new random patch. Its name is just a random two-word label (such as "Velvet Lagoon"). **New name** changes only the label.
 - The **Any sound** dropdown next to it (Pluck, Pad or Drone) shapes the envelopes so the new patch fits that style. Everything else stays random, and locked sections still win. Leave it on Any sound for fully random.
+- Generate and Mutate never change **Oscillator A's frequency**, so the patch stays at the pitch you set. Generate sets **Oscillator B** relative to A: most often the same note, otherwise an octave, a fifth, a fourth, a third or a seventh away. A Pluck keeps B at or below a fifth above A. While a unison chord is on, B is limited to the same note or whole octaves, so the chord stays in tune. Mutate occasionally shifts B by an octave, a fifth or a fourth (octaves only with a chord).
 - **Mutate** nudges the current patch by the amount you choose. Open **Mutate by section** for a separate slider per section: each follows the main amount until you move it, and 0% leaves that section alone. Click a section's name to make it follow the main amount again.
 - The **padlock** on a section (amber when locked) keeps it unchanged through Generate and Mutate. **Keep unison** keeps your unison settings through Generate.
 - **Back** undoes up to 20 Generate and Mutate steps, and **Forward** redoes them. Both grey out when there's nothing to go to, and both start afresh when the program changes.
@@ -97,7 +98,7 @@ The **Library** tab is a searchable list of patches stored in your browser. It h
 - Rev (filter type), Velocity and Aftertouch routing are stored with each patch. Generate and Mutate leave them alone so they can't override your setup. **Reset** is the exception: it sends them too, returning them to their init values.
 - When you choose a program on the synth, the app shows whether it's Factory or User and its number (for example "Factory 113") next to the patch name, as long as the synth is sending Program Change and Bank Select.
 - Unison on/off, voice count and detune are handled. A unison chord shows as **Chord** with its intervals above the lowest key (for example "Chord 0·4·9"). You can't edit the notes here: hold the keys on the synth and press Unison. To clear a chord, hold a single key and press Unison; the app follows, or press **Sync**.
-- The **Chord** row in the middle of the Unison box makes a unison chord for you. Pick a type from **New chord** (Major, Minor, Suspended, Seventh, Add 9, Power, Stacked fifths or Octaves), or press the amber dice for a random one. The notes are measured from the lowest key you play, so the key you hold is the root. It sends the whole patch to the synth, so read one patch from the synth first. The voice box shows the notes, with the chord's name beside it.
+- The **Chord** row in the middle of the Unison box makes a unison chord for you. Pick a type from **New chord** (Major, Minor, Suspended, Seventh, Add 9, Power, Stacked fifths or Octaves), or press the amber dice for a random one. The notes are measured from the lowest key you play, so the key you hold is the root. It sends the whole patch to the synth, so read one patch from the synth first. The voice box shows the notes, with the chord's name beside it. Because a chord only sounds right with Oscillator B on the same note as A or a whole number of octaves away, choosing a chord (from the dropdown, the dice, or by setting the voice box to Chord) moves B to the nearest octave of A if it was on another interval, and says so in the status line.
 - **Prophet-10:** the app uses the same controller numbers and dump layout as the Prophet-5, because Sequential publishes one MIDI document for both. That hasn't been tested on a Prophet-10. If something reads or sends wrongly, please open an issue.
 - Developed and tested on a Prophet-5 Rev 4 (OS 2.1.0) with a Blokas Midihub. Other setups should work but haven't been tried.
 

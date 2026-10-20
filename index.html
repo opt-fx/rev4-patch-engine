@@ -796,6 +796,10 @@ function updateParam(key, value) {
   sendCC(p.cc, wireValue(key, v));
   refreshLibMarks();
   if (!quiet && key === 'unison' && v && currentActivePatch.unison_voices < 1) updateParam('unison_voices', 1);   // unison needs at least one voice
+  if (!quiet && key === 'unison_voices' && v === CHORD && snapBToOctave()) {                                         // choosing Chord by hand: keep Osc B on an octave of Osc A too
+    updateParam('oscB_freq', currentActivePatch.oscB_freq);
+    setStatus('Osc B was moved to the nearest octave of Osc A so the chord stays in tune.');
+  }
 }
 
 function syncSlidersToUI() { syncControls(); refreshCombos(); drawEnvelopes(); }
@@ -1776,6 +1780,13 @@ function makeChord(kind) {                         // note offsets above the low
   n = [...new Set(n)].sort((a, b) => a - b).slice(0, max);
   return n;
 }
+function snapBToOctave() {                     // chords sound clean only with Osc B at the same note as A or whole octaves away; returns true if it moved
+  const d = currentActivePatch.oscB_freq - currentActivePatch.oscA_freq;
+  if (d % 12 === 0) return false;
+  const target = currentActivePatch.oscA_freq + Math.round(d / 12) * 12;
+  currentActivePatch.oscB_freq = Math.max(0, Math.min(120, target));
+  return true;
+}
 async function chordPicked(kind) {
   const sel = $('chord-pick'); if (sel) sel.value = '';
   if (!kind) return;
@@ -1786,6 +1797,7 @@ async function chordPicked(kind) {
   const notes = makeChord(kind);
   pushHistory(); libLoadedId = null;
   currentActivePatch.unison = 1; currentActivePatch.unison_voices = CHORD; chordNotes = notes;
+  const snapped = snapBToOctave();
   syncSlidersToUI();
   const name = ((patchName || '').trim() || 'Untitled').slice(0, 20).trim(), vals = buildDump(currentActivePatch, name, chordNotes, tpl);
   const label = 'Chord ' + notes.join('·') + (describeChord(notes) ? ' (' + describeChord(notes) + ')' : '');
@@ -1797,7 +1809,7 @@ async function chordPicked(kind) {
     const back = await readEditBuffer();
     if (back && sameDump(back.slice(0, 65), vals.slice(0, 65))) {
       lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true; markEdited();
-      setStatus(label + ' sent. Hold a key and it plays the chord.');
+      setStatus(label + ' sent. Hold a key and it plays the chord.' + (snapped ? ' Osc B was moved to the nearest octave of Osc A so the chord stays in tune.' : ''));
     } else setStatus(back ? 'The synth did not take the chord. Try again.' : 'No reply when checking the chord, so it may not have arrived.');
   } finally { capturing = false; }
 }
@@ -1813,6 +1825,16 @@ function applyStyle(p, style) {                 // shapes the envelopes (the sam
       filter_attack: rnd(30, 90), release_switch: 1 });
   }
 }
+// Osc B pitch relative to Osc A, in semitones: mostly the same note or an octave/fifth away, with the odd third, fourth or seventh for colour
+const B_INTERVALS = [[0, 4], [7, 2], [12, 2], [-12, 2], [-5, 1], [5, 1], [4, 1], [3, 1], [10, 1], [-24, 1], [19, 1], [-7, 1]];
+const chordOn = () => currentActivePatch.unison && currentActivePatch.unison_voices === CHORD;
+function pickInterval(style) {
+  const pool = B_INTERVALS.filter(([n]) => (style !== 'pluck' || n <= 7) && (!chordOn() || n % 12 === 0));   // plucks stay low; with a unison chord, B only goes up or down in whole octaves so the chord stays clean
+  const total = pool.reduce((a, [, w]) => a + w, 0);
+  let r = Math.random() * total;
+  for (const [n, w] of pool) { if ((r -= w) < 0) return n; }
+  return 0;
+}
 function generatePatch() {
   if (!requirePort()) return;
   pushHistory(); libLoadedId = null;
@@ -1826,7 +1848,7 @@ function generatePatch() {
   if (!bSaw && !bTri && !bSq) bSq = 1;
 
   const base = currentActivePatch.oscA_freq;
-  const bFreq = Math.max(0, Math.min(120, base + pick([-24, -12, 0, 0, 7, 12])));
+  const bFreq = Math.max(0, Math.min(120, base + pickInterval($('gen-style').value)));
 
   const lfoWave = pick(['saw', 'tri', 'square']);
   const keepU = $('keep-unison').checked;
@@ -2460,7 +2482,7 @@ function mutatePatch() {
     const s = secAmount(p.group) / 100;
     if (!s) continue;
     if (key === 'oscB_freq') {
-      if (Math.random() < s * 0.3) next[key] = clamp(next[key] + pick([-12, 12]), 0, 120);
+      if (Math.random() < s * 0.3) next[key] = clamp(next[key] + (chordOn() ? pick([-12, 12]) : pick([-12, 12, 7, -5, 5])), 0, 120);
     } else if (p.type === 'range') {
       if (Math.random() < 0.6) next[key] = clamp(Math.round(next[key] + (Math.random() * 2 - 1) * s * p.max), 0, p.max);
     } else if (p.type === 'switch') {
