@@ -196,10 +196,15 @@
     .ctls.uni .ctl.us { width:70px; flex:none; }
     .ctls.uni .ctl.vox { align-self:flex-start; margin-top:-6px; }
     .ctls.uni .ctl.vox select { width:auto; min-width:104px; padding:6px 30px 6px 10px; font-size:12px; }
-    .ctls.uni .ctl.det { flex-basis:100%; padding-left:0; box-sizing:border-box; display:flex; flex-direction:column-reverse; gap:9px; }
+    .ctls.uni .ctl.det { flex-basis:100%; padding-left:0; box-sizing:border-box; display:flex; flex-direction:column-reverse; gap:6px; }
     .ctls.uni .ctl.det .row { margin:0; width:70px; justify-content:center; }
     .ctls.uni .ctl.det .steps { padding-left:20px; gap:10px 4px; }          /* the first detune step sits under the Unison button, centred on it */
     .ctls.uni .ctl.vox .row { display:none; }
+    .ctls.uni .ctl.chd { flex-basis:100%; display:flex; align-items:center; gap:10px; }
+    .ctls.uni .ctl.chd .row { margin:0; width:70px; justify-content:center; }
+    .ctls.uni .ctl.chd .row span { font-size:10.5px; }
+    .ctls.uni .ctl.chd select { width:auto; min-width:104px; padding:4px 30px 4px 10px; font-size:12px; }
+    .chdinfo { font-size:12px; color:var(--muted,#9a948a); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1 1 0; }
     .ctls.uni .ctl.det .row span { font-size:10.5px; }
     .stack { display:flex; flex-direction:column; gap:28px; }
     .stack .sect { flex:1; }
@@ -326,18 +331,28 @@
       #dashboard-grid .sect > .sws { grid-row:3; }
       #dashboard-grid .sect > .sws + .cap { grid-row:4; }
       #dashboard-grid .sect > .ctls:not(.uni) { margin-top:10px; }
-      /* Unison: its controls take part in the shared row lines, so DETUNE lines up with the switch labels (SAW, SQUARE...) in the neighbouring sections */
-      #dashboard-grid .sect[data-g="unison"] { grid-template-columns:70px auto minmax(0,1fr); }
-      #dashboard-grid .sect[data-g="unison"] > .ctls.uni { display:contents; }
-      #dashboard-grid .sect[data-g="unison"] .ctl.us { grid-column:1; grid-row:1; align-self:start; margin-top:12px; transform:translateX(12px); }
-      #dashboard-grid .sect[data-g="unison"] .ctl.vox { grid-column:2; grid-row:1; align-self:start; margin:8px 0 0 24px; }
-      #dashboard-grid .sect[data-g="unison"] .ctl.det { grid-column:1 / -1; grid-row:3; margin-top:11px; align-self:start; }
-      #dashboard-grid .sect[data-g="unison"] .stepb { gap:6px; min-width:26px; }
-      #dashboard-grid .sect[data-g="unison"] .ctl.det .steps { gap:10px 3px; padding-left:34px; margin-right:-12px; }
-      @media (min-width:1300px) {       /* wide enough for one row: the buttons sit above the DETUNE word, which lines up with the switch labels */
-        #dashboard-grid .sect[data-g="unison"] .ctl.det { position:relative; flex-direction:column; }
-        #dashboard-grid .sect[data-g="unison"] .ctl.det .steps { position:absolute; left:0; right:0; bottom:calc(100% + 4px); flex-wrap:nowrap; }
-      }
+      /* Unison: its own little grid, spaced evenly; the three captions (UNISON, DETUNE, CHORD) share one centre line under the first button */
+      #dashboard-grid .sect[data-g="unison"] > .ctls.uni { display:grid; grid-column:1; grid-row:1 / span 4; grid-template-columns:70px minmax(0,1fr); align-content:start; align-items:center; align-self:stretch; grid-template-rows:28px 28px 28px; row-gap:16px; column-gap:0; padding:32px 0 8px; margin:0; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.us { grid-column:1; grid-row:1; margin:0; transform:none; height:28px; display:flex; align-items:center; justify-content:center; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.us .sw { flex-direction:column; gap:0; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.us .sw .led { position:absolute; left:50%; margin-left:-10.5px; bottom:calc(100% + 7px); }
+      #dashboard-grid .sect[data-g="unison"] .ctl.vox { grid-column:2; grid-row:1; margin:-3px 0 0 10px; min-width:0; display:flex; align-items:center; gap:8px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.vox select { min-width:116px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.det { grid-column:1 / -1; grid-row:3; margin:0; padding:0; min-width:0; display:flex; flex-direction:row; align-items:center; gap:10px; align-self:center; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd { grid-column:1 / -1; grid-row:2; margin:0; padding:0; min-width:0; gap:10px; align-self:center; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd select, #dashboard-grid .sect[data-g="unison"] .ctl.det select { margin-left:5px; width:116px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl:is(.vox,.det,.chd) select { box-sizing:border-box; height:28px; padding-top:0; padding-bottom:0; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.vox select { width:116px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd select { flex:none; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd .row { flex:none; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd { gap:8px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd select { margin-left:7px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd .chdrand { height:28px; width:32px; padding:0; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; flex:none; border:0; background:none; color:var(--amber); cursor:pointer; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd .chdrand:hover { background:none; filter:brightness(1.25) drop-shadow(0 0 4px rgba(240,160,40,.55)); }
+      #dashboard-grid .sect[data-g="unison"] .ctl.chd .chdrand:active { transform:translateY(1px); }
+      @media (max-width:1199px) { #dashboard-grid .sect[data-g="unison"] .ctl:is(.vox,.det,.chd) select, #dashboard-grid .sect[data-g="unison"] .ctl.vox select { width:90px; min-width:0; } #dashboard-grid .sect[data-g="unison"] .ctl.chd { gap:6px; } }
+      #dashboard-grid .sect[data-g="unison"] .ctl.det .row { margin:0; width:70px; justify-content:center; }
+      @media (max-width:1299px) { #dashboard-grid .sect[data-g="unison"] .ctl.vox select { font-size:11px; padding:6px 24px 6px 8px; background-position:right 7px center; } }
       #dashboard-grid .sect.sect:is([data-g="oscillatora"],[data-g="oscillatorb"],[data-g="mixer"],[data-g="unison"]) { grid-row:1 / span 4; }
       #dashboard-grid .sect.sect:is([data-g="filter"],[data-g="filterenvelope"],[data-g="ampenvelope"],[data-g="vintage"]) { grid-row:5 / span 4; margin-top:var(--gap); }
       #dashboard-grid .sect.sect:is([data-g="lfo"],[data-g="wheelmod"],[data-g="polymod"]) { grid-row:9 / span 4; margin-top:var(--gap); }
@@ -534,12 +549,14 @@ let chordNotes = [];   // semitone offsets above the lowest key, from the chord 
 const CHORD_TYPES = [['major triad', [0,4,7]], ['minor triad', [0,3,7]], ['diminished triad', [0,3,6]], ['augmented triad', [0,4,8]],
   ['suspended 4th', [0,5,7]], ['suspended 2nd', [0,2,7]], ['major 7th', [0,4,7,11]], ['dominant 7th', [0,4,7,10]], ['minor 7th', [0,3,7,10]],
   ['half-diminished 7th', [0,3,6,10]], ['diminished 7th', [0,3,6,9]], ['major 6th', [0,4,7,9]], ['minor 6th', [0,3,7,9]],
-  ['major add 9', [0,2,4,7]], ['minor add 9', [0,2,3,7]], ['power chord', [0,7]], ['octave', [0]]];
+  ['major add 9', [0,2,4,7]], ['minor add 9', [0,2,3,7]], ['power chord', [0,7]], ['stacked fifths', [0,2,7,9]], ['octave', [0]]];
 function describeChord(offs) {               // name the shape from its intervals; the root note itself depends on which keys you hold
   if (!offs.length) return '';
   const pcs = [...new Set(offs.map(x => x % 12))].sort((a, b) => a - b);
   const key = a => a.join(',');
-  for (const [name, iv] of CHORD_TYPES) for (const r of pcs) {
+  const cands = []; for (const [name, iv] of CHORD_TYPES) for (const r of pcs) cands.push([name, iv, r]);
+  cands.sort((a, b) => (a[2] !== 0) - (b[2] !== 0));        // a match with the lowest note as the root wins over an inversion of another chord
+  for (const [name, iv, r] of cands) {
     if (key(pcs.map(x => (x - r + 12) % 12).sort((a, b) => a - b)) !== key(iv)) continue;
     const bass = (12 - r) % 12;
     const inv = bass === 0 ? 'root position' : iv.length === 2 ? '' : [3, 4].includes(bass) ? 'first inversion' : [5, 6, 7, 8].includes(bass) ? 'second inversion' : 'third inversion';
@@ -547,12 +564,15 @@ function describeChord(offs) {               // name the shape from its interval
   }
   return '';
 }
-function chordLabel() { return chordNotes.length ? 'Chord ' + chordNotes.join('\u00b7') : 'Chord'; }
+function chordShort(d) { return d.replace(', root position', '').replace(', first inversion', ' (1st inv)').replace(', second inversion', ' (2nd inv)').replace(', third inversion', ' (3rd inv)').replace('suspended 4th', 'sus4').replace('suspended 2nd', 'sus2').replace('half-diminished', 'half-dim').replace('diminished', 'dim').replace('augmented', 'aug').replace('stacked fifths', 'stacked 5ths'); }
+function chordLabel() { return chordNotes.length ? chordNotes.join('\u00b7') : 'Chord'; }
 function updateChordLabel() {
   const sel = $('input-unison_voices'), o = sel && sel.querySelector(`option[value="${CHORD}"]`);
   if (!o) return;
   o.textContent = chordLabel();
-  const d = describeChord(chordNotes);
+  const d = describeChord(chordNotes), info = $('chord-info');
+  if (info) info.textContent = chordNotes.length && currentActivePatch.unison && currentActivePatch.unison_voices === CHORD ? chordShort(d) : '';
+  if (info) info.title = d;
   sel.title = chordNotes.length ? `Chord notes above the lowest key: ${chordNotes.join(', ')} semitones` + (d ? ` (${d})` : '') : '';
 }
 const CHORD = 11;      // voice-count setting meaning unison chord mode (the dump and CC 113 use 10 for it)
@@ -697,9 +717,13 @@ function buildDashboard() {
         c.classList.add('kc');
         c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
       } else if (p.type === 'select') {
-        c.innerHTML = `<select id="input-${p.key}" aria-label="${p.label}" onchange="updateParam('${p.key}', this.value)">${voiceOptions(v)}</select>`;
+        c.innerHTML = `<select id="input-${p.key}" aria-label="${p.label}" onchange="updateParam('${p.key}', this.value)">${voiceOptions(v)}</select>` + (p.key === 'unison_voices' ? '<span class="chdinfo" id="chord-info"></span>' : '');
       } else if (p.type === 'steps') {
         c.style.gridColumn = '1 / -1';
+        if (p.key === 'unison_detune') {
+          c.innerHTML = `<div class="row"><span>${p.label}</span></div><select id="input-${p.key}" aria-label="${p.label}" onchange="updateParam('${p.key}', this.value)">` +
+            Array.from({ length: STEPS[p.key].to - STEPS[p.key].from + 1 }, (_, k) => `<option value="${STEPS[p.key].from + k}"${STEPS[p.key].from + k === v ? ' selected' : ''}>${STEPS[p.key].label(STEPS[p.key].from + k)}</option>`).join('') + '</select>';
+        } else
         c.innerHTML = `<div class="row"><span>${p.label}</span></div><div class="steps" id="input-${p.key}">` +
           Array.from({ length: STEPS[p.key].to - STEPS[p.key].from + 1 }, (_, k) => {
             const i = STEPS[p.key].from + k;
@@ -721,6 +745,11 @@ function buildDashboard() {
       else if (p.key === 'vintage') vintRow.appendChild(c);
       else if (p.type === 'steps') later.push(c);
       else (p.type === 'switch' ? sws : box).appendChild(c);
+      if (p.key === 'unison_voices') {
+        const k = document.createElement('div'); k.className = 'ctl chd';
+        k.innerHTML = `<div class="row"><span>Chord</span></div><select id="chord-pick" aria-label="New chord" title="Makes a unison chord and sends it to the synth. The notes are measured from the lowest key you play. It needs one patch read from the synth first." onchange="chordPicked(this.value)"><option value="">New chord</option>${CHORD_MENU.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select><button type="button" class="btn sm chdrand" title="Make a random chord and send it to the synth" aria-label="Random chord" onclick="chordPicked('random')"><svg class="dice" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="5.5" fill="currentColor"/><g fill="#161412"><circle cx="7.4" cy="7.4" r="2.2"/><circle cx="16.6" cy="7.4" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="7.4" cy="16.6" r="2.2"/><circle cx="16.6" cy="16.6" r="2.2"/></g></svg></button>`;
+        box.appendChild(k);
+      }
     });
     later.forEach(c => box.appendChild(c));
     if (g === 'Vintage') {
@@ -772,7 +801,8 @@ function syncControls() {
     const input = $('input-' + key);
     if (!input) continue;
     const v = currentActivePatch[key];
-    if (p.type === 'steps') input.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.v === v));
+    if (p.type === 'steps' && input.tagName === 'SELECT') input.value = String(v);
+    else if (p.type === 'steps') input.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.v === v));
     else if (p.type === 'switch') input.checked = !!v;
     else if (p.type === 'range') setKnob(input, v);
     else input.value = v;
@@ -863,8 +893,8 @@ function initKnobs() {                      // drag up/down, wheel or arrow keys
 }
 
 function refreshCombos() {
-  ['unison_voices', 'unison_detune'].forEach(k => {
-    const el = $('input-' + k) && $('input-' + k).closest('.ctl');
+  ['unison_voices', 'unison_detune', 'chord-pick'].forEach(k => {
+    const el = $(k === 'chord-pick' ? k : 'input-' + k) && $(k === 'chord-pick' ? k : 'input-' + k).closest('.ctl');
     if (el) el.style.visibility = currentActivePatch.unison ? '' : 'hidden';   // keep the space so the Unison button never moves
   });
   COMBOS.forEach((c, i) => c.leds.forEach((l, j) => {
@@ -1165,7 +1195,7 @@ function libVisible() {
 const DETECTED = ['unison','sync','poly-mod','noise','glide','pluck','pad','drone'];
 function detectTags(e) {                           // worked out from the patch itself, never stored
   const p = e.patch || {}, out = [], n = k => +p[k] || 0;
-  if (p.unison) out.push(p.unison_voices === CHORD ? ['unison', 'unison (chord)'] : ['unison', `unison \u00d7${n('unison_voices')}`]);
+  if (p.unison) out.push(p.unison_voices === CHORD ? ['unison', 'unison chord' + ((e.chord || []).length && describeChord(e.chord) ? ' \u00b7 ' + chordShort(describeChord(e.chord)) : '')] : ['unison', `unison \u00d7${n('unison_voices')}`]);
   if (p.osc_sync) out.push(['sync', 'sync']);
   if ((n('pm_filtenv') > 0 || n('pm_oscB') > 0) && (p.pm_to_freqA || p.pm_to_pw || p.pm_to_filter)) out.push(['poly-mod', 'poly-mod']);
   if (n('mix_noise') > 5) out.push(['noise', 'noise']);
@@ -1723,6 +1753,49 @@ const rnd  = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
 const chance = p => Math.random() < p ? 1 : 0;
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
+const CHORD_MENU = [['major', 'Major'], ['minor', 'Minor'], ['sus', 'Suspended'], ['seventh', 'Seventh'], ['add9', 'Add 9'], ['power', 'Power'], ['fifths', 'Stacked fifths'], ['octaves', 'Octaves']];
+function makeChord(kind) {                         // note offsets above the lowest key; the key you play is the root, so the chord is in root position unless Random inverts it
+  const max = STEPS.unison_voices.to;
+  const sets = {
+    major: [[0, 4, 7]], minor: [[0, 3, 7]], sus: [[0, 5, 7], [0, 2, 7]],
+    seventh: [[0, 4, 7, 11], [0, 4, 7, 10], [0, 3, 7, 10]], add9: [[0, 2, 4, 7], [0, 2, 3, 7]],
+    power: [[0, 7, 12]], fifths: [[0, 7, 14, 21]], octaves: [[0, 12, 24]]
+  };
+  if (kind === 'random') kind = pick(['major', 'minor', 'sus', 'seventh', 'add9', 'power', 'fifths', 'octaves']);
+  let n = pick(sets[kind]).slice();
+  if (kind !== 'power' && kind !== 'fifths' && kind !== 'octaves') {
+    if (n.length > 2 && chance(0.4)) n[1] += 12;                       // open voicing: the third goes up an octave
+    if (n.length < max && chance(0.4)) n.push(12);                     // double the root
+    if (n.length < max && chance(0.15)) n.push(24);
+  }
+  n = [...new Set(n)].sort((a, b) => a - b).slice(0, max);
+  return n;
+}
+async function chordPicked(kind) {
+  const sel = $('chord-pick'); if (sel) sel.value = '';
+  if (!kind) return;
+  if (!sysexOk) return setStatus('SysEx permission was not granted. Reload the page and click Allow when Chrome asks.');
+  if (!requirePort() || pendingRead || capturing) return;
+  const tpl = lastDumpFull || (lib.find(e => e.dump && e.dump.length >= 133) || {}).dump;
+  if (!tpl) return setStatus('Read the patch from the synth once first, so the parts of a patch this app does not edit can be copied.');
+  const notes = makeChord(kind);
+  pushHistory(); libLoadedId = null;
+  currentActivePatch.unison = 1; currentActivePatch.unison_voices = CHORD; chordNotes = notes;
+  syncSlidersToUI();
+  const name = ((patchName || '').trim() || 'Untitled').slice(0, 20).trim(), vals = buildDump(currentActivePatch, name, chordNotes, tpl);
+  const label = 'Chord ' + notes.join('·') + (describeChord(notes) ? ' (' + describeChord(notes) + ')' : '');
+  capturing = true;
+  try {
+    midiOutput.send([0xF0, 0x01, lastDumpId === null ? DUMP_IDS[0] : lastDumpId, 0x03, ...packDSI(vals), 0xF7]);
+    setStatus('Sending ' + label + '...');
+    await sleep(500);
+    const back = await readEditBuffer();
+    if (back && sameDump(back.slice(0, 65), vals.slice(0, 65))) {
+      lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true; markEdited();
+      setStatus(label + ' sent. Hold a key and it plays the chord.');
+    } else setStatus(back ? 'The synth did not take the chord. Try again.' : 'No reply when checking the chord, so it may not have arrived.');
+  } finally { capturing = false; }
+}
 function applyStyle(p, style) {                 // shapes the envelopes (the same rules detectTags uses) and leaves the rest random
   if (style === 'pluck') {
     Object.assign(p, { amp_attack: rnd(0, 5), amp_decay: rnd(45, 80), amp_sustain: rnd(0, 10), amp_release: rnd(25, 55),
