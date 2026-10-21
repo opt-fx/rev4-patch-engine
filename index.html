@@ -410,7 +410,7 @@
 
     <div class="actions">
       <button class="btn hero" onclick="generatePatch()">Generate</button>
-      <select id="gen-style" class="genstyle" aria-label="Sound type for Generate" title="Sound type: shapes the envelopes so Generate makes a pluck, pad or drone. Any sound leaves everything random."><option value="">Any sound</option><option value="pluck">Pluck</option><option value="pad">Pad</option><option value="drone">Drone</option></select>
+      <select id="gen-style" class="genstyle" aria-label="Sound type for Generate" title="Sound type: shapes the envelopes so Generate makes a pluck, pad, drone or percussion hit. Any sound leaves everything random."><option value="">Any sound</option><option value="pluck">Pluck</option><option value="pad">Pad</option><option value="drone">Drone</option><option value="percussion">Percussion</option></select>
       <select id="gen-pitch" class="genstyle" aria-label="Oscillator A pitch for Generate" title="Where Generate puts Oscillator A's frequency (always whole octaves, so it stays in tune)"><option value="low">Low pitch</option><option value="normal" selected>Normal pitch</option><option value="high">High pitch</option></select>
       <label class="keepopt" title="When ticked, Generate leaves unison on/off, voice count and detune as they are"><input type="checkbox" id="keep-unison" checked> Keep unison</label>
       <div class="mutate">
@@ -996,6 +996,10 @@ function toggleLock(g, ev) {
   syncMutAdv();
 }
 
+function keepSilentPW(next, prev) {           // pulse width only changes the sound of a square wave, so it is left alone while that oscillator's square is off
+  if (!next.oscA_square) next.oscA_pw = prev.oscA_pw;
+  if (!next.oscB_square) next.oscB_pw = prev.oscB_pw;
+}
 function applyLocks(next, prev) {            // locked sections keep their previous values
   for (const key in PARAM_BY_KEY) if (LOCKED.has(PARAM_BY_KEY[key].group)) next[key] = prev[key];
 }
@@ -1882,13 +1886,29 @@ function applyStyle(p, style) {                 // shapes the envelopes (the sam
   } else if (style === 'drone') {
     Object.assign(p, { amp_attack: rnd(60, 100), amp_decay: rnd(60, 100), amp_sustain: rnd(100, 120), amp_release: rnd(90, 120),
       filter_attack: rnd(30, 90), release_switch: 1 });
+  } else if (style === 'percussion') {            // a short hit with nothing sustained: a falling-pitch kick or tom, a noise snare, or a metallic hat
+    const kind = pick(['kick', 'kick', 'kick', 'snare', 'snare', 'hat']);      // kicks are the most likely, then snares
+    Object.assign(p, { amp_attack: 0, amp_sustain: 0, filter_attack: 0, filter_sustain: 0, pm_filtenv: 0, pm_oscB: 0, pm_to_freqA: 0, pm_to_pw: 0, pm_to_filter: 0 });
+    if (kind === 'kick') {                         // low, with the filter envelope driving Osc A's pitch through Poly-Mod, so each hit starts high and falls; a low cutoff rounds the tone off
+      const low = pick([12, 24, 24]);
+      Object.assign(p, { oscA_freq: low, oscB_freq: Math.max(0, low - pick([0, 0, 12])), oscA_saw: 0, oscA_square: 1,
+        amp_decay: rnd(45, 85), amp_release: rnd(25, 55), filter_decay: rnd(30, 65), filter_release: rnd(20, 45), filter_env_amount: rnd(10, 40),
+        pm_filtenv: rnd(40, 100), pm_to_freqA: 1, cutoff: rnd(30, 55), resonance: rnd(10, 45), mix_oscA: rnd(110, 120), mix_oscB: rnd(50, 110), mix_noise: rnd(0, 25) });
+    } else if (kind === 'snare') {                 // mostly noise through a quick filter sweep, with a little tone under it
+      Object.assign(p, { amp_decay: rnd(35, 70), amp_release: rnd(20, 45), filter_decay: rnd(30, 60), filter_release: rnd(20, 40), filter_env_amount: rnd(30, 70),
+        cutoff: rnd(55, 95), resonance: rnd(0, 50), mix_noise: rnd(100, 120), mix_oscA: rnd(60, 110), mix_oscB: rnd(40, 100) });
+    } else {                                       // hat: noise plus Osc B frequency-modulating Osc A for a metallic edge, short
+      Object.assign(p, { amp_decay: rnd(20, 50), amp_release: rnd(10, 30), filter_decay: rnd(15, 40), filter_release: rnd(10, 25), filter_env_amount: rnd(0, 30),
+        cutoff: rnd(80, 120), resonance: rnd(0, 40), mix_noise: rnd(70, 120), mix_oscA: rnd(70, 120), mix_oscB: rnd(70, 120), pm_oscB: rnd(50, 110), pm_to_freqA: 1 });
+    }
+    Object.assign(p, { release_switch: 1, amp_release: p.amp_decay, filter_release: p.filter_decay });      // a one-shot: let go of the key early and the hit still rings out for its full length
   }
 }
 // Osc B pitch relative to Osc A, in semitones: mostly the same note or an octave/fifth away, with the odd third, fourth or seventh for colour
 const B_INTERVALS = [[0, 4], [7, 2], [12, 2], [-12, 2], [-5, 1], [5, 1], [4, 1], [3, 1], [10, 1], [-24, 1], [19, 1], [-7, 1]];
 const chordOn = () => currentActivePatch.unison && currentActivePatch.unison_voices === CHORD;
 function pickInterval(style) {
-  const pool = B_INTERVALS.filter(([n]) => (style !== 'pluck' || n <= 7) && (!chordOn() || n % 12 === 0));   // plucks stay low; with a unison chord, B only goes up or down in whole octaves so the chord stays clean
+  const pool = B_INTERVALS.filter(([n]) => ((style !== 'pluck' && style !== 'percussion') || n <= 7) && (!chordOn() || n % 12 === 0));   // plucks stay low; with a unison chord, B only goes up or down in whole octaves so the chord stays clean
   const total = pool.reduce((a, [, w]) => a + w, 0);
   let r = Math.random() * total;
   for (const [n, w] of pool) { if ((r -= w) < 0) return n; }
@@ -1984,6 +2004,7 @@ function generatePatch() {
 
   applyStyle(currentActivePatch, $('gen-style').value);
   applyLocks(currentActivePatch, prevPatch);
+  keepSilentPW(currentActivePatch, prevPatch);
   syncSlidersToUI();
   setName(randomName());
   transmitCurrentPatch('New patch sent.');
@@ -2625,6 +2646,7 @@ function mutatePatch() {
   // keep the patch audible
   if (!next.oscA_saw && !next.oscA_square) next.oscA_saw = 1;
   if (!next.oscB_saw && !next.oscB_tri && !next.oscB_square) next.oscB_square = 1;
+  keepSilentPW(next, currentActivePatch);
   next.cutoff = Math.max(next.cutoff, 25);
   next.mix_oscA = Math.max(next.mix_oscA, 40);
 
