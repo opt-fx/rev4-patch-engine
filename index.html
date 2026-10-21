@@ -716,7 +716,7 @@ function buildDashboard() {
     sect.className = 'sect'; sect.dataset.g = g.toLowerCase().replace(/[^a-z0-9]+/g, '');
     const GFX = {};                       // the envelope, filter and LFO graphics were removed; the draw functions skip a graphic that is not on the page
     const gid = GFX[g];
-    sect.innerHTML = `<h2>${g}</h2>${(g === 'Unison' || g === 'Response') ? '' : `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone" onclick="toggleLock('${g}')"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`}` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
+    sect.innerHTML = `<h2>${g}</h2>${(g === 'Unison' || g === 'Response') ? '' : `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone (Shift-click locks every other section instead)" onclick="toggleLock('${g}', event)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`}` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
     if (g === 'Unison') {
       sect.querySelector('.ctls').classList.add('uni');    }
     const box = sect.querySelector('.ctls'), sws = sect.querySelector('.sws'), later = [];
@@ -980,7 +980,17 @@ function syncLockButtons() {                  // every padlock for a section (on
     btn.title = on ? 'Locked: Generate and Mutate leave this section alone. Click to unlock.' : 'Lock this section, so Generate and Mutate leave it alone';
   });
 }
-function toggleLock(g) {
+function lockableGroups() { return [...new Set(PARAMS.map(p => p[0]))].filter(g => g !== 'Unison' && g !== 'Response' && g !== 'Vintage'); }
+function lockOthers(g) {                      // one click: lock every section except g, so Generate and Mutate only touch g; again to unlock them all
+  const others = lockableGroups().filter(x => x !== g);
+  const already = !LOCKED.has(g) && others.every(x => LOCKED.has(x));
+  LOCKED.clear();
+  if (!already) others.forEach(x => LOCKED.add(x));
+  syncLockButtons(); syncMutAdv();
+  setStatus(already ? 'All sections unlocked.' : 'Only ' + g + ' is unlocked: Generate and Mutate will change just that section.');
+}
+function toggleLock(g, ev) {
+  if (ev && ev.shiftKey) return lockOthers(g);      // Shift-click a padlock: lock everything else
   if (LOCKED.has(g)) LOCKED.delete(g); else LOCKED.add(g);
   syncLockButtons();
   syncMutAdv();
@@ -2572,7 +2582,7 @@ function buildMutAdv() {
     const slider = el('input', { type: 'range', min: '0', max: '60', 'aria-label': 'Mutate amount for ' + g });
     const val = el('b', {});
     const lockBtn = el('button', { type: 'button', class: 'lockicon mpad', 'data-lock': g, 'aria-pressed': 'false' });
-    lockBtn.innerHTML = LOCK_SVG; lockBtn.onclick = () => toggleLock(g);
+    lockBtn.innerHTML = LOCK_SVG; lockBtn.onclick = ev => toggleLock(g, ev);
     const row = el('div', { class: 'mrow' }, name, slider, val, lockBtn);
     row._sync = () => {
       const own = g in SEC_AMT, v = secAmount(g);

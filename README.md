@@ -1,7 +1,7 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png?v=4)
-![Screenshot](screenshot2.png?v=4)
+![Screenshot](screenshot1.png?v=2)
+![Screenshot](screenshot2.png?v=2)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a patch, nudge it with Mutate, tweak any control, read the patch on the synth into the app, save patches back to your synth, and keep a searchable library.
 
@@ -21,16 +21,16 @@ Your Library is stored in that browser on that computer, so use **Export library
 - A MIDI connection from your computer to the synth (USB or a MIDI interface).
 - On the synth, in Globals:
   - **Param Rcv** set to **CC**.
-  - **MIDI SysEx** set to the route you use (MIDI or USB), with MIDI Out sending on that route. This is needed for Read from synth, Save to synth and capturing.
+  - **MIDI SysEx** set to the route you use (MIDI or USB), with MIDI Out sending on that route. This is needed for reading from the synth, Save to synth and capturing.
   - **Param Xmit** set to **CC**, if you want the app to follow knobs and buttons you move on the synth.
 - The app's **Channel** menu must match the synth's MIDI channel, and the synth must accept Program Change and Bank Select (needed for capturing and for Load on Library patches).
 
 ## Getting started
 
 1. Open the page and click **Allow** when the browser asks for MIDI and SysEx access.
-2. Choose your synth model, MIDI output and channel.
-3. Press **Ping** (at the right of the Scratchpad row, beside **INIT**) to check the connection. It also plays a test note.
-4. Press **Generate** for a random patch, or **Read from synth** to bring in the one that's on the synth.
+2. Choose your synth model, MIDI output and channel (the app remembers your channel next time).
+3. Press **Ping** (at the right of the Scratchpad row, beside **Test note** and **INIT**) to check the connection. It also reads the synth's current patch into the editor, so it doubles as a re-sync. **Test note** plays a note so you can hear that the synth is connected.
+4. Press **Generate** for a random patch, or just select the MIDI port: the patch that is on the synth is read in automatically when you connect, and again whenever you change program on the synth.
 
 Every knob and button sends to the synth as you move it. Nothing is saved on the synth until you save it (see Saving below).
 
@@ -41,7 +41,7 @@ Every knob and button sends to the synth as you move it. Nothing is saved on the
 - The **Any sound** dropdown next to it (Pluck, Pad or Drone) shapes the envelopes so the new patch fits that style. A Pluck also keeps the oscillator levels high, the filter fairly open and the resonance moderate, so it isn't quiet. Everything else stays random, and locked sections still win. Leave it on Any sound for fully random.
 - **Generate** sets **Oscillator A's frequency** from the pitch dropdown beside Any sound: Low (24), Normal (36, the default) or High (48). They are whole octaves apart, so the patch stays in tune. Mutate never changes it. **INIT** uses the same Normal pitch (36) for both oscillators.
 - **Mutate** nudges the current patch by the amount you choose. Open **Mutate by section** for a separate slider per section: each follows the main amount until you move it, and 0% leaves that section alone. Click a section's name to make it follow the main amount again.
-- The **padlock** on a section (amber when locked) keeps it unchanged through Generate and Mutate. **Keep unison** keeps your unison settings through Generate.
+- The **padlock** on a section (amber when locked) keeps it unchanged through Generate and Mutate. To work on just one section, **Shift-click** its padlock: every other section locks and only that one changes. Shift-click again to unlock them all. The same padlocks appear in **Mutate by section**. **Keep unison** keeps your unison settings through Generate.
 - **Back** undoes up to 20 Generate and Mutate steps, and **Forward** redoes them. Both grey out when there's nothing to go to, and both start afresh when the program changes or you load a different patch (from the Library, a file or the arrows) or press INIT, since they are only for Generate and Mutate.
 
 **Following the synth**
@@ -49,7 +49,7 @@ Every knob and button sends to the synth as you move it. Nothing is saved on the
 - With Param Xmit set to CC, knobs and buttons you move on the synth move on screen too.
 - When you hold a chord and press Unison on the synth, the app picks up the voice count, chord and detune by itself. If it ever misses one, press **Sync** in the Unison box.
 - The **‹** and **›** buttons (or the **[** and **]** keys) step to the previous or next program on the synth and read it into the editor. When the editor holds a patch you saved to the Library (the tag says **Library patch**), they step through your saved and imported patches instead, in the Library's order, and wrap round at the ends. They need the app to know which program the synth is on, so select one on the synth once, or use Load on a Library entry. They replace the working patch, so use Back if you lose edits you wanted.
-- The amber tag in the patch name row shows the synth's program number. When you load a patch you saved to the Library (one with no synth slot), it reads **Library patch** instead, with **· edited** once you change it. Generate or choosing a program on the synth takes it back to the program number.
+- The amber tag in the patch name row shows the synth's program number. If the app doesn't know the program yet (the synth only reports it when you change it, and the sound didn't match anything in your Library), the tag turns red and says **Synth program unknown**: change program on the synth once and it syncs, which the **‹** **›** buttons need. If the same sound sits in more than one program (a Factory patch copied to User, say), it says **Could be F221 or U221** instead of guessing; changing program on the synth settles it. When you load a patch you saved to the Library (one with no synth slot), it reads **Library patch** instead, with **· edited** once you change it. Generate or choosing a program on the synth takes it back to the program number.
 - The synth doesn't tell the app when you save with **Record**, so the program number can then be out of date. Once you've changed the sound, the number is marked **· edited** as a warning. Selecting any program refreshes it.
 
 **Saving**
