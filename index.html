@@ -1932,6 +1932,8 @@ function relabelPitch() {                         // for Percussion the pitch dr
 }
 $('gen-style').addEventListener('change', relabelPitch);
 relabelPitch();
+window.addEventListener('load', relabelPitch);
+window.addEventListener('pageshow', relabelPitch);      // the browser can put the saved dropdown choices back after the page has built, so check again
 function pickBase(range) {                        // Osc A frequency for Generate: whole octaves so it stays in tune
   if (range === 'low') return 24;
   if (range === 'high') return 48;
