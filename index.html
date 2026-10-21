@@ -254,7 +254,7 @@
     .mrow .mpad[aria-pressed="true"] rect { fill:currentColor; }
     .mrow .mpad:hover { color:var(--cream); }
     .mrow .mpad:focus-visible { outline:2px solid var(--amber); }
-    .progtag .edited { color:#ff4d4d; }
+    .progtag .edited, .progtag.unknown { color:#ff4d4d; }
     .progtag { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); border:1px solid var(--line); border-radius:12px; padding:5px 12px; background:#141312; white-space:nowrap; }
     .foot { margin-top:30px; padding-top:16px; font-size:12px; line-height:1.5; color:#8b8578; }
     .foot p { margin:0 0 6px; }
@@ -424,7 +424,6 @@
       <button class="btn" id="back-btn" onclick="undoPatch()" title="Undo the last Generate or Mutate" disabled>Back</button>
       <button class="btn" id="fwd-btn" onclick="redoPatch()" title="Redo what Back undid" disabled>Forward</button>
       <span class="spacer"></span>
-      <button class="btn" onclick="readFromSynth()">Read from synth</button>
       <button class="btn" id="store-open" title="Save this patch into a user program slot on the synth" onclick="openStoreBar()">Save to synth…</button>
       <button class="btn" id="lib-update" hidden onclick="updateLibraryEntry()">Update Library</button>
       <button class="btn" title="Export this program as a small file" onclick="downloadPresetFile()">Export program</button>
@@ -460,7 +459,8 @@
       <div id="fav-list"></div>
     </div>
     <div class="toolbtns">
-      <button class="btn pingbtn" onclick="pingSynth()" title="Check the connection to the Prophet and play a test note">Ping</button>
+      <button class="btn pingbtn" onclick="pingSynth()" title="Check the connection to the Prophet and read its current patch into the editor">Ping</button>
+      <button class="btn pingbtn" onclick="testNote()" title="Play a test note on the synth">Test note</button>
       <button class="btn initbtn" onclick="resetSynth()" title="Reset the editor to the Prophet's init patch and send it to the synth">INIT</button>
     </div>
     </div>
@@ -695,9 +695,10 @@ function buildChannelSelector() {
     o.value = i; o.innerText = 'Channel ' + i;
     sel.appendChild(o);
   }
+  try { const c = parseInt(localStorage.getItem('p5_channel')); if (c >= 1 && c <= 16) midiChannel = c; } catch (e) {}      // remembered between visits
   sel.value = midiChannel;
 }
-function changeChannel() { midiChannel = parseInt($('midi-channel').value); }
+function changeChannel() { midiChannel = parseInt($('midi-channel').value); try { localStorage.setItem('p5_channel', String(midiChannel)); } catch (e) {} }
 
 function paint(el) {
   const pct = (el.value - el.min) / (el.max - el.min) * 100;
@@ -1263,7 +1264,7 @@ function chordBadge(e) {                          // shows that the patch carrie
   return el('span', { class: 'lchord', title: `Unison chord: ${e.chord.join('\u00b7')}${nm ? ' (' + nm + ')' : ''}` }, 'chord');
 }
 function libRow(e) {
-  const nameEl = el('b', {}, e.name);
+  const nameEl = el('b', { title: e.name }, e.name);
   const tagsEl = el('span', { class: 'tagrow' }, tagChips(e));
   const star = el('button', { class: 'star', 'aria-pressed': String(e.fav), 'aria-label': 'Favourite', title: 'Favourite', onclick: () => toggleFav(e.id) }, '★');
   const open = libUI.open.has(e.id);
@@ -1462,7 +1463,7 @@ function buildDump(patch, name, chord, tpl) {      // start from a real dump so 
     const p = key && PARAM_BY_KEY[key], v = key && patch[key];
     if (!p || v === undefined || same[key] === v) return;
     vals[i] = key === 'unison_voices' ? (v === CHORD ? 10 : Math.max(0, v - 1))
-      : (p.max === 120 && !UNSCALED.has(key)) ? Math.round(v * 127 / 120) : v;
+      : v;                                  // the synth keeps the value exactly as sent by CC (0-120), so the dump takes it unscaled
   });
   if (patch.unison_detune !== undefined) vals[DETUNE_OFFSET] = patch.unison_detune;
   for (let i = 0; i < 10; i++) vals[55 + i] = i < chord.length ? chord[i] : 0x7F;
@@ -1626,6 +1627,14 @@ async function libInit() {
   const ok = await libOpen();
   lib = await libReadAll();
   libWarn(!ok);
+  try {                                            // one-off: patches captured from the synth were stored scaled by 120/127; read them again from their dumps, unscaled
+    if (localStorage.getItem('p5_scalefix') !== '1') {
+      const fix = [];
+      lib.forEach(e => { if (e.dump && e.dump.length >= NRPN_MAP.length && e.slot) { const pf = patchFromDump(e.dump, (e.patch && e.patch.unison_detune) || 0); e.patch = { ...e.patch, ...pf.next }; fix.push(e); } });
+      if (fix.length) await libPersist(...fix);
+      localStorage.setItem('p5_scalefix', '1');
+    }
+  } catch (e) {}
   try {                                            // bring across favourites saved by older versions (the old list is left in place as a backup)
     if (localStorage.getItem('p5_favs_migrated') !== '1') {
       const old = JSON.parse(localStorage.getItem('p5_favs') || '[]'), add = [];
@@ -1727,7 +1736,7 @@ function setModel(m, silent) {
   try { localStorage.setItem('p5_model', synthModel); } catch (e) {}
 }
 
-let inquiredPort = null;
+let inquiredPort = null, autoReadPort = null, firstReadPending = false;      // firstReadPending: the read made on connecting has not finished, so 'unknown' is not shown yet
 function selectMidiOutput() {
   const sel = $('midi-out-selector');
   if (!sel.value) {
@@ -1743,6 +1752,12 @@ function selectMidiOutput() {
       inquiredPort = midiOutput.id;
       try { midiOutput.send([0xF0, 0x7E, 0x7F, 0x06, 0x01, 0xF7]); } catch (e) {}
     }
+    if (sysexOk && autoReadPort !== midiOutput.id) {          // first time on this port: bring in the patch that is on the synth
+      autoReadPort = midiOutput.id; firstReadPending = true;
+      setTimeout(() => { if (midiOutput && !pendingRead && !capturing && !capSweep) readFromSynth(); }, 800);
+      setTimeout(() => { if (firstReadPending) { firstReadPending = false; showProgTag(); } }, 4500);      // safety: never leave 'unknown' hidden for good
+    }
+    showProgTag();
   }
 }
 
@@ -2005,12 +2020,13 @@ function progLabel(p) {                           // a program as the synth numb
   const factory = p.lsb >= 5;
   return (factory ? 'F' : 'U') + (factory ? p.lsb - 4 : p.lsb + 1) + bankNo + prog;
 }
+let progAmbiguous = null;                        // labels of the programs that hold exactly the sound that was read, when there is more than one
 let progEdited = false;                          // true once the sound has been changed since the synth last reported its program
 function noteProgramMsg(d) {                 // bank select (CC 0 / 32) and program change sent by the synth
   const t = d[0] & 0xF0;
   if (t === 0xB0 && d[1] === 0) progState.msb = d[2];
   else if (t === 0xB0 && d[1] === 32) progState.lsb = d[2];
-  else if (t === 0xC0) { progState.pc = d[1]; progEdited = false; hideStoreBar(); showProgTag(); scheduleAutoRead(); return; }
+  else if (t === 0xC0) { progState.pc = d[1]; progEdited = false; progAmbiguous = null; hideStoreBar(); showProgTag(); scheduleAutoRead(); return; }
   else return;
   showProgTag();
 }
@@ -2153,6 +2169,7 @@ async function autoReadProgram() {
 }
 function showProgTag() {
   const el = $('prog-info');
+  el.classList.remove('unknown');
   const le = libLoadedId && lib.find(x => x.id === libLoadedId && !x.slot);      // a Library patch with no synth slot is what the editor holds: say so instead of the synth's last program
   if (le && !capSweep) {
     refreshLibMarks();
@@ -2162,7 +2179,14 @@ function showProgTag() {
     el.title = 'The editor holds "' + le.name + '" from your Library, not a program on the synth. ' + (entryDiffers(le) ? 'It has been changed since it was loaded.' : 'It has not been changed since it was loaded.');
     return;
   }
-  if (progState.pc === null) { el.hidden = true; return; }
+  if (progState.pc === null) {
+    if (midiOutput && sysexOk && !firstReadPending && !pendingRead) {                  // connected but the synth has not reported a program yet: say so, in red
+      el.hidden = false; el.classList.add('unknown');
+      el.textContent = progAmbiguous ? 'Could be ' + progAmbiguous.join(' or ') + ' \u00b7 change program on the synth to sync' : 'Synth program unknown \u00b7 change program on the synth to sync';
+      el.title = 'The Prophet only reports its program when you change it, and this sound did not match any program in your Library. Change program on the synth (and back if you like) so the app knows where it is. The \u2039 \u203a buttons need this.';
+    } else el.hidden = true;
+    return;
+  }
   refreshLibMarks();
   el.hidden = false;
   if (capSweep) {                                 // the capture steps through every program: show that instead of flashing each one
@@ -2196,7 +2220,7 @@ function stepProgram(dir) {                       // move to the next or previou
     return;
   }
   if (progState.pc === null || progState.lsb === null || Math.floor(progState.pc / 8) + 1 > 5) {
-    setStatus('The app does not know which program the synth is on yet. Select a program on the synth (or use Load on a Library entry) first.');
+    setStatus('The app does not know which program the synth is on yet. Change program on the synth (or use Load on a Library entry) first.'); showProgTag();
     return;
   }
   const factory = progState.lsb >= 5;
@@ -2313,7 +2337,6 @@ function patchFromDump(vals, detuneKeep) {          // turn an unpacked edit-buf
     const p = PARAM_BY_KEY[key];
     if (p.type === 'switch' && raw > 1) oddSwitches++;
     let v = raw;
-    if (p.max === 120 && !UNSCALED.has(key)) v = Math.round(raw * 120 / 127);   // dump 0-127 -> CC 0-120
     if (key === 'unison_voices') v = raw === 10 ? CHORD : raw + 1;      // the dump counts voices from zero (0 = one voice, 2 = three); 10 = chord mode
     next[key] = clamp(v, key === 'unison_voices' ? 1 : 0, p.max);
   });
@@ -2391,17 +2414,40 @@ function finishSysex(b) {
   if (DETUNE_OFFSET !== null) next.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
 
   if (newProgram) { clearHistory(); newProgram = false; }      // a read is not an edit to undo: Back only covers Generate and Mutate (a program you have just moved to starts a fresh history)
-  libLoadedId = null; showProgTag();
+  libLoadedId = null; progEdited = false; refreshUpdateBtn(); showProgTag();      // the editor now matches the synth's edit buffer, so it is no longer 'edited'
   currentActivePatch = next;
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
   syncSlidersToUI();
   perfKnown = true;
   setName(parsed.name || randomName());
+  let matchNote = '';
+  progAmbiguous = null;
+  const slotHits = lib.filter(e => e.slot && e.dump && e.dump.length >= 85 && sameDump(e.dump, vals));      // Library copies of synth programs with exactly this sound
+  if (!slotHits.length) {                                           // the synth keeps the old program name when a patch is sent to its buffer by CC/NRPN, so a name from the dump can be wrong: recognise a Library patch (no slot) by its sound
+    const MAX120 = new Set(PARAMS.filter(r => r[5] === 120).map(r => r[1]));
+    const same = (k, a, b) => Math.abs(a - b) <= 1 || (MAX120.has(k) && Math.abs(a - b * 120 / 127) <= 1.5);      // also tolerate Library patches captured before the scaling fix
+    const diffs = e => { let n = 0, c = 0; for (const k of Object.keys(next)) if (typeof next[k] === 'number' && typeof e.patch[k] === 'number') { c++; if (!same(k, next[k], e.patch[k])) n++; } return c < 20 ? 999 : n; };
+    let lp = null, best = 999;
+    for (const e of lib) if (!e.slot && e.patch) { const n = diffs(e); if (n < best || (n === best && lp && (e.updated || 0) > (lp.updated || 0))) { best = n; lp = e; } }
+    const near_ = lp;
+    if (best > 3) lp = null;                 // a few differences are allowed: the synth rounds some values and CC does not carry every setting
+    matchNote = lp ? ` Matches your Library patch "${lp.name}"${best ? ' (' + best + ' setting' + (best > 1 ? 's' : '') + ' differ)' : ''}.` : '';
+    if (lp) { libLoadedId = lp.id; setName(lp.name); refreshUpdateBtn(); showProgTag(); renderFavs(); renderLib(); }
+  }
+  if (progState.pc === null && !libLoadedId) {                // no program change heard yet (e.g. just connected): recognise the program from the Library copy of this exact sound
+    const hit = slotHits[0], labels = [...new Set(slotHits.map(e => slotLabel(e.slot)))];
+    if (labels.length > 1) progAmbiguous = labels;      // the same sound sits in more than one program: do not guess
+    else if (hit) {
+      Object.assign(progState, { msb: 0, lsb: hit.slot.set === 'F' ? 4 + hit.slot.group : hit.slot.group - 1, pc: (hit.slot.bank - 1) * 8 + (hit.slot.prog - 1) });
+      progEdited = false; showProgTag(); renderFavs(); renderLib();
+    }
+  }
   setStatus(oddSwitches > 3
     ? 'Patch read, but several switches look wrong. Open the dump below and compare it with the panel.'
-    : 'Patch read from the Prophet.' + (next.unison && next.unison_voices === CHORD
+    : 'Patch read from the Prophet.' + matchNote + (next.unison && next.unison_voices === CHORD
         ? ` Unison is in chord mode (${chordNotes.length} note chord${describeChord(chordNotes) ? ': ' + describeChord(chordNotes) : ''}).` : '') +
       ' Try Mutate, or Back to return to the previous patch.');
+  firstReadPending = false; showProgTag();
 }
 
 let pendingPing = null;
@@ -2415,7 +2461,7 @@ function pingSynth() {
   }, 3000);
   midiOutput.send([0xF0, 0x7E, 0x7F, 0x06, 0x01, 0xF7]);   // universal device inquiry
   setStatus('Pinging the Prophet...');
-  testNote();                                              // and play a note, so you can hear that it is connected
+  if (!pendingRead && !capturing && !capSweep) setTimeout(() => { if (midiOutput && !pendingRead && !capturing) readFromSynth(); }, 400);      // and read the patch, so the editor matches the synth
 }
 
 function copyDump() {
@@ -2446,7 +2492,7 @@ function readFromSynth() {
   seenPorts.clear(); lastRecv = '';
   clearTimeout(pendingRead);
   pendingRead = setTimeout(() => {
-    pendingRead = null;
+    pendingRead = null; firstReadPending = false; showProgTag();
     const heard = seenPorts.size ? 'The app did hear from: ' + [...seenPorts].join(', ') + '.' : 'The app heard nothing on any MIDI input.';
     setStatus('No reply from the Prophet. ' + heard + (lastRecv ? ' Last message: ' + lastRecv + '.' : '') + ' Check that the request can reach the Prophet (no SysEx filter on the pipe from USB A to its MIDI IN).');
   }, 3000);
