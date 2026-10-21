@@ -759,7 +759,7 @@ function buildDashboard() {
       else (p.type === 'switch' ? sws : box).appendChild(c);
       if (p.key === 'unison_voices') {
         const k = document.createElement('div'); k.className = 'ctl chd';
-        k.innerHTML = `<div class="row"><span>Chord</span></div><select id="chord-pick" aria-label="New chord" title="Makes a unison chord and sends it to the synth. The notes are measured from the lowest key you play. It needs one patch read from the synth first." onchange="chordPicked(this.value)"><option value="">New chord</option>${CHORD_MENU.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select><button type="button" class="btn sm chdrand" title="Make a random chord and send it to the synth" aria-label="Random chord" onclick="chordPicked('random')"><svg class="dice" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="5.5" fill="currentColor"/><g fill="#161412"><circle cx="7.4" cy="7.4" r="2.2"/><circle cx="16.6" cy="7.4" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="7.4" cy="16.6" r="2.2"/><circle cx="16.6" cy="16.6" r="2.2"/></g></svg></button>`;
+        k.innerHTML = `<div class="row"><span>Chord</span></div><select id="chord-pick" aria-label="New chord" title="Makes a unison chord and sends it to the synth. The notes are measured from the lowest key you play. It needs one patch read from the synth first." onchange="chordPicked(this.value)"><option value="random" selected>Random</option>${CHORD_MENU.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select><button type="button" class="btn sm chdrand" title="Make a random chord and send it to the synth" aria-label="Random chord" onclick="chordPicked('random')"><svg class="dice" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="5.5" fill="currentColor"/><g fill="#161412"><circle cx="7.4" cy="7.4" r="2.2"/><circle cx="16.6" cy="7.4" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="7.4" cy="16.6" r="2.2"/><circle cx="16.6" cy="16.6" r="2.2"/></g></svg></button>`;
         box.appendChild(k);
       }
     });
@@ -790,9 +790,12 @@ function buildDashboard() {
   drawEnvelopes();
 }
 
+let lastUnisonPush = 0;
+const UNISON_HIST = new Set(['unison', 'unison_voices', 'unison_detune']);      // unison edits can be undone with Back, like Generate and Mutate
 function updateParam(key, value) {
   const p = PARAM_BY_KEY[key];
   const v = Math.max(0, Math.min(p.max, parseInt(value)));
+  if (!quiet && UNISON_HIST.has(key) && currentActivePatch[key] !== v && Date.now() - lastUnisonPush > 600) { pushHistory(); lastUnisonPush = Date.now(); }      // quick repeats (several clicks, or one click that sets two settings) count as one step
   currentActivePatch[key] = v;
   if (p.type === 'steps' || p.type === 'select') syncControls();     // keep the dropdown showing a value set from code
   refreshCombos();
@@ -1832,7 +1835,7 @@ function snapBToOctave() {                     // chords sound clean only with O
   return true;
 }
 async function chordPicked(kind) {
-  const sel = $('chord-pick'); if (sel) sel.value = '';
+  const sel = $('chord-pick'); if (sel) sel.value = 'random';      // the box shows Random again after every pick
   if (!kind) return;
   if (!sysexOk) return setStatus('SysEx permission was not granted. Reload the page and click Allow when Chrome asks.');
   if (!requirePort() || pendingRead || capturing) return;
@@ -1851,9 +1854,10 @@ async function chordPicked(kind) {
     setStatus('Sending ' + label + '...');
     await sleep(500);
     const back = await readEditBuffer();
-    if (back && sameDump(back.slice(0, 65), vals.slice(0, 65))) {
+    const chordTook = back && back.slice(52, 65).every((v, i) => v === vals[52 + i]);      // unison on, voices, detune and the chord notes: what this send is for
+    if (chordTook) {
       lastDump = back.slice(0, 128); lastDumpFull = back; perfKnown = true; markEdited();
-      setStatus(label + ' sent. Hold a key and it plays the chord.' + (snapped ? ' Osc B was moved to the nearest octave of Osc A so the chord stays in tune.' : ''));
+      setStatus(label + ' sent. Hold a key and it plays the chord.' + (sameDump(back.slice(0, 65), vals.slice(0, 65)) ? '' : ' Some other settings differ from what was sent, probably changed meanwhile by your sequence or a knob.') + (snapped ? ' Osc B was moved to the nearest octave of Osc A so the chord stays in tune.' : ''));
     } else setStatus(back ? 'The synth did not take the chord. Try again.' : 'No reply when checking the chord, so it may not have arrived.');
   } finally { capturing = false; }
 }
@@ -2527,23 +2531,34 @@ function restoreSnapshot(snap) {                  // puts back the patch, its na
   libLoadedId = lib_ || null;
   syncSlidersToUI(); refreshUpdateBtn(); showProgTag();
 }
+function sendWholePatch(msg) {                    // the unison chord notes travel only in a full patch dump, not in CC messages: send the editor's patch whole
+  if (!sysexOk || !midiOutput) return false;
+  const tpl = lastDumpFull || (lib.find(e => e.dump && e.dump.length >= 133) || {}).dump;
+  if (!tpl) return false;
+  const name = ((patchName || '').trim() || 'Untitled').slice(0, 20).trim();
+  try { midiOutput.send([0xF0, 0x01, lastDumpId === null ? DUMP_IDS[0] : lastDumpId, 0x03, ...packDSI(buildDump(currentActivePatch, name, chordNotes, tpl)), 0xF7]); } catch (e) { return false; }
+  markEdited(); setStatus(msg);
+  return true;
+}
 function undoPatch() {
   if (!HISTORY.length) return setStatus('Nothing to go back to.');
   if (!requirePort()) return;
   FORWARD.push({ ...currentActivePatch, _name: patchName, _lib: libLoadedId, _chord: chordNotes.slice() });
-  const prev = HISTORY.pop();
+  const prev = HISTORY.pop(), chordBefore = chordNotes.join();
   syncBack();
   restoreSnapshot(prev);
-  transmitCurrentPatch('Went back one step (' + HISTORY.length + ' more available).');
+  const msg = 'Went back one step (' + HISTORY.length + ' more available).';
+  if (chordNotes.join() === chordBefore || !sendWholePatch(msg)) transmitCurrentPatch(msg);
 }
 function redoPatch() {
   if (!FORWARD.length) return setStatus('Nothing to go forward to.');
   if (!requirePort()) return;
   HISTORY.push({ ...currentActivePatch, _name: patchName, _lib: libLoadedId, _chord: chordNotes.slice() });
-  const next = FORWARD.pop();
+  const next = FORWARD.pop(), chordBefore = chordNotes.join();
   syncBack();
   restoreSnapshot(next);
-  transmitCurrentPatch('Went forward one step (' + FORWARD.length + ' more available).');
+  const msg = 'Went forward one step (' + FORWARD.length + ' more available).';
+  if (chordNotes.join() === chordBefore || !sendWholePatch(msg)) transmitCurrentPatch(msg);
 }
 
 
