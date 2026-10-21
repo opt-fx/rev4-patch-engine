@@ -258,6 +258,9 @@
     .progtag { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); border:1px solid var(--line); border-radius:12px; padding:5px 12px; background:#141312; white-space:nowrap; }
     .foot { margin-top:30px; padding-top:16px; font-size:12px; line-height:1.5; color:#8b8578; }
     .foot p { margin:0 0 6px; }
+    .foot .footrow { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .foot .credit { display:flex; align-items:center; gap:7px; margin:0 0 6px; flex:none; font-size:11px; letter-spacing:.06em; color:#8b8578; }
+    .foot .credit svg { width:18px; height:18px; flex:none; }
 
     /* ---- compact layout: on screens wide enough, fit the whole editor on one screen ---- */
     .midbar { display:flex; flex-direction:column; }
@@ -524,7 +527,15 @@
     </section>
     <footer class="foot">
       <p>Works in Chrome and Edge. Safari and Firefox don't support Web MIDI, so they can't connect to a synth.</p>
+      <div class="footrow">
       <p>Unofficial tool, not affiliated with or endorsed by Sequential. Prophet is a trademark of Sequential, LLC. Controller numbers come from Sequential's published Prophet-5 MIDI Implementation.</p>
+      <p class="credit">Designed by OPT
+        <svg viewBox="0 0 400 400" role="img" aria-label="OPT logo: a striped sun">
+          <defs><mask id="sunmask"><rect width="400" height="400" fill="#fff"/><rect y="224" width="400" height="8"/><rect y="262" width="400" height="13"/><rect y="302" width="400" height="18"/><rect y="344" width="400" height="24"/></mask></defs>
+          <circle cx="200" cy="200" r="196" fill="#FF8A1F" mask="url(#sunmask)"/>
+        </svg>
+      </p>
+      </div>
     </footer>
   </main>
   <div class="cheek"></div>
