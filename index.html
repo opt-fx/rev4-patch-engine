@@ -1129,7 +1129,8 @@ async function promoteIdea(id) {
   if (!e) return;
   e.idea = false; e.updated = Date.now();
   await libPersist(e);
-  renderFavs(); renderLib();
+  if (libLoadedId === id || (!entryDiffers(e) && (patchName || '').trim() === e.name)) libLoadedId = id;      // the editor holds this patch: it is now a Library patch, so the tag says so
+  renderFavs(); renderLib(); refreshUpdateBtn(); showProgTag();
   setStatus(`Added "${e.name}" to the Library.`);
 }
 async function deleteIdea(id) {
@@ -2240,9 +2241,9 @@ function showProgTag() {
   if (le && !capSweep) {
     refreshLibMarks();
     el.hidden = false;
-    el.textContent = 'Library patch';
+    el.textContent = le.idea ? 'Scratchpad patch' : 'Library patch';
     if (entryDiffers(le)) { const w = document.createElement('span'); w.className = 'edited'; w.textContent = 'edited'; el.append(' \u00b7 ', w); }
-    el.title = 'The editor holds "' + le.name + '" from your Library, not a program on the synth. ' + (entryDiffers(le) ? 'It has been changed since it was loaded.' : 'It has not been changed since it was loaded.');
+    el.title = 'The editor holds "' + le.name + '" from your ' + (le.idea ? 'Scratchpad' : 'Library') + ', not a program on the synth. ' + (entryDiffers(le) ? 'It has been changed since it was loaded.' : 'It has not been changed since it was loaded.');
     return;
   }
   if (progState.pc === null) {
@@ -2278,7 +2279,7 @@ let stepTimer = null;
 function stepProgram(dir) {                       // move to the next or previous program in the current set, wrapping round: 200 programs per set
   if (!requirePort() || capturing || pendingRead) return;
   const cur = libLoadedId && lib.find(x => x.id === libLoadedId);
-  if (cur && !cur.slot) {                         // the editor holds a saved Library patch, which has no synth program: step through those instead, in the Library's order
+  if (cur && !cur.slot && !cur.idea) {             // the editor holds a saved Library patch, which has no synth program: step through those instead, in the Library's order
     const list = libVisible().filter(e => !e.slot), i = list.findIndex(e => e.id === cur.id);
     if (list.length < 2 && i >= 0) return setStatus('"' + cur.name + '" is the only saved or imported patch in the Library list, so there is nothing to step to.');
     const next = list[((i < 0 ? (dir > 0 ? -1 : 0) : i) + dir + list.length) % list.length];
