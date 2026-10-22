@@ -1028,6 +1028,9 @@ function toggleKeyLock(key) {                 // click a knob's name: lock or un
   const p = PARAM_BY_KEY[key];
   if (!p || !lockableGroups().includes(p.group)) return;
   if (LOCKED.has(key)) LOCKED.delete(key); else LOCKED.add(key);
+  const gk = groupKeys(p.group), knobs = gk.filter(k => PARAM_BY_KEY[k].type === 'range'), rest = gk.filter(k => !knobs.includes(k));
+  if (knobs.length && knobs.every(k => LOCKED.has(k))) rest.forEach(k => LOCKED.add(k));      // every knob locked: the whole section counts as locked, switches included
+  else rest.forEach(k => LOCKED.delete(k));                                                   // a knob is free again: the switches are released too
   syncLockButtons(); syncMutAdv();
   setStatus((LOCKED.has(key) ? 'Locked ' : 'Unlocked ') + p.label + ' (' + p.group + '): Generate and Mutate ' + (LOCKED.has(key) ? 'will leave it alone.' : 'can change it.'));
 }
