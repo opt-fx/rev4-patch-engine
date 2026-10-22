@@ -104,6 +104,13 @@
     .lockicon[aria-pressed="true"] .shk { display:inline; } .lockicon[aria-pressed="true"] .shk-open { display:none; }
     .lockicon[aria-pressed="true"] rect { fill:currentColor; }
     .lockicon:hover { color:var(--cream); }
+    .lockicon[aria-pressed="mixed"] { color:var(--amber); } .lockicon[aria-pressed="mixed"] .shk { display:inline; } .lockicon[aria-pressed="mixed"] .shk-open { display:none; }
+    .klabel { cursor:pointer; }
+    .ctl.kc.klocked .klabel { color:var(--amber); }
+    .ctl.kc.klocked .klabel::after { content:''; display:inline-block; width:11px; height:11px; margin-left:4px; vertical-align:-2px; background:currentColor;
+      -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain;
+      mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain; }
+    .sect.alllocked > :not(h2):not(.lock) { opacity:.38; transition:opacity .15s; }
     .syncbtn { right:10px; left:auto; }
     .lock[aria-pressed="true"] { color:var(--amber); font-weight:600; }
     .lock:focus-visible { outline:2px solid var(--amber); }
@@ -250,7 +257,7 @@
     .mrow.follow input[type=range] { opacity:.55; }
     .mrow .mpad { flex:0 0 auto; background:none; border:0; padding:2px; color:#6f6a60; cursor:pointer; }
     .mrow .mpad rect { fill:transparent; }
-    .mrow .mpad[aria-pressed="true"] { color:var(--amber); }
+    .mrow .mpad[aria-pressed="true"], .mrow .mpad[aria-pressed="mixed"] { color:var(--amber); }
     .mrow .mpad[aria-pressed="true"] rect { fill:currentColor; }
     .mrow .mpad:hover { color:var(--cream); }
     .mrow .mpad:focus-visible { outline:2px solid var(--amber); }
@@ -426,6 +433,7 @@
       </div>
       <button class="btn" id="back-btn" onclick="undoPatch()" title="Undo the last Generate or Mutate" disabled>Back</button>
       <button class="btn" id="fwd-btn" onclick="redoPatch()" title="Redo what Back undid" disabled>Forward</button>
+      <button class="btn" id="unlock-all" hidden onclick="unlockAll()" title="Remove every lock, on knobs and sections">Unlock all</button>
       <span class="spacer"></span>
       <button class="btn" id="store-open" title="Save this patch into a user program slot on the synth" onclick="openStoreBar()">Save to synth…</button>
       <button class="btn" id="lib-update" hidden onclick="updateLibraryEntry()">Update Library</button>
@@ -669,7 +677,7 @@ const STEPS = {
   unison_voices: { from: 1, to: 5, label: v => v },       // Prophet-5 has five voices
   filter_kbd: { from: 0, to: 2, label: v => ['Off', 'Half', 'Full'][v] }
 };
-const LOCKED = new Set();
+const LOCKED = new Set();                         // the keys of the knobs and switches Generate and Mutate must leave alone; a section padlock locks or unlocks all of its keys
 const CAPTIONS = { 'Wheel-mod': { sws: 'Destination' }, 'Poly-mod': { ctls: 'Source amount', sws: 'Destination' } };
 const COMBO_KEYS = new Set(['filter_rev', 'filter_kbd', 'vel_filter', 'vel_amp', 'at_filter', 'at_lfo']);
 const PERF_KEYS = new Set(['filter_rev', 'vel_filter', 'vel_amp', 'at_filter', 'at_lfo']);
@@ -724,7 +732,7 @@ function buildDashboard() {
   let stack = null;
   [...new Set(PARAMS.map(p => p[0]))].forEach(g => {
     const sect = document.createElement('section');
-    sect.className = 'sect'; sect.dataset.g = g.toLowerCase().replace(/[^a-z0-9]+/g, '');
+    sect.className = 'sect'; sect.dataset.g = g.toLowerCase().replace(/[^a-z0-9]+/g, ''); sect.dataset.lg = g;
     const GFX = {};                       // the envelope, filter and LFO graphics were removed; the draw functions skip a graphic that is not on the page
     const gid = GFX[g];
     sect.innerHTML = `<h2>${g}</h2>${(g === 'Unison' || g === 'Response') ? '' : `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone (Shift-click locks every other section instead)" onclick="toggleLock('${g}', event)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`}` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
@@ -738,7 +746,7 @@ function buildDashboard() {
       c.className = 'ctl';
       if (p.type === 'range') {
         c.classList.add('kc');
-        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
+        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel" title="Click to lock this knob, so Generate and Mutate leave it alone">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
       } else if (p.type === 'select') {
         c.innerHTML = `<select id="input-${p.key}" aria-label="${p.label}" onchange="updateParam('${p.key}', this.value)">${voiceOptions(v)}</select>` + (p.key === 'unison_voices' ? '<span class="chdinfo" id="chord-info"></span>' : '');
       } else if (p.type === 'steps') {
@@ -983,36 +991,59 @@ const randomName = () => { const a = pick(NAME_WORDS); let b; do b = pick(NAME_W
 function setName(n) { patchName = n; $('patch-name').value = n; refreshUpdateBtn(); }
 
 const LOCK_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg>';
+const groupKeys = g => Object.keys(PARAM_BY_KEY).filter(k => PARAM_BY_KEY[k].group === g);
+const groupLocked = g => { const ks = groupKeys(g); return ks.length > 0 && ks.every(k => LOCKED.has(k)); };
+const groupPartly = g => !groupLocked(g) && groupKeys(g).some(k => LOCKED.has(k));
 function syncLockButtons() {                  // every padlock for a section (on the section itself and in Mutate by section) shows the same state
   document.querySelectorAll('button[data-lock]').forEach(btn => {
-    const g = btn.dataset.lock, on = LOCKED.has(g);
-    btn.setAttribute('aria-pressed', on);
+    const g = btn.dataset.lock, on = groupLocked(g), part = groupPartly(g);
+    btn.setAttribute('aria-pressed', on ? 'true' : part ? 'mixed' : 'false');
     btn.setAttribute('aria-label', (on ? 'Unlock ' : 'Lock ') + g);
-    btn.title = on ? 'Locked: Generate and Mutate leave this section alone. Click to unlock.' : 'Lock this section, so Generate and Mutate leave it alone';
+    btn.title = on ? 'Locked: Generate and Mutate leave this section alone. Click to unlock it.'
+      : part ? 'Some knobs in this section are locked. Click to lock all of them (Shift-click locks every other section instead).'
+      : 'Lock this section, so Generate and Mutate leave it alone (Shift-click locks every other section instead)';
   });
+  const ua = document.getElementById('unlock-all'); if (ua) ua.hidden = !LOCKED.size;
+  document.querySelectorAll('section.sect[data-lg]').forEach(sec => sec.classList.toggle('alllocked', groupLocked(sec.dataset.lg)));      // a section with everything locked is dimmed
+  document.querySelectorAll('.ctl.kc').forEach(c => { const k = c.querySelector('.knob'); if (k) c.classList.toggle('klocked', LOCKED.has(k.dataset.key)); });
 }
+function unlockAll() { LOCKED.clear(); syncLockButtons(); syncMutAdv(); setStatus('All locks removed.'); }
 function lockableGroups() { return [...new Set(PARAMS.map(p => p[0]))].filter(g => g !== 'Unison' && g !== 'Response' && g !== 'Vintage'); }
 function lockOthers(g) {                      // one click: lock every section except g, so Generate and Mutate only touch g; again to unlock them all
   const others = lockableGroups().filter(x => x !== g);
-  const already = !LOCKED.has(g) && others.every(x => LOCKED.has(x));
+  const already = groupKeys(g).every(k => !LOCKED.has(k)) && others.every(groupLocked);
   LOCKED.clear();
-  if (!already) others.forEach(x => LOCKED.add(x));
+  if (!already) others.forEach(x => groupKeys(x).forEach(k => LOCKED.add(k)));
   syncLockButtons(); syncMutAdv();
   setStatus(already ? 'All sections unlocked.' : 'Only ' + g + ' is unlocked: Generate and Mutate will change just that section.');
 }
 function toggleLock(g, ev) {
   if (ev && ev.shiftKey) return lockOthers(g);      // Shift-click a padlock: lock everything else
-  if (LOCKED.has(g)) LOCKED.delete(g); else LOCKED.add(g);
+  const ks = groupKeys(g);
+  if (groupLocked(g)) ks.forEach(k => LOCKED.delete(k)); else ks.forEach(k => LOCKED.add(k));
   syncLockButtons();
   syncMutAdv();
 }
+function toggleKeyLock(key) {                 // click a knob's name: lock or unlock just that knob
+  const p = PARAM_BY_KEY[key];
+  if (!p || !lockableGroups().includes(p.group)) return;
+  if (LOCKED.has(key)) LOCKED.delete(key); else LOCKED.add(key);
+  syncLockButtons(); syncMutAdv();
+  setStatus((LOCKED.has(key) ? 'Locked ' : 'Unlocked ') + p.label + ' (' + p.group + '): Generate and Mutate ' + (LOCKED.has(key) ? 'will leave it alone.' : 'can change it.'));
+}
+document.addEventListener('click', ev => {
+  const lab = ev.target.closest && ev.target.closest('#dashboard-grid .ctl.kc .klabel');
+  if (!lab) return;
+  const k = lab.closest('.ctl').querySelector('.knob');
+  if (k) toggleKeyLock(k.dataset.key);
+});
 
 function keepSilentPW(next, prev) {           // pulse width only changes the sound of a square wave, so it is left alone while that oscillator's square is off
   if (!next.oscA_square) next.oscA_pw = prev.oscA_pw;
   if (!next.oscB_square) next.oscB_pw = prev.oscB_pw;
 }
 function applyLocks(next, prev) {            // locked sections keep their previous values
-  for (const key in PARAM_BY_KEY) if (LOCKED.has(PARAM_BY_KEY[key].group)) next[key] = prev[key];
+  for (const key in PARAM_BY_KEY) if (LOCKED.has(key)) next[key] = prev[key];
 }
 
 // ---------- Library ----------
@@ -2681,6 +2712,7 @@ function mutatePatch() {
   keepSilentPW(next, currentActivePatch);
   next.cutoff = Math.max(next.cutoff, 25);
   next.mix_oscA = Math.max(next.mix_oscA, 40);
+  applyLocks(next, currentActivePatch);           // the audibility fixes above must not change anything that is locked
 
   const changed = Object.keys(next).filter(k => next[k] !== currentActivePatch[k]);
   currentActivePatch = next;

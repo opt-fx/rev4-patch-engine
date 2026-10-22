@@ -1,7 +1,7 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png?v=6)
-![Screenshot](screenshot2.png?v=6)
+![Screenshot](screenshot1.png?v=8)
+![Screenshot](screenshot2.png?v=8)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a patch, nudge it with Mutate, tweak any control, read the patch on the synth into the app, save patches back to your synth, and keep a searchable library.
 
@@ -41,7 +41,7 @@ Every knob and button sends to the synth as you move it. Nothing is saved on the
 - The **Any sound** dropdown next to it (Pluck, Pad, Drone or Percussion) shapes the envelopes so the new patch fits that style. A Pluck also keeps the oscillator levels high, the filter fairly open and the resonance moderate, so it isn't quiet. Everything else stays random, and locked sections still win. Leave it on Any sound for fully random. **Percussion** makes a short hit with nothing sustained, picking one of three flavours at random: a kick or tom (the filter envelope drives Osc A's pitch through Poly-Mod, so each hit falls in pitch), a noise snare, or a metallic hat.
 - **Generate** sets **Oscillator A's frequency** from the pitch dropdown beside Any sound: Low (24), Normal (36, the default) or High (48). They are whole octaves apart, so the patch stays in tune. Mutate never changes it. **INIT** uses the same Normal pitch (36) for both oscillators.
 - **Mutate** nudges the current patch by the amount you choose. Open **Mutate by section** for a separate slider per section: each follows the main amount until you move it, and 0% leaves that section alone. Click a section's name to make it follow the main amount again.
-- The **padlock** on a section (amber when locked) keeps it unchanged through Generate and Mutate. To work on just one section, **Shift-click** its padlock: every other section locks and only that one changes. Shift-click again to unlock them all. The same padlocks appear in **Mutate by section**. **Keep unison** keeps your unison settings through Generate.
+- The **padlock** on a section (amber when locked) keeps it unchanged through Generate and Mutate. A section with everything locked is dimmed. You can also lock a single knob: click its name (it turns amber with a small padlock). The section padlock then shows as a hollow amber padlock while only some of its knobs are locked, and one click locks the rest; click it when everything is locked to unlock the lot. This is how you mutate just a couple of knobs, such as the filter envelope's sustain and release: Shift-click that section's padlock, then click Attack and Decay. Only knobs can be locked one by one; switches and lamp buttons follow the section padlock. To work on just one section, **Shift-click** its padlock: every other section locks and only that one changes. Shift-click again to unlock them all. The same padlocks appear in **Mutate by section**. **Keep unison** keeps your unison settings through Generate. An **Unlock all** button appears next to Forward whenever anything is locked, and removes every lock in one click. Locks stay on when you change program or load a Library patch, and clear when you refresh the page.
 - Generate and Mutate leave an oscillator's **pulse width** alone while its **square** wave is off, since pulse width only changes a square wave's sound.
 - **Back** undoes up to 20 Generate and Mutate steps, and **Forward** redoes them. Both grey out when there's nothing to go to, and both start afresh when the program changes or you load a different patch (from the Library, a file or the arrows) or press INIT, since they are only for Generate and Mutate.
 
