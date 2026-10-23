@@ -501,6 +501,7 @@
         <button class="btn" onclick="libClearFilters()">Clear filters</button>
       </div>
       <div class="libbar">
+        <label class="keepopt" title="When ticked, loading a patch sends it to the synth but leaves you in the Library"><input type="checkbox" id="lib-stay" onchange="try { localStorage.setItem('p5_staylib', this.checked ? '1' : '0'); } catch (e) {}"> Stay in Library</label>
         <label class="keepopt"><input type="checkbox" id="lib-favonly" onchange="libFilter('favOnly', this.checked)"> Favourites only</label>
         <label class="keepopt"><input type="checkbox" id="lib-changedonly" onchange="libFilter('changedOnly', this.checked)"> Changed on synth</label>
         <label class="keepopt" title="Patches you have renamed, tagged or added notes to"><input type="checkbox" id="lib-annotated" onchange="libFilter('annotated', this.checked)"> Renamed or annotated</label>
@@ -714,6 +715,7 @@ function buildChannelSelector() {
     o.value = i; o.innerText = 'Channel ' + i;
     sel.appendChild(o);
   }
+  try { if (localStorage.getItem('p5_staylib') === '1') $('lib-stay').checked = true; } catch (e) {}
   try { const c = parseInt(localStorage.getItem('p5_channel')); if (c >= 1 && c <= 16) midiChannel = c; } catch (e) {}      // remembered between visits
   sel.value = midiChannel;
 }
@@ -746,7 +748,7 @@ function buildDashboard() {
       c.className = 'ctl';
       if (p.type === 'range') {
         c.classList.add('kc');
-        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel" title="Click to lock this knob, so Generate and Mutate leave it alone">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
+        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel" title="Click to lock this knob, so Generate and Mutate leave it alone. Shift-click to lock every other knob in this section instead.">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
       } else if (p.type === 'select') {
         c.innerHTML = `<select id="input-${p.key}" aria-label="${p.label}" onchange="updateParam('${p.key}', this.value)">${voiceOptions(v)}</select>` + (p.key === 'unison_voices' ? '<span class="chdinfo" id="chord-info"></span>' : '');
       } else if (p.type === 'steps') {
@@ -1024,6 +1026,16 @@ function toggleLock(g, ev) {
   syncLockButtons();
   syncMutAdv();
 }
+function lockOtherKnobs(key) {                 // shift-click a knob's name: lock every other knob in its section; again to unlock them all
+  const p = PARAM_BY_KEY[key];
+  if (!p || !lockableGroups().includes(p.group)) return;
+  const gk = groupKeys(p.group), knobs = gk.filter(k => PARAM_BY_KEY[k].type === 'range'), others = knobs.filter(k => k !== key);
+  const already = !LOCKED.has(key) && others.length > 0 && others.every(k => LOCKED.has(k));
+  gk.forEach(k => LOCKED.delete(k));
+  if (!already) others.forEach(k => LOCKED.add(k));
+  syncLockButtons(); syncMutAdv();
+  setStatus(already ? 'All ' + p.group + ' knobs unlocked.' : 'Only ' + p.label + ' is unlocked in ' + p.group + ': Generate and Mutate will change just that knob.');
+}
 function toggleKeyLock(key) {                 // click a knob's name: lock or unlock just that knob
   const p = PARAM_BY_KEY[key];
   if (!p || !lockableGroups().includes(p.group)) return;
@@ -1038,7 +1050,8 @@ document.addEventListener('click', ev => {
   const lab = ev.target.closest && ev.target.closest('#dashboard-grid .ctl.kc .klabel');
   if (!lab) return;
   const k = lab.closest('.ctl').querySelector('.knob');
-  if (k) toggleKeyLock(k.dataset.key);
+  if (!k) return;
+  if (ev.shiftKey) { ev.preventDefault(); lockOtherKnobs(k.dataset.key); } else toggleKeyLock(k.dataset.key);
 });
 
 function keepSilentPW(next, prev) {           // pulse width only changes the sound of a square wave, so it is left alone while that oscillator's square is off
@@ -1207,6 +1220,7 @@ async function loadWithChord(e, tpl, clean) {      // send the whole patch, chor
     }
   } finally { capturing = false; }
 }
+function stayInLibrary() { const c = $('lib-stay'); return !!(c && c.checked && !$('library').hidden); }      // the Stay in Library option only applies while the Library is showing
 function applyEntry(e, toEditor, clean) {
   currentActivePatch = { ...INIT_PATCH, ...e.patch };
   chordNotes = (e.chord || []).slice();
@@ -1217,11 +1231,11 @@ function applyEntry(e, toEditor, clean) {
   const tpl = e.dump && e.dump.length >= 133 ? e.dump : lastDumpFull;
   if (chordMode && chordNotes.length && sysexOk && tpl && !capturing && !pendingRead) {      // a patch with a chord goes as a whole patch dump, because the chord can't be sent as controller values
     loadWithChord(e, tpl, clean);
-    if (toEditor) showTab('editor'); else refreshLibMarks();
+    if (toEditor && !stayInLibrary()) showTab('editor'); else refreshLibMarks();
     return;
   }
-  transmitCurrentPatch(`Loaded "${e.name}".` + (chordMode ? " Its unison chord notes can't be sent, so the synth keeps whichever chord it already has." : '') + (toEditor ? '' : ' Switch to the Editor tab to tweak it.'), !!e.perf, clean);
-  if (toEditor) showTab('editor'); else refreshLibMarks();
+  transmitCurrentPatch(`Loaded "${e.name}".` + (chordMode ? " Its unison chord notes can't be sent, so the synth keeps whichever chord it already has." : '') + (toEditor && !stayInLibrary() ? '' : ' Switch to the Editor tab to tweak it.'), !!e.perf, clean);
+  if (toEditor && !stayInLibrary()) showTab('editor'); else refreshLibMarks();
 }
 
 // --- favourites chips on the main page ---
