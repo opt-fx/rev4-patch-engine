@@ -105,7 +105,7 @@
     .lockicon[aria-pressed="true"] rect { fill:currentColor; }
     .lockicon:hover { color:var(--cream); }
     .lockicon[aria-pressed="mixed"] { color:var(--amber); } .lockicon[aria-pressed="mixed"] .shk { display:inline; } .lockicon[aria-pressed="mixed"] .shk-open { display:none; }
-    .klabel { cursor:pointer; }
+    .klabel { cursor:pointer; user-select:none; -webkit-user-select:none; }
     .ctl.kc.klocked .klabel { color:var(--amber); }
     .ctl.kc.klocked .klabel::after { content:''; display:inline-block; width:11px; height:11px; margin-left:4px; vertical-align:-2px; background:currentColor;
       -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain;
@@ -1046,6 +1046,9 @@ function toggleKeyLock(key) {                 // click a knob's name: lock or un
   syncLockButtons(); syncMutAdv();
   setStatus((LOCKED.has(key) ? 'Locked ' : 'Unlocked ') + p.label + ' (' + p.group + '): Generate and Mutate ' + (LOCKED.has(key) ? 'will leave it alone.' : 'can change it.'));
 }
+document.addEventListener('mousedown', ev => {      // a shift-click would otherwise extend the browser's text selection back to the last one
+  if (ev.shiftKey && ev.target.closest && ev.target.closest('#dashboard-grid .ctl.kc .klabel, #dashboard-grid .lockicon, .mrow .mpad')) ev.preventDefault();
+});
 document.addEventListener('click', ev => {
   const lab = ev.target.closest && ev.target.closest('#dashboard-grid .ctl.kc .klabel');
   if (!lab) return;
