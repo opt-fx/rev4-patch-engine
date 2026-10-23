@@ -737,7 +737,7 @@ function buildDashboard() {
     sect.className = 'sect'; sect.dataset.g = g.toLowerCase().replace(/[^a-z0-9]+/g, ''); sect.dataset.lg = g;
     const GFX = {};                       // the envelope, filter and LFO graphics were removed; the draw functions skip a graphic that is not on the page
     const gid = GFX[g];
-    sect.innerHTML = `<h2>${g}</h2>${(g === 'Unison' || g === 'Response') ? '' : `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone (Shift-click locks every other section instead)" onclick="toggleLock('${g}', event)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`}` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
+    sect.innerHTML = `<h2>${g}</h2>${(g === 'Unison' || g === 'Response') ? '' : `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone (you can still edit it by hand). Shift-click locks every other section instead." onclick="toggleLock('${g}', event)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`}` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
     if (g === 'Unison') {
       sect.querySelector('.ctls').classList.add('uni');    }
     const box = sect.querySelector('.ctls'), sws = sect.querySelector('.sws'), later = [];
@@ -748,7 +748,7 @@ function buildDashboard() {
       c.className = 'ctl';
       if (p.type === 'range') {
         c.classList.add('kc');
-        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel" title="Click to lock this knob, so Generate and Mutate leave it alone. Shift-click to lock every other knob in this section instead.">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
+        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel" title="Click to lock this knob, so Generate and Mutate leave it alone (you can still turn it by hand). Shift-click to lock every other knob in this section instead.">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
       } else if (p.type === 'select') {
         c.innerHTML = `<select id="input-${p.key}" aria-label="${p.label}" onchange="updateParam('${p.key}', this.value)">${voiceOptions(v)}</select>` + (p.key === 'unison_voices' ? '<span class="chdinfo" id="chord-info"></span>' : '');
       } else if (p.type === 'steps') {
@@ -2794,7 +2794,7 @@ setName(randomName());
 libInit();
 
 // Fixed 1440px design, nudged up slightly on big screens (never more than 1.1x, never below 1x)
-function fitZoom() { try { document.body.style.zoom = Math.min(1.1, Math.max(1, window.innerWidth / 1440)); } catch (e) {} }
+function fitZoom() { try { document.body.style.zoom = Math.min(1.1, Math.max(0.6, document.documentElement.clientWidth / 1440)); } catch (e) {} }
 fitZoom(); window.addEventListener('resize', fitZoom);
 </script>
 </body>
