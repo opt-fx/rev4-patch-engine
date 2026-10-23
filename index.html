@@ -69,7 +69,7 @@
     .cap::before, .cap::after { content:''; flex:1; height:1px; background:#5a564e; }
     .sws .ctl { display:flex; justify-content:center; }
     .sw { position:relative; display:flex; flex-direction:column-reverse; align-items:center; gap:9px; font-size:11px; line-height:1.15; text-align:center; color:var(--ink); cursor:pointer; }
-    .sw input { position:absolute; opacity:0; }
+    .sw input { position:absolute; opacity:0; pointer-events:none; }
     .led { position:relative; width:21px; height:21px; border-radius:5px; background:#0b0a0a; border:1px solid #000; box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 3px rgba(0,0,0,.7); transition:box-shadow .12s, border-color .12s; }
     .led::before { content:''; position:absolute; inset:1px; border-radius:3px; background:#403e3c; transition:background .12s, box-shadow .12s; }
     .led::after { content:''; position:absolute; inset:1px; border-radius:3px; pointer-events:none; background:linear-gradient(90deg,var(--grid,#0b0a0a) 0 1px,transparent 1px) 0 0/20% 100%,linear-gradient(0deg,var(--grid,#0b0a0a) 0 1px,transparent 1px) 0 0/100% 20%; }
@@ -107,6 +107,11 @@
     .lockicon[aria-pressed="mixed"] { color:var(--amber); } .lockicon[aria-pressed="mixed"] .shk { display:inline; } .lockicon[aria-pressed="mixed"] .shk-open { display:none; }
     .klabel { cursor:pointer; user-select:none; -webkit-user-select:none; }
     .ctl.kc.klocked .klabel { color:var(--amber); }
+    .ctl[data-lk] .sw > span, .ctl[data-lk] .cmb-label { position:relative; cursor:pointer; user-select:none; -webkit-user-select:none; }
+    .ctl[data-lk].klocked .sw > span, .ctl[data-lk].klocked .cmb-label { color:var(--amber); }
+    .ctl[data-lk].klocked .sw > span::after, .ctl[data-lk].klocked .cmb-label::after { content:''; position:absolute; left:100%; top:50%; width:11px; height:11px; margin:-6px 0 0 4px; background:currentColor;
+      -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain;
+      mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain; }
     .ctl.kc.klocked .klabel::after { content:''; display:inline-block; width:11px; height:11px; margin-left:4px; vertical-align:-2px; background:currentColor;
       -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain;
       mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain; }
@@ -307,15 +312,15 @@
       .stack { display:contents; }
       .sect { padding:var(--pad) 12px calc(var(--pad) - 2px); }
       [data-g="oscillatora"] { grid-column:span 5; order:1; }
-      [data-g="oscillatorb"] { grid-column:span 7; order:2; }
+      [data-g="oscillatorb"] { grid-column:span 8; order:2; }
       [data-g="mixer"] { grid-column:span 6; order:3; }
-      [data-g="unison"] { grid-column:span 6; order:4; }
+      [data-g="unison"] { grid-column:span 5; order:4; }
       [data-g="filter"] { grid-column:span 6; order:5; }
       [data-g="filterenvelope"] { grid-column:span 8; order:6; }
       [data-g="ampenvelope"] { grid-column:span 8; order:7; }
       [data-g="vintage"] { grid-column:span 2; order:8; }
-      [data-g="lfo"] { grid-column:span 6; order:9; }
-      [data-g="wheelmod"] { grid-column:span 7; order:10; }
+      [data-g="lfo"] { grid-column:span 5; order:9; }
+      [data-g="wheelmod"] { grid-column:span 8; order:10; }
       [data-g="polymod"] { grid-column:span 6; order:11; }
       [data-g="response"] { grid-column:span 5; order:12; }
       .ctls { grid-template-columns:repeat(auto-fit,98px); justify-content:center; gap:calc(var(--pad) - 2px) 0; }
@@ -364,7 +369,8 @@
       #dashboard-grid .sect[data-g="unison"] .ctl.vox select { width:116px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd select { flex:none; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd .row { flex:none; }
-      #dashboard-grid .sect[data-g="wheelmod"] > .sws { grid-template-columns:repeat(auto-fit,minmax(44px,1fr)); }
+      #dashboard-grid .sect[data-g="oscillatora"] > .sws, #dashboard-grid .sect[data-g="oscillatorb"] > .sws, #dashboard-grid .sect[data-g="lfo"] > .sws,
+      #dashboard-grid .sect[data-g="wheelmod"] > .sws, #dashboard-grid .sect[data-g="polymod"] > .sws { grid-template-columns:repeat(auto-fit,70px); column-gap:6px; justify-content:center; }      /* the same 76px between button centres in every row of buttons, with room at the sides for the padlocks */
       #dashboard-grid .sect[data-g="response"] > .sws { grid-row:3 / span 2; align-self:start; grid-template-columns:repeat(2,minmax(0,1fr)); }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd { gap:8px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd select { margin-left:7px; }
@@ -620,7 +626,7 @@ const PARAMS = [
   ['Oscillator B',   'oscB_tri',         'Triangle',          52, 'switch',  1, 0],
   ['Oscillator B',   'oscB_square',      'Square',           116, 'switch',  1, 0],
   ['Oscillator B',   'oscB_pw',          'Pulse width',       22, 'range', 120, 60],
-  ['Oscillator B',   'oscB_lowfreq',     'Low freq',          24, 'switch',  1, 0],
+  ['Oscillator B',   'oscB_lowfreq',     'Lo freq',           24, 'switch',  1, 0],
   ['Oscillator B',   'oscB_keyboard',    'Keyboard',          25, 'switch',  1, 1],
   ['Oscillator A',   'osc_sync',         'Sync',              23, 'switch',  1, 0],
 
@@ -685,10 +691,10 @@ const PERF_KEYS = new Set(['filter_rev', 'vel_filter', 'vel_amp', 'at_filter', '
 const COMBOS = [
   { group: 'Filter', label: 'Rev',
     leds: [{ t: '1/2', c: 'red', on: P => !P.filter_rev }, { t: '3', c: 'amber', on: P => !!P.filter_rev }],
-    press: P => ({ filter_rev: 1 - P.filter_rev }) },
+    keys: ['filter_rev'], press: P => ({ filter_rev: 1 - P.filter_rev }) },
   { group: 'Filter', label: 'Keyboard',
     leds: [{ t: 'Half', c: 'red', dx: -5, on: P => P.filter_kbd === 1 }, { t: 'Full', c: 'amber', dx: 5, on: P => P.filter_kbd === 2 }],
-    press: P => ({ filter_kbd: (P.filter_kbd + 1) % 3 }) },
+    keys: ['filter_kbd'], press: P => ({ filter_kbd: (P.filter_kbd + 1) % 3 }) },
   { group: 'Response', label: 'Velocity',
     leds: [{ t: 'Filt', c: 'red', dx: -3, on: P => P.vel_filter }, { t: 'Amp', c: 'amber', dx: 3, on: P => P.vel_amp }],
     press: P => { const n = (P.vel_filter + 2 * P.vel_amp + 1) % 4; return { vel_filter: n & 1, vel_amp: n >> 1 }; } },
@@ -748,7 +754,7 @@ function buildDashboard() {
       c.className = 'ctl';
       if (p.type === 'range') {
         c.classList.add('kc');
-        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel" title="Click to lock this knob, so Generate and Mutate leave it alone (you can still turn it by hand). Shift-click to lock every other knob in this section instead.">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
+        c.innerHTML = `<div class="knob" id="input-${p.key}" role="slider" tabindex="0" aria-label="${p.label}" aria-valuemin="0" aria-valuemax="${p.max}" aria-valuenow="${v}" data-key="${p.key}" data-max="${p.max}">${knobSvg(p.key)}</div><div class="klabel" title="Click to lock this knob, so Generate and Mutate leave it alone (you can still turn it by hand). Shift-click to lock everything else in this section instead.">${p.label}</div><b class="kval" id="val-${p.key}">${displayVal(p.key, v)}</b>`;
       } else if (p.type === 'select') {
         c.innerHTML = `<select id="input-${p.key}" aria-label="${p.label}" onchange="updateParam('${p.key}', this.value)">${voiceOptions(v)}</select>` + (p.key === 'unison_voices' ? '<span class="chdinfo" id="chord-info"></span>' : '');
       } else if (p.type === 'steps') {
@@ -763,7 +769,8 @@ function buildDashboard() {
             return `<button type="button" class="stepb${i === v ? ' on' : ''}" data-v="${i}" onclick="updateParam('${p.key}', ${i})"><i class="led"></i><span>${STEPS[p.key].label(i)}</span></button>`;
           }).join('') + '</div>';
       } else if (p.type === 'switch') {
-        c.innerHTML = `<label class="sw${p.key === 'release_switch' ? ' below' : ''}"><span>${p.key === 'release_switch' ? 'Release <em class="pill">Hold</em>' : p.label}</span>
+        if (lockableGroups().includes(g)) c.dataset.lk = p.key;
+        c.innerHTML = `<label class="sw${p.key === 'release_switch' ? ' below' : ''}"><span title="Click the name to lock this button, so Generate and Mutate leave it alone (you can still press it by hand). Click the light to switch it. Shift-click the name to lock everything else in this section instead.">${p.key === 'release_switch' ? 'Release <em class="pill">Hold</em>' : p.label}</span>
           <input type="checkbox" id="input-${p.key}" ${v ? 'checked' : ''}
                  onchange="updateParam('${p.key}', this.checked ? 1 : 0)"><i class="led"></i></label>`;
       } else {
@@ -793,9 +800,10 @@ function buildDashboard() {
       if (c.group !== g) return;
       const d = document.createElement('div');
       d.className = 'ctl cmb';
+      if (c.keys && lockableGroups().includes(g)) d.dataset.lk = c.keys.join(',');
       d.innerHTML = `<div class="cmb-leds">` + c.leds.map((l, j) =>
         `<span class="cl"><i class="dot ${l.c}" id="cmb-${i}-${j}"></i><em${l.dx ? ` style="transform:translateX(${l.dx}px)"` : ''}>${l.t}</em></span>`).join('') +
-        `</div><button type="button" class="cbtn" aria-label="${c.label}" onclick="pressCombo(${i})"><i class="led"></i></button><span class="cmb-label">${c.label}</span>`;
+        `</div><button type="button" class="cbtn" aria-label="${c.label}" onclick="pressCombo(${i})"><i class="led"></i></button><span class="cmb-label" title="Click the name to lock this button, so Generate and Mutate leave it alone (you can still press it by hand). Click the light to switch it. Shift-click the name to lock everything else in this section instead.">${c.label}</span>`;
       sws.appendChild(d);
     });
     if (g === 'Mixer') { stack = document.createElement('div'); stack.className = 'stack'; stack.dataset.g = 'stack'; stack.appendChild(sect); root.appendChild(stack); }
@@ -1007,6 +1015,7 @@ function syncLockButtons() {                  // every padlock for a section (on
   });
   const ua = document.getElementById('unlock-all'); if (ua) ua.hidden = !LOCKED.size;
   document.querySelectorAll('section.sect[data-lg]').forEach(sec => sec.classList.toggle('alllocked', groupLocked(sec.dataset.lg)));      // a section with everything locked is dimmed
+  document.querySelectorAll('.ctl[data-lk]').forEach(c => c.classList.toggle('klocked', c.dataset.lk.split(',').every(k => LOCKED.has(k))));
   document.querySelectorAll('.ctl.kc').forEach(c => { const k = c.querySelector('.knob'); if (k) c.classList.toggle('klocked', LOCKED.has(k.dataset.key)); });
 }
 function unlockAll() { LOCKED.clear(); syncLockButtons(); syncMutAdv(); setStatus('All locks removed.'); }
@@ -1026,35 +1035,45 @@ function toggleLock(g, ev) {
   syncLockButtons();
   syncMutAdv();
 }
-function lockOtherKnobs(key) {                 // shift-click a knob's name: lock every other knob in its section; again to unlock them all
-  const p = PARAM_BY_KEY[key];
-  if (!p || !lockableGroups().includes(p.group)) return;
-  const gk = groupKeys(p.group), knobs = gk.filter(k => PARAM_BY_KEY[k].type === 'range'), others = knobs.filter(k => k !== key);
-  const already = !LOCKED.has(key) && others.length > 0 && others.every(k => LOCKED.has(k));
+function lockOthers2(keys) {                   // shift-click a knob's or button's name: lock every other knob and button in its section; again to unlock them all
+  keys = keys.filter(k => PARAM_BY_KEY[k] && lockableGroups().includes(PARAM_BY_KEY[k].group));
+  if (!keys.length) return;
+  const p = PARAM_BY_KEY[keys[0]], gk = groupKeys(p.group), others = gk.filter(k => !keys.includes(k));
+  const already = keys.every(k => !LOCKED.has(k)) && others.length > 0 && others.every(k => LOCKED.has(k));
   gk.forEach(k => LOCKED.delete(k));
   if (!already) others.forEach(k => LOCKED.add(k));
   syncLockButtons(); syncMutAdv();
-  setStatus(already ? 'All ' + p.group + ' knobs unlocked.' : 'Only ' + p.label + ' is unlocked in ' + p.group + ': Generate and Mutate will change just that knob.');
+  const label = keys.length === 1 ? p.label : (({ filter_rev: 'Rev', filter_kbd: 'Keyboard' })[keys[0]] || p.label);
+  setStatus(already ? 'Everything in ' + p.group + ' is unlocked.' : 'Only ' + label + ' is unlocked in ' + p.group + ': Generate and Mutate will change just that control.');
 }
 function toggleKeyLock(key) {                 // click a knob's name: lock or unlock just that knob
-  const p = PARAM_BY_KEY[key];
-  if (!p || !lockableGroups().includes(p.group)) return;
-  if (LOCKED.has(key)) LOCKED.delete(key); else LOCKED.add(key);
-  const gk = groupKeys(p.group), knobs = gk.filter(k => PARAM_BY_KEY[k].type === 'range'), rest = gk.filter(k => !knobs.includes(k));
-  if (knobs.length && knobs.every(k => LOCKED.has(k))) rest.forEach(k => LOCKED.add(k));      // every knob locked: the whole section counts as locked, switches included
-  else rest.forEach(k => LOCKED.delete(k));                                                   // a knob is free again: the switches are released too
+  toggleKeysLock([key]);
+}
+function toggleKeysLock(keys) {               // click a knob's or button's name: lock or unlock just that control
+  keys = keys.filter(k => PARAM_BY_KEY[k] && lockableGroups().includes(PARAM_BY_KEY[k].group));
+  if (!keys.length) return;
+  const p = PARAM_BY_KEY[keys[0]], was = keys.every(k => LOCKED.has(k));
+  keys.forEach(k => was ? LOCKED.delete(k) : LOCKED.add(k));
   syncLockButtons(); syncMutAdv();
-  setStatus((LOCKED.has(key) ? 'Locked ' : 'Unlocked ') + p.label + ' (' + p.group + '): Generate and Mutate ' + (LOCKED.has(key) ? 'will leave it alone.' : 'can change it.'));
+  const label = keys.length === 1 ? p.label : (({ filter_rev: 'Rev', filter_kbd: 'Keyboard' })[keys[0]] || p.label);
+  setStatus((was ? 'Unlocked ' : 'Locked ') + label + ' (' + p.group + '): Generate and Mutate ' + (was ? 'can change it.' : 'will leave it alone.'));
 }
 document.addEventListener('mousedown', ev => {      // a shift-click would otherwise extend the browser's text selection back to the last one
-  if (ev.shiftKey && ev.target.closest && ev.target.closest('#dashboard-grid .ctl.kc .klabel, #dashboard-grid .lockicon, .mrow .mpad')) ev.preventDefault();
+  if (ev.shiftKey && ev.target.closest && ev.target.closest('#dashboard-grid .ctl.kc .klabel, #dashboard-grid .ctl[data-lk] .sw > span, #dashboard-grid .ctl[data-lk] .cmb-label, #dashboard-grid .lockicon, .mrow .mpad')) ev.preventDefault();
 });
 document.addEventListener('click', ev => {
   const lab = ev.target.closest && ev.target.closest('#dashboard-grid .ctl.kc .klabel');
   if (!lab) return;
   const k = lab.closest('.ctl').querySelector('.knob');
   if (!k) return;
-  if (ev.shiftKey) { ev.preventDefault(); lockOtherKnobs(k.dataset.key); } else toggleKeyLock(k.dataset.key);
+  if (ev.shiftKey) { ev.preventDefault(); lockOthers2([k.dataset.key]); } else toggleKeyLock(k.dataset.key);
+});
+document.addEventListener('click', ev => {      // click a button's name to lock it; the light itself still switches it
+  const lab = ev.target.closest && ev.target.closest('#dashboard-grid .ctl[data-lk] .sw > span, #dashboard-grid .ctl[data-lk] .cmb-label');
+  if (!lab) return;
+  ev.preventDefault();                          // stops the label from also switching the button
+  const ks = lab.closest('.ctl').dataset.lk.split(',');
+  if (ev.shiftKey) lockOthers2(ks); else toggleKeysLock(ks);
 });
 
 function keepSilentPW(next, prev) {           // pulse width only changes the sound of a square wave, so it is left alone while that oscillator's square is off
@@ -2107,7 +2126,7 @@ function resetSynth() {
 const NRPN_MAP = [
  ['Osc A frequency','oscA_freq'],['Osc B frequency','oscB_freq'],['Osc B fine tune','oscB_fine'],['Osc A saw','oscA_saw'],
  ['Osc A square','oscA_square'],['Osc B saw','oscB_saw'],['Osc B triangle','oscB_tri'],['Osc B square','oscB_square'],
- ['Osc A pulse width','oscA_pw'],['Osc B pulse width','oscB_pw'],['Osc sync','osc_sync'],['Osc B low freq','oscB_lowfreq'],
+ ['Osc A pulse width','oscA_pw'],['Osc B pulse width','oscB_pw'],['Osc sync','osc_sync'],['Osc B lo freq','oscB_lowfreq'],
  ['Osc B keyboard','oscB_keyboard'],['Glide rate','glide'],['Osc A level','mix_oscA'],['Osc B level','mix_oscB'],
  ['Noise level','mix_noise'],['Cutoff','cutoff'],['Resonance','resonance'],['Filter keyboard track','filter_kbd'],
  ['Filter rev select','filter_rev'],['LFO frequency','lfo_freq'],['LFO initial amount','lfo_amount'],['LFO saw','lfo_saw'],
