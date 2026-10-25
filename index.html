@@ -40,15 +40,22 @@
     .mutate b { color:var(--amber); font-weight:600; min-width:34px; }
     .spacer { flex:1; }
     .genstyle { height:35px; width:92px; padding-left:8px; background-position:right 6px center; }
+    .actions .btn + .btn, .actions .mutate + .btn, .actions > .keepopt, .actions > .mutate { margin-left:4px; }
+    .libbar #cap-stop, .libbar #cap-clear { margin-left:-6px; }
+    .namebar .progtag + .btn.step, .namebar .btn.step + .btn.step, .libbar .btn + .btn { margin-left:-4px; }      /* the grey buttons sit 6px apart everywhere, like Ping, Test note and Init */
     .toolbar2 { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin-top:12px; }
     .tb-group { display:flex; align-items:center; gap:6px; }
-    .tb-title { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); margin-right:2px; }
+    .tb-title { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); margin-right:4px; }
     .toolbar2 .btn.sm { padding:0 11px; height:28px; min-width:42px; font-weight:700; }
     .toolbar2 .genstyle { height:28px; width:112px; font-size:11px; padding:0 22px 0 8px; }
     .toolbar2 .genstyle.wide { width:150px; }
     .toolbar2 .genstyle.wide2 { width:auto; min-width:164px; }
     .toolbar2 .keepopt { font-size:11px; letter-spacing:.04em; }
-    .toolbar2 .keepopt span { margin-right:4px; font-size:11px; }
+    .toolbar2 .keepopt span { font-size:11px; }
+    .toolbar2 .keepopt { gap:10px; }
+    .toolbar2 input[type=checkbox] { margin:0; }
+    .toolbar2 .tb-group .keepopt + .keepopt { margin-left:10px; }
+    .toolbar2 .tb-group:first-child .keepopt { margin-left:4px; }
     .toolbar2 .genstyle { font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
     .toolbar2 .btn.sm { letter-spacing:normal; }
     .mutate .btn, .mutate b { font-weight:700; }
