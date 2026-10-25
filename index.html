@@ -40,12 +40,13 @@
     .mutate b { color:var(--amber); font-weight:600; min-width:34px; }
     .spacer { flex:1; }
     .genstyle { height:35px; width:92px; padding-left:8px; background-position:right 6px center; }
-    .toolbar2 { display:flex; flex-wrap:wrap; align-items:center; gap:8px 22px; margin-top:12px; }
+    .toolbar2 { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin-top:12px; }
     .tb-group { display:flex; align-items:center; gap:6px; }
     .tb-title { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); margin-right:2px; }
     .toolbar2 .btn.sm { padding:0 11px; height:28px; min-width:42px; font-weight:700; }
     .toolbar2 .genstyle { height:28px; width:112px; font-size:11px; padding:0 22px 0 8px; }
-    .toolbar2 .genstyle.wide { width:168px; }
+    .toolbar2 .genstyle.wide { width:150px; }
+    .toolbar2 .genstyle.wide2 { width:auto; min-width:164px; }
     .toolbar2 .keepopt { font-size:11px; letter-spacing:.04em; }
     .toolbar2 .keepopt span { margin-right:4px; font-size:11px; }
     .toolbar2 .genstyle { font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
@@ -467,6 +468,8 @@
         <button class="btn sm" onclick="transposeBy(-1)" title="Down a semitone: moves Osc A and Osc B together">&minus;1</button>
         <button class="btn sm" onclick="transposeBy(1)" title="Up a semitone: moves Osc A and Osc B together">+1</button>
         <button class="btn sm" onclick="transposeBy(12)" title="Up an octave: moves Osc A and Osc B together, keeping the interval between them">+12</button>
+        <label class="keepopt" title="What transposing does to the filter cutoff. Stays put: the cutoff doesn't move. Follows tracking: it moves by none, half or all of the transpose, depending on the filter's keyboard tracking (Off, Half, Full). Follows pitch: it always moves by the whole transpose, so the tone stays the same and only the pitch changes. The keyboard tracking setting itself is never changed."><span>Filter</span>
+          <select id="tr-filter" class="genstyle wide2" onchange="try { localStorage.setItem('p5_trfilter', this.value); } catch (e) {}"><option value="off">Stays put</option><option value="track">Follows tracking</option><option value="pitch">Follows pitch</option></select></label>
       </div>
       <div class="tb-group"><label class="tb-title" for="b-interval">Osc B interval</label>
         <select id="b-interval" class="genstyle wide" onchange="setIntervalLock(this.value)" title="Keeps Osc B a fixed interval above or below Osc A. While one is chosen, Generate, Mutate, Transpose and turning Osc A all keep that interval. Free leaves the two independent."></select>
@@ -477,7 +480,7 @@
           <select id="mut-trans" class="genstyle"><option value="0">Off</option><option value="12">&plusmn;1 octave</option><option value="24">&plusmn;2 octaves</option></select></label>
       </div>
       <span class="spacer"></span>
-      <label class="keepopt" title="When ticked, locked knobs and buttons can't be moved at all, so you can see at a glance what is fixed. Click a locked name to unlock it."><input type="checkbox" id="freeze-locked" onchange="setFreeze(this.checked)"> Freeze locked controls</label>
+      <label class="keepopt" title="When ticked, locked knobs and buttons can't be moved at all, so you can see at a glance what is fixed. Click a locked name to unlock it."><input type="checkbox" id="freeze-locked" onchange="setFreeze(this.checked)"> Freeze locked</label>
     </div>
     <div class="storebar" id="store-bar" hidden>
       <span class="sb-q">Save to user slot</span>
@@ -754,6 +757,7 @@ function buildChannelSelector() {
     sel.appendChild(o);
   }
   try { if (localStorage.getItem('p5_staylib') === '1') $('lib-stay').checked = true; } catch (e) {}
+  try { const v = localStorage.getItem('p5_trfilter'); if (v === 'track' || v === 'pitch') $('tr-filter').value = v; else if (v === '1') $('tr-filter').value = 'pitch'; } catch (e) {}
   try { if (localStorage.getItem('p5_freeze') === '1') { $('freeze-locked').checked = true; freezeLocked = true; } } catch (e) {}
   buildIntervalSel();
   try { const c = parseInt(localStorage.getItem('p5_channel')); if (c >= 1 && c <= 16) midiChannel = c; } catch (e) {}      // remembered between visits
@@ -2078,6 +2082,15 @@ function setIntervalLock(v) {
   try { updateParam('oscB_freq', target); } finally { followingInterval = false; }
   setStatus('Osc B is now ' + ((INTERVAL_OPTS.find(([x]) => x === n) || [0, n + ' semitones'])[1]).toLowerCase() + ' from Osc A, and will stay there through Generate, Mutate and Transpose.');
 }
+function filterShiftFor(t) {                     // how far the cutoff moves for a transpose of t semitones, from the Filter choice
+  const mode = $('tr-filter') ? $('tr-filter').value : 'off';
+  if (mode === 'pitch') return t;                 // the whole amount, whatever the keyboard tracking is: the tone stays the same
+  if (mode === 'track') {                         // none, half or all of it, as the filter's keyboard tracking (Off, Half, Full) would
+    const per = [0, 0.5, 1][currentActivePatch.filter_kbd] || 0;
+    return Math.sign(t) * Math.round(Math.abs(t) * per);      // halves round away from zero, so +1 then -1 comes back to where it started
+  }
+  return 0;
+}
 function transposeBy(n) {                         // move Osc A and Osc B together, keeping the interval between them
   if (!requirePort()) return;
   const P = currentActivePatch;
@@ -2088,8 +2101,13 @@ function transposeBy(n) {                         // move Osc A and Osc B togeth
   pushHistory();
   const a = P.oscA_freq + t, b = P.oscB_freq + t;
   followingInterval = true;
-  try { updateParam('oscA_freq', a); updateParam('oscB_freq', b); } finally { followingInterval = false; }
-  setStatus('Transposed ' + (t > 0 ? 'up ' : 'down ') + Math.abs(t) + ' semitone' + (Math.abs(t) === 1 ? '' : 's') + (t !== n ? ' (stopped at the end of the range)' : '') + '.');
+  let fs = 0;
+  try {
+    updateParam('oscA_freq', a); updateParam('oscB_freq', b);
+    fs = filterShiftFor(t);
+    if (fs && !(freezeLocked && LOCKED.has('cutoff'))) { const c = Math.max(0, Math.min(120, currentActivePatch.cutoff + fs)); fs = c - currentActivePatch.cutoff; if (fs) updateParam('cutoff', c); } else fs = 0;
+  } finally { followingInterval = false; }
+  setStatus('Transposed ' + (t > 0 ? 'up ' : 'down ') + Math.abs(t) + ' semitone' + (Math.abs(t) === 1 ? '' : 's') + (t !== n ? ' (stopped at the end of the range)' : '') + (fs ? ', and the filter cutoff ' + (fs > 0 ? 'up ' : 'down ') + Math.abs(fs) + ' to follow' : '') + '.');
 }
 const B_INTERVALS = [[0, 4], [7, 2], [12, 2], [-12, 2], [-5, 1], [5, 1], [4, 1], [3, 1], [10, 1], [-24, 1], [19, 1], [-7, 1]];
 const chordOn = () => currentActivePatch.unison && currentActivePatch.unison_voices === CHORD;
@@ -2848,6 +2866,7 @@ function mutatePatch() {
     const lo = Math.min(next.oscA_freq, next.oscB_freq), hi = Math.max(next.oscA_freq, next.oscB_freq);
     const t = clamp(Math.round(Math.random() * 2 * tr) - tr, -lo, 120 - hi);
     next.oscA_freq += t; next.oscB_freq += t;
+    const fsh = filterShiftFor(t); if (fsh) next.cutoff = clamp(next.cutoff + fsh, 0, 120);      // the cutoff follows too when Filter follows is ticked
   }
   applyLocks(next, currentActivePatch);
 
