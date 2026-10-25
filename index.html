@@ -23,6 +23,7 @@
     .ports label { display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--ink); }
     select { background:#121110; color:var(--cream); border:1px solid #4a4640; padding:8px 10px; font-size:14px; border-radius:5px; max-width:260px; }
     select:focus-visible { outline:2px solid var(--amber); }
+    .ports select { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
     input[type="file"] { display:none; }
 
     .actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-top:20px; }
@@ -38,6 +39,18 @@
     .mutate b { color:var(--amber); font-weight:600; min-width:34px; }
     .spacer { flex:1; }
     .genstyle { height:35px; width:92px; padding-left:8px; background-position:right 6px center; }
+    .toolbar2 { display:flex; flex-wrap:wrap; align-items:center; gap:8px 22px; margin-top:12px; }
+    .tb-group { display:flex; align-items:center; gap:6px; }
+    .tb-title { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); margin-right:2px; }
+    .toolbar2 .btn.sm { padding:0 11px; height:28px; min-width:42px; font-weight:700; }
+    .toolbar2 .genstyle { height:28px; width:112px; font-size:11px; padding:0 22px 0 8px; }
+    .toolbar2 .genstyle.wide { width:168px; }
+    .toolbar2 .keepopt { font-size:11px; letter-spacing:.04em; }
+    .toolbar2 .keepopt span { margin-right:4px; font-size:11px; }
+    .toolbar2 .genstyle { font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
+    .toolbar2 .btn.sm { letter-spacing:normal; }
+    .mutate .btn, .mutate b { font-weight:700; }
+    .ctl.frozen, .ctl.frozen .led, .ctl.frozen .knob { cursor:not-allowed; }
     .keepopt { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink); cursor:pointer; }
     .keepopt input { accent-color:var(--amber); width:16px; height:16px; cursor:pointer; }
 
@@ -169,7 +182,7 @@
     .lact { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
     .capturing .actions, .capturing #dashboard-grid, .capturing .namebar { pointer-events:none; opacity:.5; }
     .favs { margin-top:16px; }
-    .favhead { display:flex; align-items:center; gap:12px; font-size:13px; color:var(--amber); font-weight:600; }
+    .favhead { display:flex; align-items:center; gap:12px; font-size:12px; color:var(--amber); font-weight:600; }
     .btn.pingbtn, .btn.initbtn, .favhead .btn { box-sizing:border-box; height:28px; padding:0 12px; font-size:11px; font-weight:700; letter-spacing:0; }
     #fav-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
     .muted { font-size:12px; color:#6f6a60; }
@@ -447,6 +460,24 @@
       <label class="btn file-label" for="load-file-input" tabindex="0" title="Import a program file">Import program</label>
       <input type="file" id="load-file-input" accept=".json" onchange="loadPresetFile(this)">
     </div>
+    <div class="toolbar2" id="toolbar2">
+      <div class="tb-group"><span class="tb-title">Transpose</span>
+        <button class="btn sm" onclick="transposeBy(-12)" title="Down an octave: moves Osc A and Osc B together, keeping the interval between them">&minus;12</button>
+        <button class="btn sm" onclick="transposeBy(-1)" title="Down a semitone: moves Osc A and Osc B together">&minus;1</button>
+        <button class="btn sm" onclick="transposeBy(1)" title="Up a semitone: moves Osc A and Osc B together">+1</button>
+        <button class="btn sm" onclick="transposeBy(12)" title="Up an octave: moves Osc A and Osc B together, keeping the interval between them">+12</button>
+      </div>
+      <div class="tb-group"><label class="tb-title" for="b-interval">Osc B interval</label>
+        <select id="b-interval" class="genstyle wide" onchange="setIntervalLock(this.value)" title="Keeps Osc B a fixed interval above or below Osc A. While one is chosen, Generate, Mutate, Transpose and turning Osc A all keep that interval. Free leaves the two independent."></select>
+      </div>
+      <div class="tb-group"><span class="tb-title">Mutate</span>
+        <label class="keepopt" title="When ticked, Mutate also chooses a new interval between Osc A and Osc B"><input type="checkbox" id="mut-interval"> Interval</label>
+        <label class="keepopt" title="When set, each Mutate also transposes Osc A and Osc B together by a random number of semitones within this range"><span>Transpose</span>
+          <select id="mut-trans" class="genstyle"><option value="0">Off</option><option value="12">&plusmn;1 octave</option><option value="24">&plusmn;2 octaves</option></select></label>
+      </div>
+      <span class="spacer"></span>
+      <label class="keepopt" title="When ticked, locked knobs and buttons can't be moved at all, so you can see at a glance what is fixed. Click a locked name to unlock it."><input type="checkbox" id="freeze-locked" onchange="setFreeze(this.checked)"> Freeze locked controls</label>
+    </div>
     <div class="storebar" id="store-bar" hidden>
       <span class="sb-q">Save to user slot</span>
       <label>Group <select id="st-group" aria-label="Group"></select></label>
@@ -722,6 +753,8 @@ function buildChannelSelector() {
     sel.appendChild(o);
   }
   try { if (localStorage.getItem('p5_staylib') === '1') $('lib-stay').checked = true; } catch (e) {}
+  try { if (localStorage.getItem('p5_freeze') === '1') { $('freeze-locked').checked = true; freezeLocked = true; } } catch (e) {}
+  buildIntervalSel();
   try { const c = parseInt(localStorage.getItem('p5_channel')); if (c >= 1 && c <= 16) midiChannel = c; } catch (e) {}      // remembered between visits
   sel.value = midiChannel;
 }
@@ -833,6 +866,10 @@ function updateParam(key, value) {
   if (p.type === 'range') setKnob($('input-' + key), v);
   drawEnvelopes();
   sendCC(p.cc, wireValue(key, v));
+  if (!quiet && !followingInterval && intervalLock !== null) {
+    if (key === 'oscA_freq') { followingInterval = true; try { updateParam('oscB_freq', Math.max(0, Math.min(120, v + intervalLock))); } finally { followingInterval = false; } }      // turning Osc A drags Osc B along
+    else if (key === 'oscB_freq' && v - currentActivePatch.oscA_freq !== intervalLock) { intervalLock = null; setIntervalSel(); setStatus('Osc B was moved by hand, so the interval is free again.'); }
+  }
   refreshLibMarks();
   if (libLoadedId) showProgTag();
   if (!quiet && key === 'unison' && v && currentActivePatch.unison_voices < 1) updateParam('unison_voices', 1);   // unison needs at least one voice
@@ -842,7 +879,7 @@ function updateParam(key, value) {
   }
 }
 
-function syncSlidersToUI() { syncControls(); refreshCombos(); drawEnvelopes(); }
+function syncSlidersToUI() { checkInterval(); syncControls(); refreshCombos(); drawEnvelopes(); }
 function syncControls() {
   for (const key in PARAM_BY_KEY) {
     const p = PARAM_BY_KEY[key];
@@ -1004,6 +1041,22 @@ const LOCK_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" 
 const groupKeys = g => Object.keys(PARAM_BY_KEY).filter(k => PARAM_BY_KEY[k].group === g);
 const groupLocked = g => { const ks = groupKeys(g); return ks.length > 0 && ks.every(k => LOCKED.has(k)); };
 const groupPartly = g => !groupLocked(g) && groupKeys(g).some(k => LOCKED.has(k));
+let freezeLocked = false;
+function applyFreeze() {                       // when frozen, a locked knob or button can't be moved by hand; its name still unlocks it
+  document.querySelectorAll('.ctl.kc').forEach(c => { const k = c.querySelector('.knob'); const f = freezeLocked && !!k && LOCKED.has(k.dataset.key); c.classList.toggle('frozen', f); if (k) k.inert = f; });
+  document.querySelectorAll('.ctl[data-lk]').forEach(c => {
+    const f = freezeLocked && c.dataset.lk.split(',').every(x => LOCKED.has(x));
+    c.classList.toggle('frozen', f);
+    const inp = c.querySelector('.sw input'); if (inp) inp.disabled = f;
+    const btn = c.querySelector('.cbtn'); if (btn) btn.disabled = f;
+  });
+}
+function setFreeze(on) {
+  freezeLocked = !!on;
+  try { localStorage.setItem('p5_freeze', on ? '1' : '0'); } catch (e) {}
+  applyFreeze();
+  setStatus(on ? 'Locked knobs and buttons are frozen: they can\'t be moved until you unlock them.' : 'Locked controls can be moved by hand again.');
+}
 function syncLockButtons() {                  // every padlock for a section (on the section itself and in Mutate by section) shows the same state
   document.querySelectorAll('button[data-lock]').forEach(btn => {
     const g = btn.dataset.lock, on = groupLocked(g), part = groupPartly(g);
@@ -1017,6 +1070,7 @@ function syncLockButtons() {                  // every padlock for a section (on
   document.querySelectorAll('section.sect[data-lg]').forEach(sec => sec.classList.toggle('alllocked', groupLocked(sec.dataset.lg)));      // a section with everything locked is dimmed
   document.querySelectorAll('.ctl[data-lk]').forEach(c => c.classList.toggle('klocked', c.dataset.lk.split(',').every(k => LOCKED.has(k))));
   document.querySelectorAll('.ctl.kc').forEach(c => { const k = c.querySelector('.knob'); if (k) c.classList.toggle('klocked', LOCKED.has(k.dataset.key)); });
+  applyFreeze();
 }
 function unlockAll() { LOCKED.clear(); syncLockButtons(); syncMutAdv(); setStatus('All locks removed.'); }
 function lockableGroups() { return [...new Set(PARAMS.map(p => p[0]))].filter(g => g !== 'Unison' && g !== 'Response' && g !== 'Vintage'); }
@@ -1997,6 +2051,45 @@ function applyStyle(p, style) {                 // shapes the envelopes (the sam
   }
 }
 // Osc B pitch relative to Osc A, in semitones: mostly the same note or an octave/fifth away, with the odd third, fourth or seventh for colour
+const INTERVAL_OPTS = [[-24, 'Two octaves below'], [-12, 'Octave below'], [-7, 'Fifth below'], [-5, 'Fourth below'], [-4, 'Major third below'], [-3, 'Minor third below'],
+  [0, 'Unison'], [1, 'Minor second'], [2, 'Major second'], [3, 'Minor third'], [4, 'Major third'], [5, 'Fourth'], [6, 'Tritone'], [7, 'Fifth'], [8, 'Minor sixth'], [9, 'Major sixth'], [10, 'Minor seventh'], [11, 'Major seventh'], [12, 'Octave'], [19, 'Octave and a fifth'], [24, 'Two octaves']];
+let intervalLock = null;                          // semitones that Osc B sits above Osc A while the interval is locked; null means free
+function buildIntervalSel() {
+  const sel = $('b-interval'); if (!sel) return;
+  sel.innerHTML = '<option value="free">Free</option>' + INTERVAL_OPTS.map(([n, t]) => `<option value="${n}">${t}${n > 0 ? ' (+' + n + ')' : n < 0 ? ' (' + n + ')' : ''}</option>`).join('');
+  sel.value = intervalLock === null ? 'free' : String(intervalLock);
+}
+function setIntervalSel() { const sel = $('b-interval'); if (sel) sel.value = intervalLock === null || !INTERVAL_OPTS.some(([n]) => n === intervalLock) ? 'free' : String(intervalLock); }
+function keepInterval(P) { if (intervalLock !== null) P.oscB_freq = clamp(P.oscA_freq + intervalLock, 0, 120); }      // Osc B follows Osc A at the locked interval
+function checkInterval() {                        // a patch that doesn't have the locked interval (loaded, read or restored) releases the lock
+  if (intervalLock !== null && currentActivePatch.oscB_freq - currentActivePatch.oscA_freq !== intervalLock) intervalLock = null;
+  setIntervalSel();
+}
+let followingInterval = false;
+function setIntervalLock(v) {
+  if (v === 'free') { intervalLock = null; setIntervalSel(); setStatus('Osc B is free again: it no longer follows Osc A.'); return; }
+  if (!requirePort()) { setIntervalSel(); return; }
+  const n = parseInt(v), A = currentActivePatch.oscA_freq, target = A + n;
+  if (target < 0 || target > 120) { intervalLock = null; setIntervalSel(); return setStatus('That interval would take Osc B outside its range from where Osc A is now. Move Osc A first.'); }
+  pushHistory();
+  intervalLock = n;
+  followingInterval = true;
+  try { updateParam('oscB_freq', target); } finally { followingInterval = false; }
+  setStatus('Osc B is now ' + ((INTERVAL_OPTS.find(([x]) => x === n) || [0, n + ' semitones'])[1]).toLowerCase() + ' from Osc A, and will stay there through Generate, Mutate and Transpose.');
+}
+function transposeBy(n) {                         // move Osc A and Osc B together, keeping the interval between them
+  if (!requirePort()) return;
+  const P = currentActivePatch;
+  if (freezeLocked && (LOCKED.has('oscA_freq') || LOCKED.has('oscB_freq'))) return setStatus('An oscillator frequency is locked and frozen, so it can\'t be transposed. Unlock it first.');
+  const lo = Math.min(P.oscA_freq, P.oscB_freq), hi = Math.max(P.oscA_freq, P.oscB_freq);
+  const t = Math.max(-lo, Math.min(120 - hi, n));
+  if (!t) return setStatus('Already at the ' + (n > 0 ? 'top' : 'bottom') + ' of the oscillator range, so it can\'t go any ' + (n > 0 ? 'higher' : 'lower') + '.');
+  pushHistory();
+  const a = P.oscA_freq + t, b = P.oscB_freq + t;
+  followingInterval = true;
+  try { updateParam('oscA_freq', a); updateParam('oscB_freq', b); } finally { followingInterval = false; }
+  setStatus('Transposed ' + (t > 0 ? 'up ' : 'down ') + Math.abs(t) + ' semitone' + (Math.abs(t) === 1 ? '' : 's') + (t !== n ? ' (stopped at the end of the range)' : '') + '.');
+}
 const B_INTERVALS = [[0, 4], [7, 2], [12, 2], [-12, 2], [-5, 1], [5, 1], [4, 1], [3, 1], [10, 1], [-24, 1], [19, 1], [-7, 1]];
 const chordOn = () => currentActivePatch.unison && currentActivePatch.unison_voices === CHORD;
 function pickInterval(style) {
@@ -2105,6 +2198,7 @@ function generatePatch() {
   };
 
   applyStyle(currentActivePatch, $('gen-style').value);
+  keepInterval(currentActivePatch);
   applyLocks(currentActivePatch, prevPatch);
   keepSilentPW(currentActivePatch, prevPatch);
   syncSlidersToUI();
@@ -2743,6 +2837,17 @@ function mutatePatch() {
     }
   }
 
+  if ($('mut-interval').checked) {                // Mutate also picks a new interval between the oscillators
+    const n = pickInterval($('gen-style').value);
+    next.oscB_freq = clamp(next.oscA_freq + n, 0, 120);
+    if (intervalLock !== null && next.oscB_freq - next.oscA_freq === n) intervalLock = n;
+  } else keepInterval(next);
+  const tr = parseInt($('mut-trans').value);
+  if (tr) {                                       // and transposes both oscillators together by a random number of semitones
+    const lo = Math.min(next.oscA_freq, next.oscB_freq), hi = Math.max(next.oscA_freq, next.oscB_freq);
+    const t = clamp(Math.round(Math.random() * 2 * tr) - tr, -lo, 120 - hi);
+    next.oscA_freq += t; next.oscB_freq += t;
+  }
   applyLocks(next, currentActivePatch);
 
   // keep the patch audible
