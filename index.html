@@ -138,7 +138,6 @@
       -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain;
       mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 7V5a3 3 0 0 1 6 0v2' fill='none' stroke='%23000' stroke-width='2'/%3E%3Crect x='3' y='7' width='10' height='7' rx='1.5'/%3E%3C/svg%3E") no-repeat center/contain; }
     .sect.alllocked > :not(h2):not(.lock) { opacity:.38; transition:opacity .15s; }
-    .syncbtn { right:10px; left:auto; }
     .lock[aria-pressed="true"] { color:var(--amber); font-weight:600; }
     .lock:focus-visible { outline:2px solid var(--amber); }
     .tabs { display:flex; gap:8px; margin-left:auto; }
@@ -379,11 +378,12 @@
       #dashboard-grid .sect > .sws + .cap { top:12px; }
       #dashboard-grid .sect > .ctls:not(.uni) { margin-top:10px; }
       /* Unison: its own little grid, spaced evenly; the three captions (UNISON, DETUNE, CHORD) share one centre line under the first button */
-      #dashboard-grid .sect[data-g="unison"] > .ctls.uni { display:grid; grid-column:1; grid-row:1 / span 4; grid-template-columns:70px minmax(0,1fr); align-content:start; align-items:center; align-self:stretch; grid-template-rows:28px 28px 28px; row-gap:14px; column-gap:0; padding:34px 0 6px; margin:0; }
+      #dashboard-grid .sect[data-g="unison"] > .ctls.uni { display:grid; grid-column:1; grid-row:1 / span 4; grid-template-columns:70px minmax(0,1fr); align-content:start; align-items:center; align-self:stretch; grid-template-rows:28px 28px 28px; row-gap:21px; column-gap:0; padding:34px 0 6px; margin:0; }
       #dashboard-grid .sect[data-g="unison"] .ctl.us { grid-column:1; grid-row:1; margin:0; transform:none; height:28px; display:flex; align-items:center; justify-content:center; }
       #dashboard-grid .sect[data-g="unison"] .ctl.us .sw { flex-direction:column; gap:0; }
       #dashboard-grid .sect[data-g="unison"] .ctl.us .sw .led { position:absolute; left:50%; margin-left:-10.5px; bottom:calc(100% + 9px); }
-      #dashboard-grid .sect[data-g="unison"] .ctl.vox { grid-column:2; grid-row:1; margin:-3px 0 0 10px; min-width:0; display:flex; align-items:center; gap:8px; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.vox { grid-column:2; grid-row:1; margin:-3px 0 0 10px; min-width:0; display:flex; align-items:center; gap:8px; position:relative; }
+      #dashboard-grid .sect[data-g="unison"] .ctl.vox .chdinfo { position:absolute; left:4px; top:calc(100% + 3px); flex:none; max-width:100%; font-size:11px; line-height:14px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.vox select { min-width:116px; }
       #dashboard-grid .sect[data-g="unison"] .ctl.det { grid-column:1 / -1; grid-row:3; margin:0; padding:0; min-width:0; display:flex; flex-direction:row; align-items:center; gap:10px; align-self:center; }
       #dashboard-grid .sect[data-g="unison"] .ctl.chd { grid-column:1 / -1; grid-row:2; margin:0; padding:0; min-width:0; gap:10px; align-self:center; }
@@ -789,7 +789,7 @@ function buildDashboard() {
     sect.className = 'sect'; sect.dataset.g = g.toLowerCase().replace(/[^a-z0-9]+/g, ''); sect.dataset.lg = g;
     const GFX = {};                       // the envelope, filter and LFO graphics were removed; the draw functions skip a graphic that is not on the page
     const gid = GFX[g];
-    sect.innerHTML = `<h2>${g}</h2>${(g === 'Unison' || g === 'Response') ? '' : `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone (you can still edit it by hand). Shift-click locks every other section instead." onclick="toggleLock('${g}', event)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`}` + (g === 'Unison' ? '<button type="button" class="lock syncbtn" title="Read the voice count, chord and detune from the synth" onclick="syncUnison()">Sync</button>' : '') + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
+    sect.innerHTML = `<h2>${g}</h2>${(g === 'Unison' || g === 'Response') ? '' : `<button type="button" class="lock lockicon" aria-pressed="false" data-lock="${g}" aria-label="Lock ${g}" title="Lock this section, so Generate and Mutate leave it alone (you can still edit it by hand). Shift-click locks every other section instead." onclick="toggleLock('${g}', event)"><svg viewBox="0 0 16 16" aria-hidden="true"><path class="shk" d="M5 7V5a3 3 0 0 1 6 0v2"/><path class="shk-open" d="M5 7V5a3 3 0 0 1 5.6-1.5"/><rect x="3" y="7" width="10" height="7" rx="1.5"/></svg></button>`}` + (gid ? `<svg class="env" id="${gid}" viewBox="0 0 240 72" preserveAspectRatio="none" role="img" aria-label="${g} graphic"><path class="env-fill"/><path class="env-line"/></svg>` : '') + '<div class="ctls"></div>' + ((CAPTIONS[g] || {}).ctls ? `<div class="cap"><span>${CAPTIONS[g].ctls}</span></div>` : '') + '<div class="sws"></div>' + ((CAPTIONS[g] || {}).sws ? `<div class="cap"><span>${CAPTIONS[g].sws}</span></div>` : '');
     if (g === 'Unison') {
       sect.querySelector('.ctls').classList.add('uni');    }
     const box = sect.querySelector('.ctls'), sws = sect.querySelector('.sws'), later = [];

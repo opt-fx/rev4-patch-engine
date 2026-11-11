@@ -1,7 +1,7 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png?v=19)
-![Screenshot](screenshot2.png?v=19)
+![Screenshot](screenshot1.png?v=20)
+![Screenshot](screenshot2.png?v=20)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a patch, nudge it with Mutate, tweak any control, read the patch on the synth into the app, save patches back to your synth, and keep a searchable library.
 
@@ -50,7 +50,7 @@ Every knob and button sends to the synth as you move it. Nothing is saved on the
 **Following the synth**
 - When you choose a program on the synth, the app reads it into the editor and refreshes that slot in the Library.
 - With Param Xmit set to CC, knobs and buttons you move on the synth move on screen too.
-- When you hold a chord and press Unison on the synth, the app picks up the voice count, chord and detune by itself. If it ever misses one, press **Sync** in the Unison box.
+- When you hold a chord and press Unison on the synth, the app picks up the voice count, chord and detune by itself. If it ever misses one, press **Ping**, which reads the synth's current patch again.
 - The **‹** and **›** buttons (or the **[** and **]** keys) step to the previous or next program on the synth and read it into the editor. When the editor holds a patch you saved to the Library (the tag says **Library patch**), they step through your saved and imported patches instead, in the Library's order, and wrap round at the ends. They need the app to know which program the synth is on, so select one on the synth once, or use Load on a Library entry. They replace the working patch, so use Back if you lose edits you wanted.
 - The amber tag in the patch name row shows the synth's program number. If the app doesn't know the program yet (the synth only reports it when you change it, and the sound didn't match anything in your Library), the tag turns red and says **Synth program unknown**: change program on the synth once and it syncs, which the **‹** **›** buttons need. If the same sound sits in more than one program (a Factory patch copied to User, say), it says **Could be F221 or U221** instead of guessing; changing program on the synth settles it. When you load a patch you saved to the Library (one with no synth slot), it reads **Library patch** instead, with **· edited** once you change it. Generate or choosing a program on the synth takes it back to the program number.
 - The synth doesn't tell the app when you save with **Record**, so the program number can then be out of date. Once you've changed the sound, the number is marked **· edited** as a warning. Selecting any program refreshes it.
@@ -98,10 +98,10 @@ The **Library** tab is a searchable list of patches stored in your browser. It h
 
 ## Good to know
 
-- **Glide**, **Velocity** and **Aftertouch** live together in the **Response** panel. Like Rev, Keyboard and the Unison settings, they are stored with each patch; Generate keeps them and Mutate leaves them alone, so those panels have no lock icon. The **Vintage** knob works the same way: Generate and Mutate never touch it, so it has no lock either. The **Sync** button in the Unison box reads the voice count, chord and detune from the synth.
+- **Glide**, **Velocity** and **Aftertouch** live together in the **Response** panel. Like Rev, Keyboard and the Unison settings, they are stored with each patch; Generate keeps them and Mutate leaves them alone, so those panels have no lock icon. The **Vintage** knob works the same way: Generate and Mutate never touch it, so it has no lock either.
 - Rev (filter type), Velocity and Aftertouch routing are stored with each patch. Generate and Mutate leave them alone so they can't override your setup. **INIT** (the button at the right of the Scratchpad row) is the exception: it resets the patch and sends them too, returning them to their init values.
 - When you choose a program on the synth, the app shows whether it's Factory or User and its number (for example "Factory 113") next to the patch name, as long as the synth is sending Program Change and Bank Select.
-- Unison on/off, voice count and detune are handled. A unison chord shows as **Chord** with its intervals above the lowest key (for example "Chord 0·4·9"). You can't edit the notes here: hold the keys on the synth and press Unison. To clear a chord, hold a single key and press Unison; the app follows, or press **Sync**.
+- Unison on/off, voice count and detune are handled. A unison chord shows as **Chord** with its intervals above the lowest key (for example "Chord 0·4·9"). You can't edit the notes here: hold the keys on the synth and press Unison. To clear a chord, hold a single key and press Unison; the app follows, or press **Ping**.
 - The **Chord** row in the middle of the Unison box makes a unison chord for you. Pick a type from **New chord** (Major, Minor, Suspended, Seventh, Add 9, Power, Stacked fifths or Octaves), or press the amber dice for a random one. The notes are measured from the lowest key you play, so the key you hold is the root. It sends the whole patch to the synth, so read one patch from the synth first. The voice box shows the notes, with the chord's name beside it. Because a chord only sounds right with Oscillator B on the same note as A or a whole number of octaves away, choosing a chord (from the dropdown, the dice, or by setting the voice box to Chord) moves B to the nearest octave of A if it was on another interval, and says so in the status line.
 - **Prophet-10:** the app uses the same controller numbers and dump layout as the Prophet-5, because Sequential publishes one MIDI document for both. That hasn't been tested on a Prophet-10. If something reads or sends wrongly, please open an issue.
 - Developed and tested on a Prophet-5 Rev 4 (OS 2.1.0) with a Blokas Midihub. Other setups should work but haven't been tried.
