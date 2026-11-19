@@ -520,7 +520,7 @@
     </div>
     <div class="toolbtns">
       <button class="btn pingbtn" onclick="pingSynth()" title="Check the connection to the Prophet and read its current patch into the editor">Ping</button>
-      <button class="btn pingbtn" onclick="testNote()" title="Play a test note on the synth">Test note</button>
+      <button class="btn pingbtn" onclick="testNote()" title="Play a test note on the synth. You can also play the synth from your computer keyboard: A S D F G H J K L are the white keys, W E T Y U O P the black ones, Z and X change octave">Test note</button>
       <button class="btn initbtn" onclick="resetSynth()" title="Reset the editor to the Prophet's init patch and send it to the synth">INIT</button>
     </div>
     </div>
@@ -1953,6 +1953,40 @@ function testNote() {
   setTimeout(() => midiOutput.send([off, 60, 0]), 600);
   $('last-sent').innerText = `Sent: ch ${midiChannel}  note C3/60`;
 }
+
+// ---------- Computer keyboard as a keyboard ----------
+// A S D F G H J K L ; ' are the white keys, W E T Y U O P the black ones; Z and X shift the octave. Notes use the app's MIDI channel.
+const QKEYS = { KeyA:0, KeyW:1, KeyS:2, KeyE:3, KeyD:4, KeyF:5, KeyT:6, KeyG:7, KeyY:8, KeyH:9, KeyU:10, KeyJ:11, KeyK:12, KeyO:13, KeyL:14, KeyP:15, Semicolon:16, Quote:17 };
+let qOctave = 0;                      // -2 .. +2 octaves from the middle C the Test note plays
+const qHeld = {};                     // key code -> note currently sounding, so release always matches the note that started
+function qNoteLabel(n) { return ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'][n % 12] + (Math.floor(n / 12) - 2); }
+function qRelease(code) {
+  if (!(code in qHeld)) return;
+  const n = qHeld[code]; delete qHeld[code];
+  if (midiOutput) midiOutput.send([0x80 | (midiChannel - 1), n, 0]);
+}
+function qReleaseAll() { Object.keys(qHeld).forEach(qRelease); }
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const t = e.target, tag = t && t.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+  if (e.code === 'KeyZ' || e.code === 'KeyX') {
+    if (e.repeat) return;
+    qReleaseAll();
+    qOctave = Math.max(-2, Math.min(2, qOctave + (e.code === 'KeyX' ? 1 : -1)));
+    $('last-sent').innerText = `Keys: the A key plays ${qNoteLabel(60 + 12 * qOctave)} (octave ${qOctave > 0 ? '+' : ''}${qOctave})`;
+    e.preventDefault(); return;
+  }
+  if (!(e.code in QKEYS)) return;
+  e.preventDefault();
+  if (e.repeat || e.code in qHeld || !midiOutput) return;      // no pop-up here: a stray key press shouldn't nag when no port is chosen
+  const n = 60 + 12 * qOctave + QKEYS[e.code];
+  qHeld[e.code] = n;
+  midiOutput.send([0x90 | (midiChannel - 1), n, 100]);
+  $('last-sent').innerText = `Sent: ch ${midiChannel}  note ${qNoteLabel(n)}/${n}`;
+});
+document.addEventListener('keyup', e => qRelease(e.code));
+window.addEventListener('blur', qReleaseAll);
 
 function transmitCurrentPatch(statusMsg, sendPerf, clean) {
   let delay = 0;
