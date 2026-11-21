@@ -1,7 +1,7 @@
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
-![Screenshot](screenshot1.png?v=22)
-![Screenshot](screenshot2.png?v=22)
+![Screenshot](screenshot1.png?v=23)
+![Screenshot](screenshot2.png?v=23)
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a patch, nudge it with Mutate, tweak any control, read the patch on the synth into the app, save patches back to your synth, and keep a searchable library.
 
@@ -29,7 +29,7 @@ Your Library is stored in that browser on that computer, so use **Export library
 
 1. Open the page and click **Allow** when the browser asks for MIDI and SysEx access.
 2. Choose your synth model, MIDI output and channel (the app remembers your channel next time).
-3. Press **Fetch** (at the right of the Scratchpad row, beside **Test note** and **INIT**) to read the synth's current patch into the editor. It also checks the connection, so it doubles as a re-sync. **Test note** plays a note so you can hear that the synth is connected. You can also play the synth from your computer keyboard: **A S D F G H J K L ; '** are the white keys, **W E T Y U O P** the black keys, and **Z** / **X** move the octave down and up. Notes go out on the app's MIDI channel. It's handy when the synth is out of reach, and it's ignored while you're typing in a text box.
+3. Press **Fetch** (at the right of the Scratchpad row, beside **Test note** and **INIT**) to read the synth's current patch into the editor. It also checks the connection, so it doubles as a re-sync. If the editor already matches the synth, the status line says **Already in sync**. **Test note** plays a note so you can hear that the synth is connected. You can also play the synth from your computer keyboard: **A S D F G H J K L ; '** are the white keys, **W E T Y U O P** the black keys, and **Z** / **X** move the octave down and up. Notes go out on the app's MIDI channel. It's handy when the synth is out of reach, and it's ignored while you're typing in a text box.
 4. Press **Generate** for a random patch, or just select the MIDI port: the patch that is on the synth is read in automatically when you connect, and again whenever you change program on the synth.
 
 Every knob and button sends to the synth as you move it. Nothing is saved on the synth until you save it (see Saving below).

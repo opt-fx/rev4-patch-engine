@@ -2707,6 +2707,13 @@ function finishSysex(b) {
 
   if (newProgram) { clearHistory(); newProgram = false; }      // a read is not an edit to undo: Back only covers Generate and Mutate (a program you have just moved to starts a fresh history)
   libLoadedId = null; progEdited = false; refreshUpdateBtn(); showProgTag();      // the editor now matches the synth's edit buffer, so it is no longer 'edited'
+  let alreadyInSync = false;                // a Fetch that finds the editor already matching the synth says so, instead of implying something changed
+  if (fetchPressed && perfKnown) {
+    const newChord = vals.slice(55, 65).filter(x => x !== 0x7F).sort((x, y) => x - y);
+    alreadyInSync = Object.keys(next).every(k => typeof next[k] !== 'number' || typeof currentActivePatch[k] !== 'number' || Math.abs(next[k] - currentActivePatch[k]) <= 1)
+      && newChord.join() === chordNotes.join();
+  }
+  fetchPressed = false;
   currentActivePatch = next;
   chordNotes = vals.slice(55, 65).filter(x => x !== 0x7F).sort((a, b) => a - b);
   syncSlidersToUI();
@@ -2736,13 +2743,14 @@ function finishSysex(b) {
   }
   setStatus(oddSwitches > 3
     ? 'Patch read, but several switches look wrong. Open the dump below and compare it with the panel.'
+    : alreadyInSync ? 'Already in sync: the editor matches the Prophet.' + matchNote
     : 'Patch read from the Prophet.' + matchNote + (next.unison && next.unison_voices === CHORD
         ? ` Unison is in chord mode (${chordNotes.length} note chord${describeChord(chordNotes) ? ': ' + describeChord(chordNotes) : ''}).` : '') +
       ' Try Mutate, or Back to return to the previous patch.');
   firstReadPending = false; showProgTag();
 }
 
-let pendingPing = null;
+let pendingPing = null, fetchPressed = false;
 function pingSynth() {
   if (!sysexOk) return alert('SysEx permission was not granted. Reload the page and click Allow when Chrome asks.');
   if (!midiOutput) return alert('Select a MIDI output port first.');
@@ -2752,6 +2760,7 @@ function pingSynth() {
     setStatus('No reply to the device inquiry either, so the SysEx is not reaching the Prophet or its reply is not coming back.');
   }, 3000);
   midiOutput.send([0xF0, 0x7E, 0x7F, 0x06, 0x01, 0xF7]);   // universal device inquiry
+  fetchPressed = true; setTimeout(() => { fetchPressed = false; }, 5000);      // only a read that answers this press counts
   setStatus('Fetching the current patch from the Prophet...');
   if (!pendingRead && !capturing && !capSweep) setTimeout(() => { if (midiOutput && !pendingRead && !capturing) readFromSynth(); }, 400);      // and read the patch, so the editor matches the synth
 }
