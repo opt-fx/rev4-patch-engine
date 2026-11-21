@@ -2706,7 +2706,13 @@ function finishSysex(b) {
   if (DETUNE_OFFSET !== null) next.unison_detune = Math.max(0, Math.min(7, vals[DETUNE_OFFSET]));
 
   if (newProgram) { clearHistory(); newProgram = false; }      // a read is not an edit to undo: Back only covers Generate and Mutate (a program you have just moved to starts a fresh history)
-  libLoadedId = null; progEdited = false; refreshUpdateBtn(); showProgTag();      // the editor now matches the synth's edit buffer, so it is no longer 'edited'
+  const wasEdited = progEdited;
+  libLoadedId = null; progEdited = false;
+  if (fetchPressed) {                       // a manual Fetch does not make the program 'unedited': that depends on the saved program, not on the editor matching the synth
+    const ck = currentSlotKey(), saved = ck && lib.find(e => e.slot && e.dump && e.dump.length >= 85 && slotKey(e.slot) === ck);
+    progEdited = saved ? !sameDump(saved.dump, vals) : wasEdited;       // judge by the Library copy of that program when there is one, otherwise leave the tag as it was
+  }
+  refreshUpdateBtn(); showProgTag();      // the editor now matches the synth's edit buffer, so it is no longer 'edited'
   let alreadyInSync = false;                // a Fetch that finds the editor already matching the synth says so, instead of implying something changed
   if (fetchPressed && perfKnown) {
     const newChord = vals.slice(55, 65).filter(x => x !== 0x7F).sort((x, y) => x - y);
