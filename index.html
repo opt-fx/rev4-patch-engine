@@ -42,7 +42,7 @@
     .genstyle { height:35px; width:92px; padding-left:8px; background-position:right 6px center; }
     .actions .btn + .btn, .actions .mutate + .btn, .actions > .keepopt, .actions > .mutate { margin-left:4px; }
     .libbar #cap-stop, .libbar #cap-clear { margin-left:-6px; }
-    .namebar .progtag + .btn.step, .namebar .btn.step + .btn.step, .libbar .btn + .btn { margin-left:-4px; }      /* the grey buttons sit 6px apart everywhere, like Ping, Test note and Init */
+    .namebar .progtag + .btn.step, .namebar .btn.step + .btn.step, .libbar .btn + .btn { margin-left:-4px; }      /* the grey buttons sit 6px apart everywhere, like Fetch, Test note and Init */
     .toolbar2 { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin-top:12px; }
     .tb-group { display:flex; align-items:center; gap:6px; }
     .tb-title { font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--amber); margin-right:4px; }
@@ -519,7 +519,7 @@
       <div id="fav-list"></div>
     </div>
     <div class="toolbtns">
-      <button class="btn pingbtn" onclick="pingSynth()" title="Check the connection to the Prophet and read its current patch into the editor">Ping</button>
+      <button class="btn pingbtn" onclick="pingSynth()" title="Read the Prophet's current patch into the editor. This also checks the connection">Fetch</button>
       <button class="btn pingbtn" onclick="testNote()" title="Play a test note on the synth. You can also play the synth from your computer keyboard: A S D F G H J K L are the white keys, W E T Y U O P the black ones, Z and X change octave">Test note</button>
       <button class="btn initbtn" onclick="resetSynth()" title="Reset the editor to the Prophet's init patch and send it to the synth">INIT</button>
     </div>
@@ -2752,7 +2752,7 @@ function pingSynth() {
     setStatus('No reply to the device inquiry either, so the SysEx is not reaching the Prophet or its reply is not coming back.');
   }, 3000);
   midiOutput.send([0xF0, 0x7E, 0x7F, 0x06, 0x01, 0xF7]);   // universal device inquiry
-  setStatus('Pinging the Prophet...');
+  setStatus('Fetching the current patch from the Prophet...');
   if (!pendingRead && !capturing && !capSweep) setTimeout(() => { if (midiOutput && !pendingRead && !capturing) readFromSynth(); }, 400);      // and read the patch, so the editor matches the synth
 }
 
