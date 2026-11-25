@@ -1,3 +1,9 @@
+# Rev 4 Patch Engine is now Seer
+
+This app has a new name and a new home: **[Seer](https://opt-fx.com/seer/)** ([GitHub](https://github.com/opt-fx/seer)). Your Library and settings carry over. This page stays for now so old links keep working.
+
+---
+
 # Rev 4 Patch Engine for Prophet-5 and Prophet-10
 
 ![Screenshot](screenshot1.png?v=24)
@@ -5,7 +11,7 @@
 
 A free, browser-based random patch generator, editor and librarian for the Sequential Prophet-5 and Prophet-10 (Rev 4). Generate a patch, nudge it with Mutate, tweak any control, read the patch on the synth into the app, save patches back to your synth, and keep a searchable library.
 
-**Try it:** https://opt-fx.github.io/rev4-patch-engine/
+**Try it:** https://opt-fx.com/rev4-patch-engine/
 
 **Unofficial tool. Not affiliated with or endorsed by Sequential. Prophet is a trademark of Sequential, LLC.**
 

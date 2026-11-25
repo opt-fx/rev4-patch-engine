@@ -694,6 +694,13 @@
   </style>
 </head>
 <body>
+<div id="moved" style="display:flex;align-items:center;gap:12px;max-width:1200px;margin:0 auto 14px;background:#211d17;border:1px solid #4a3f2c;border-radius:8px;padding:10px 14px;font-size:13px;color:#ece6d6">
+  <div style="flex:1"><b style="color:#e8a33d">Rev 4 Patch Engine is now Seer.</b> Same app with a new name, plus an install option and Library backup reminders. Your Library and settings come with you.</div>
+  <a class="btn" href="/seer/" style="padding:6px 12px;font-size:12px;text-decoration:none">Open Seer</a>
+  <button class="btn" type="button" style="padding:6px 12px;font-size:12px" onclick="document.getElementById('moved').remove(); try { sessionStorage.setItem('seer_moved_hidden', '1'); } catch (e) {}">Not now</button>
+</div>
+<script>try { if (sessionStorage.getItem('seer_moved_hidden')) document.getElementById('moved').remove(); } catch (e) {}</script>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="kcap" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#4a4a4a"/><stop offset="1" stop-color="#0e0e0e"/></radialGradient></defs></svg>
 <div class="synth">
   <div class="cheek"></div>
@@ -853,7 +860,7 @@
       <p>Works in Chrome and Edge. Safari and Firefox don't support Web MIDI, so they can't connect to a synth.</p>
       <div class="footrow">
       <p>Unofficial tool, not affiliated with or endorsed by Sequential. Prophet is a trademark of Sequential, LLC. Controller numbers come from Sequential's published Prophet-5 MIDI Implementation.</p>
-      <p class="credit">Designed by OPT <span class="ver" title="Build 12">v1.2</span>
+      <p class="credit">Designed by OPT <span class="ver" title="Build 13">v1.2</span>
         <svg viewBox="0 0 400 400" role="img" aria-label="OPT logo: a striped sun">
           <defs><mask id="sunmask"><rect width="400" height="400" fill="#fff"/><rect y="224" width="400" height="8"/><rect y="262" width="400" height="13"/><rect y="302" width="400" height="18"/><rect y="344" width="400" height="24"/></mask></defs>
           <circle cx="200" cy="200" r="196" fill="#FF8A1F" mask="url(#sunmask)"/>
